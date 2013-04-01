@@ -123,10 +123,10 @@ namespace SceneLib
         {
             Vector surfaceNormal = point - this.Center;
             surfaceNormal.Normalize3();
-            float similarity = Vector.Dot3(surfaceNormal, eyeDirection);
+            float similarity = Vector.Dot3(surfaceNormal, -eyeDirection);
             if (similarity < 0)
             {
-                surfaceNormal = surfaceNormal * (-1.0f);
+                surfaceNormal = -surfaceNormal;
             }
             return surfaceNormal;
         }
@@ -150,21 +150,20 @@ namespace SceneLib
                 Vector diff;
                 Vector worldCoords;
 
-                //Why less than?
-                if (t1 <= 0)
-                    first_t = t1;
-                else if (t2 <= 0)
+                if (t2 >= 0)
                     first_t = t2;
-                else if(!ray.IsShadow)
+                else if (t1 >= 0)
+                    first_t = t1;
+                else
                     return false;
 
                 // t*d
                 diff = ray.Direction * first_t;
                 // e + t*d
                 worldCoords = diff + ray.Start;
-                float distance = 0.0f;
+                float distance = diff.Magnitude3();
 
-                if (!ray.IsShadow)
+                if (ray.UseBounds)
                 {
                     float cameraOrthogonalDistance = Math.Abs(Vector.Dot3(diff, ray.CameraLookDirection));
                     if (cameraOrthogonalDistance <= far && cameraOrthogonalDistance >= near)
@@ -181,7 +180,7 @@ namespace SceneLib
                         }
                     }
                 }
-                else if(first_t >= 0)
+                else if (distance <= record.Distance)
                 {
                     record.T = first_t;
                     record.HitPoint = ray.Start + diff;
@@ -200,7 +199,7 @@ namespace SceneLib
     {
         public override bool IsHit(Ray ray, HitRecord record, float near, float far)
         {
-            if (ray.IsShadow)
+            if (!ray.UseBounds)
                 return false;
 
             return base.IsHit(ray, record, near, far);
@@ -242,7 +241,7 @@ namespace SceneLib
             //Triangles have to be correctly set!
             Vector surfaceNormal = Vector.Cross3(Vertex[2] - Vertex[0], Vertex[1] - Vertex[0]);
             surfaceNormal.Normalize3();
-            float similarity = Vector.Dot3(surfaceNormal, eyeDirection);
+            float similarity = Vector.Dot3(surfaceNormal, -1*eyeDirection);
             if (similarity < 0)
             {
                 surfaceNormal = surfaceNormal * (-1.0f);
@@ -287,7 +286,7 @@ namespace SceneLib
             float M = a * eiMinushf + b * gfMinusdi + c * dhMinuseg;
             //e + td = punto triangulo
             float t = -(f * akMinusjb + e * jcMinusal + d * blMinuskc) / M;
-            if (t <= 0 )
+            if (t >= 0 )
             {
                 float gamma = (i * akMinusjb + h * jcMinusal + g * blMinuskc) / M;
                 if (gamma >= 0)
@@ -299,7 +298,7 @@ namespace SceneLib
                         Vector diff = t * ray.Direction;
                         float distance = 0.0f;
 
-                        if (!ray.IsShadow)
+                        if (ray.UseBounds)
                         {
                             float cameraOrthogonalDistance = Math.Abs(Vector.Dot3(diff, ray.CameraLookDirection));
                             if (cameraOrthogonalDistance <= far && cameraOrthogonalDistance >= near)
@@ -316,7 +315,7 @@ namespace SceneLib
                                 }
                             }
                         }
-                        else if(t >= 0)
+                        else
                         {
                             record.T = t;
                             record.HitPoint = ray.Start + diff;

@@ -9,9 +9,9 @@ namespace SceneLib
     public class Ray
     {
         private Vector start;
-        private bool isShadow;
-        public bool IsShadow
-        { get { return isShadow; } }
+        private bool useBounds;
+        public bool UseBounds
+        { get { return useBounds; } }
 
         public Vector Start
         { get { return start; } }
@@ -28,7 +28,7 @@ namespace SceneLib
         {
             this.start = eye;
             this.direction = rayDirection;
-            isShadow = true;
+            useBounds = false;
         }
 
         public Ray(Vector eye, Vector rayDirection, Vector cameraLookDirection, float near, float far)
@@ -36,7 +36,7 @@ namespace SceneLib
             this.start = eye;
             this.cameraLookDirection = cameraLookDirection;
             this.direction = rayDirection;
-            isShadow = false;
+            useBounds = true;
         }
     }
 }

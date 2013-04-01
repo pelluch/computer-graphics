@@ -231,7 +231,7 @@ namespace Renderer
                         List<SceneLight> lights = scene.Lights;
                         rayDirection.Normalize3();
 
-                        Ray ray = new Ray(rayStart, rayDirection, w, near, far);
+                        Ray ray = new Ray(rayStart, -1.0f*rayDirection, w, near, far);
                         averageColor = averageColor + CalculateColor(ray, near, far, 0);
                     }
                 }
@@ -250,7 +250,7 @@ namespace Renderer
                 List<SceneLight> lights = scene.Lights;
                 rayDirection.Normalize3();
 
-                Ray ray = new Ray(rayStart, rayDirection, w, near, far);
+                Ray ray = new Ray(rayStart, -1.0f * rayDirection, w, near, far);
                 Vector finalColor = CalculateColor(ray, near, far, 0);
                 return finalColor;
             }
@@ -289,7 +289,7 @@ namespace Renderer
                         Vector lambertColor = Vector.ColorMultiplication(light.Color, record.Material.Diffuse) * Math.Max(0, similarity);
 
                         //Get half vector between camera direction and light direction
-                        Vector halfVector = rayDirection + lightDirection;
+                        Vector halfVector = -1*rayDirection + lightDirection;
                         halfVector.Normalize3();
 
                         //Phong shading calculations
@@ -300,7 +300,7 @@ namespace Renderer
 
                         //Add colors and ambient light
                         //Assume no transparency
-                        finalColor = Vector.LightAdd(lambertColor + phongColor, Vector.ColorMultiplication(scene.Background.AmbientLight, light.Color));
+                        finalColor = Vector.LightAdd(lambertColor, phongColor);
                         finalColor.w = 1.0f;
                     }
                 }
@@ -317,8 +317,7 @@ namespace Renderer
                     bool makesShadow = shadowObject.IsHit(shadowRay, shadowRecord, float.MinValue, float.MaxValue);
                     if (makesShadow)
                     {
-                        Vector shadowColor = scene.Background.AmbientLight;
-                        finalColor = shadowColor;
+                        finalColor = new Vector();
                         break;
                         //return shadowColor;
                     }
@@ -332,8 +331,8 @@ namespace Renderer
                 reflection.Normalize3();
                 HitRecord reflectionRecord = new HitRecord();
 
-                Ray reflectionRay = new Ray(record.HitPoint - reflection*0.01f, reflection );
-                if (recurseLevel < 1 && !record.Material.Reflective.IsBlack())
+                Ray reflectionRay = new Ray(record.HitPoint + reflection * 0.1f, reflection);
+                if (recurseLevel < 2 && !record.Material.Reflective.IsBlack())
                 {
                     Vector reflectiveColor = record.Material.Reflective;
                     Vector reflectedObjectColor = CalculateColor(reflectionRay, float.MinValue, float.MaxValue, recurseLevel + 1);
@@ -341,7 +340,7 @@ namespace Renderer
                 }
                  
             }
-
+            finalColor = Vector.LightAdd(finalColor, scene.Background.AmbientLight);
             return finalColor;
         }
 
