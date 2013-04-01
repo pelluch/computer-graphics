@@ -163,25 +163,18 @@ namespace SceneLib
                 worldCoords = diff + ray.Start;
                 float distance = diff.Magnitude3();
 
-                if (ray.UseBounds)
+                if (distance <= record.Distance)
                 {
-                    float cameraOrthogonalDistance = Math.Abs(Vector.Dot3(diff, ray.CameraLookDirection));
-                    if (cameraOrthogonalDistance <= far && cameraOrthogonalDistance >= near)
-                    {
-                        distance = diff.Magnitude3();
-                        if (distance <= record.Distance)
-                        {
-                            record.T = first_t;
-                            record.HitPoint = ray.Start + diff;
-                            record.Distance = distance;
-                            record.Material = this.Material;
 
-                            return true;
+                    if (ray.UseBounds)
+                    {
+                        float cameraOrthogonalDistance = Math.Abs(Vector.Dot3(diff, ray.CameraLookDirection));
+                        if (cameraOrthogonalDistance > far && cameraOrthogonalDistance < near)
+                        {
+                            return false;
                         }
                     }
-                }
-                else if (distance <= record.Distance)
-                {
+
                     record.T = first_t;
                     record.HitPoint = ray.Start + diff;
                     record.Distance = distance;
@@ -189,6 +182,7 @@ namespace SceneLib
 
                     return true;
                 }
+                
             }
         return false;
         }
@@ -296,31 +290,23 @@ namespace SceneLib
                     if (beta >= 0 && 1 - beta - gamma >= 0)
                     {
                         Vector diff = t * ray.Direction;
-                        float distance = 0.0f;
-
-                        if (ray.UseBounds)
+                        float distance = diff.Magnitude3();
+                        if (distance <= record.Distance)
                         {
-                            float cameraOrthogonalDistance = Math.Abs(Vector.Dot3(diff, ray.CameraLookDirection));
-                            if (cameraOrthogonalDistance <= far && cameraOrthogonalDistance >= near)
-                            {
-                                distance = diff.Magnitude3();
-                                if (distance <= record.Distance)
-                                {
-                                    record.T = t;
-                                    record.HitPoint = ray.Start + diff;
-                                    record.Distance = distance;
-                                    record.Material = Materials[0];
 
-                                    return true;
+                            if (ray.UseBounds)
+                            {
+                                float cameraOrthogonalDistance = Math.Abs(Vector.Dot3(diff, ray.CameraLookDirection));
+                                if (cameraOrthogonalDistance > far && cameraOrthogonalDistance < near)
+                                {
+                                    return false;
                                 }
                             }
-                        }
-                        else
-                        {
                             record.T = t;
                             record.HitPoint = ray.Start + diff;
                             record.Distance = distance;
-                            record.Material = this.Materials[0];
+                            record.Material = Materials[0];
+
                             return true;
                         }
                     }

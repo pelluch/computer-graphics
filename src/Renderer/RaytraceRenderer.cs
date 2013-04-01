@@ -190,10 +190,11 @@ namespace Renderer
             //Use radians
             float fov = (float)Math.PI * (scene.Camera.FieldOfView / 180.0f);
             float near = scene.Camera.NearClip;
-            float far = scene.Camera.FarClip;
+            //float far = scene.Camera.FarClip;
+            float far = float.MaxValue;
 
             Vector w = CalculateW(eye, target);
-            Vector u = CalculateU(w, up);
+            Vector u = CalculateU(up, w);
             Vector v = CalculateV(w, u);
 
             float tanAngle = (float)Math.Tan(fov / 2.0);
@@ -225,13 +226,13 @@ namespace Renderer
                         float wCoord = -near;
                         //(x,y) -> (u, v, w)
                         //Sij es con respecto a la posición de la cámara
-                        Vector Sij = uCoord * u + vCoord * v - wCoord * w;
+                        Vector Sij = uCoord * u + vCoord * v + wCoord * w;
                         Vector rayStart = eye;
                         Vector rayDirection = Sij;
                         List<SceneLight> lights = scene.Lights;
                         rayDirection.Normalize3();
 
-                        Ray ray = new Ray(rayStart, -1.0f*rayDirection, w, near, far);
+                        Ray ray = new Ray(rayStart, rayDirection, w, near, far);
                         averageColor = averageColor + CalculateColor(ray, near, far, 0);
                     }
                 }
@@ -244,13 +245,13 @@ namespace Renderer
                 float wCoord = -near;
                 //(x,y) -> (u, v, w)
                 //Sij es con respecto a la posición de la cámara
-                Vector Sij = uCoord * u + vCoord * v - wCoord * w;
+                Vector Sij = uCoord * u + vCoord * v + wCoord * w;
                 Vector rayStart = eye;
                 Vector rayDirection = Sij;
                 List<SceneLight> lights = scene.Lights;
                 rayDirection.Normalize3();
 
-                Ray ray = new Ray(rayStart, -1.0f * rayDirection, w, near, far);
+                Ray ray = new Ray(rayStart, rayDirection, w, near, far);
                 Vector finalColor = CalculateColor(ray, near, far, 0);
                 return finalColor;
             }
@@ -331,8 +332,8 @@ namespace Renderer
                 reflection.Normalize3();
                 HitRecord reflectionRecord = new HitRecord();
 
-                Ray reflectionRay = new Ray(record.HitPoint + reflection * 0.1f, reflection);
-                if (recurseLevel < 2 && !record.Material.Reflective.IsBlack())
+                Ray reflectionRay = new Ray(record.HitPoint + reflection * 0.01f, reflection);
+                if (recurseLevel < 5 && !record.Material.Reflective.IsBlack())
                 {
                     Vector reflectiveColor = record.Material.Reflective;
                     Vector reflectedObjectColor = CalculateColor(reflectionRay, float.MinValue, float.MaxValue, recurseLevel + 1);
