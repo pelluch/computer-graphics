@@ -43,10 +43,17 @@ namespace SceneLib
             set { material = value; }
         }
 
+        private Vector textureColor;
+        public Vector TextureColor
+        {
+            get { return textureColor; }
+            set { textureColor = value; }
+        }
         public HitRecord()
         {
             this.distance = float.MaxValue;
             this.material = new SceneMaterial();
+            this.textureColor = new Vector();
         }
 
        

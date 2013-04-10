@@ -163,7 +163,7 @@ namespace SceneLib
                 worldCoords = diff + ray.Start;
                 float distance = diff.Magnitude3();
 
-                if (distance <= record.Distance)
+                if (distance <= record.Distance && distance <= ray.MaximumTravelDistance)
                 {
 
                     if (ray.UseBounds)
@@ -174,11 +174,22 @@ namespace SceneLib
                             return false;
                         }
                     }
-
+                    
                     record.T = first_t;
                     record.HitPoint = ray.Start + diff;
                     record.Distance = distance;
                     record.Material = this.Material;
+
+                    if (Material.TextureImage != null)
+                    {
+                        double theta = Math.Abs(Math.Acos((record.HitPoint.z - this.Center.z) / Radius));
+                        double phi = Math.Abs(Math.Atan2(record.HitPoint.y - Center.y, record.HitPoint.x - Center.x));
+                        float u = (float)(phi / (2 * Math.PI));
+                        float v = (float)((Math.PI - theta) / Math.PI);
+                        int i = (int)(u * (Material.TextureImage.Width - 1) + 0.5);
+                        int j = (int)(v * (Material.TextureImage.Height - 1) + 0.5);
+                        record.TextureColor = this.Material.GetTexturePixelColor(i, j);
+                    }
 
                     return true;
                 }
@@ -291,7 +302,7 @@ namespace SceneLib
                     {
                         Vector diff = t * ray.Direction;
                         float distance = diff.Magnitude3();
-                        if (distance <= record.Distance)
+                        if (distance <= record.Distance && distance <= ray.MaximumTravelDistance)
                         {
 
                             if (ray.UseBounds)

@@ -24,11 +24,19 @@ namespace SceneLib
         public Vector Direction
         {  get { return direction; }}
 
+        private float maximumTravelDistance;
+        public float MaximumTravelDistance
+        {
+            set { maximumTravelDistance = value; }
+             get { return maximumTravelDistance; }
+        }
+
         public Ray(Vector eye, Vector rayDirection)
         {
             this.start = eye;
             this.direction = rayDirection;
             useBounds = false;
+            maximumTravelDistance = float.MaxValue;
         }
 
         public Ray(Vector eye, Vector rayDirection, Vector cameraLookDirection, float near, float far)
@@ -37,6 +45,7 @@ namespace SceneLib
             this.cameraLookDirection = cameraLookDirection;
             this.direction = rayDirection;
             useBounds = true;
+            maximumTravelDistance = float.MaxValue;
         }
     }
 }

@@ -23,7 +23,7 @@ namespace Renderer
         private Vector[][] map;
         private Vector[,] buffer;
         private int y = 0, x = 0;
-        private bool antiAlias = true;
+        private bool antiAlias = false;
 
         private bool useParallel = true;
         private bool updateRows = false;
@@ -271,23 +271,36 @@ namespace Renderer
 
             foreach (SceneObject sceneObject in scene.Objects)
             {
+                
                 //First check intersection
                 bool intersects = sceneObject.IsHit(ray, record, minDistance, maxDistance);
                 //If it intersects, diffuse color is set, so set shading color
 
                 if (intersects)
                 {
+                    finalColor = new Vector();
                     hitSomething = true;
                     surfaceNormal = sceneObject.SurfaceNormal(record.HitPoint, rayDirection);
 
                     foreach (SceneLight light in scene.Lights)
                     {
+                        Vector currentLightColor = new Vector();
                         lightDirection = light.Position - record.HitPoint;
                         lightDirection.Normalize3();
 
                         //Get cosine of angle between vectors
                         float similarity = Vector.Dot3(surfaceNormal, lightDirection);
-                        Vector lambertColor = Vector.ColorMultiplication(light.Color, record.Material.Diffuse) * Math.Max(0, similarity);
+
+                        Vector lambertColor = new Vector();
+                        if (record.Material.TextureImage != null)
+                        {
+                            lambertColor = Vector.ColorMultiplication(light.Color, record.TextureColor) * Math.Max(0, similarity);
+                        }
+                        else
+                        {
+                            lambertColor = Vector.ColorMultiplication(light.Color, record.Material.Diffuse) * Math.Max(0, similarity);
+                        }
+                       
 
                         //Get half vector between camera direction and light direction
                         Vector halfVector = -1*rayDirection + lightDirection;
@@ -301,7 +314,29 @@ namespace Renderer
 
                         //Add colors and ambient light
                         //Assume no transparency
-                        finalColor = Vector.LightAdd(lambertColor, phongColor);
+
+                        currentLightColor = Vector.LightAdd(lambertColor, phongColor);
+
+                        //Check for shadows
+                       
+                        Vector shadowStart = record.HitPoint + lightDirection * 0.1f;
+                        Ray shadowRay = new Ray(shadowStart, lightDirection);
+                        
+                        float lightDistance = (light.Position - shadowStart).Magnitude3();
+                        shadowRay.MaximumTravelDistance = lightDistance;
+
+                        HitRecord shadowRecord = new HitRecord();
+                        foreach (SceneObject shadowObject in scene.Objects)
+                        {
+                            bool makesShadow = shadowObject.IsHit(shadowRay, shadowRecord, float.MinValue, float.MaxValue);
+                            if (makesShadow)
+                            {
+                                currentLightColor = new Vector();
+                                break;
+                            }
+                        }
+
+                        finalColor = Vector.LightAdd(currentLightColor, finalColor);
                         finalColor.w = 1.0f;
                     }
                 }
@@ -310,19 +345,7 @@ namespace Renderer
             if (hitSomething)
             {
 
-                //Check for shadows
-                Ray shadowRay = new Ray(record.HitPoint + lightDirection * 0.1f, lightDirection);
-                HitRecord shadowRecord = new HitRecord();
-                foreach (SceneObject shadowObject in scene.Objects)
-                {
-                    bool makesShadow = shadowObject.IsHit(shadowRay, shadowRecord, float.MinValue, float.MaxValue);
-                    if (makesShadow)
-                    {
-                        finalColor = new Vector();
-                        break;
-                        //return shadowColor;
-                    }
-                }
+
 
                 Vector d = record.HitPoint - scene.Camera.Position;
                 d.Normalize3();
@@ -333,7 +356,7 @@ namespace Renderer
                 HitRecord reflectionRecord = new HitRecord();
 
                 Ray reflectionRay = new Ray(record.HitPoint + reflection * 0.01f, reflection);
-                if (recurseLevel < 5 && !record.Material.Reflective.IsBlack())
+                if (recurseLevel < 20 && !record.Material.Reflective.IsBlack())
                 {
                     Vector reflectiveColor = record.Material.Reflective;
                     Vector reflectedObjectColor = CalculateColor(reflectionRay, float.MinValue, float.MaxValue, recurseLevel + 1);
