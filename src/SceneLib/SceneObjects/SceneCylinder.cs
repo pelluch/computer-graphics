@@ -66,27 +66,50 @@ namespace SceneLib
             Vector deltaPDotHTimesH = Vector.Dot3(deltaP, HeightDirection) * HeightDirection;
             Vector deltaPMinusdeltaPDotHTimesH = deltaP - deltaPDotHTimesH;
             Vector dMinusdDotHTimesH = ray.Direction - dDotHTimesH;
-
+            
             float B = 2 * Vector.Dot3(dMinusdDotHTimesH, deltaPMinusdeltaPDotHTimesH);
             float A = Vector.Dot3(dMinusdDotHTimesH, dMinusdDotHTimesH);
             float C = Vector.Dot3(deltaPMinusdeltaPDotHTimesH, deltaPMinusdeltaPDotHTimesH) - this.Radius * this.Radius;
-
+            Vector diff, worldCoords;
             float discriminant = B * B - 4 * A * C;
-            float t = 0;
+            float t1 = 0, t2 = 0, first_t = 0;
+            float pointHeight = 0.0f;
+
             if (discriminant >= 0)
             {
-                t = (-B - (float)Math.Sqrt(discriminant)) / (2 * A);
-                if (t < 0)
+                t1 = (-B - (float)Math.Sqrt(discriminant)) / (2 * A);
+                t2 = (-B + (float)Math.Sqrt(discriminant)) / (2 * A);
+
+                if (t1 >= 0)
+                {
+                    first_t = t1;
+                      // t*d
+                    diff = ray.Direction * first_t;
+                    // e + t*d
+                    worldCoords = diff + ray.Start;
+                    pointHeight = Vector.Dot3(worldCoords - this.BasePoint, this.HeightDirection);
+                    if (pointHeight < 0 || pointHeight > this.Height)
+                    {
+                        first_t = t2;
+                    }
+                }
+                else if (t2 >= 0)
+                    first_t = t2;
+                else
                     return false;
             }
             else
                 return false;
 
-            Vector diff, worldCoords;
+            
             // t*d
-            diff = ray.Direction * t;
+            diff = ray.Direction * first_t;
             // e + t*d
             worldCoords = diff + ray.Start;
+            pointHeight = Vector.Dot3(worldCoords - this.BasePoint, this.HeightDirection);
+            if (pointHeight < 0 || pointHeight > this.Height)
+                return false;
+
             float distance = diff.Magnitude3();
 
             if (distance <= record.Distance && distance <= ray.MaximumTravelDistance)
@@ -101,7 +124,7 @@ namespace SceneLib
                     }
                 }
 
-                record.T = t;
+                record.T = first_t;
                 record.HitPoint = ray.Start + diff;
                 record.Distance = distance;
                 record.Material = this.Material;

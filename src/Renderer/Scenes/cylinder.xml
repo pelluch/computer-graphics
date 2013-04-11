@@ -100,7 +100,16 @@
       <base x="350.0" y="250.0" z="100.0"/>
       <axis x="1" y="0" z="0"/>
     </cylinder>
-
+    
+    <cylinder name="Cylinder2" material="Blue" radius="50.0" height="200">
+      <scale x="1.0" y="1.0" z="1.0"/>
+      <rotation x="0.0" y="0.0" z="0.0"/>
+      <position x="0.0" y="0.0" z="0.0"/>
+      <speed x="0.0" y="0.0" z="0.0"/>
+      <base x="350.0" y="250.0" z="100.0"/>
+      <axis x="0" y="0" z="-1.0"/>
+    </cylinder>
+    
     <sphere name="Sphere3" material="Yellow" radius="100.0">
       <scale x="1.0" y="1.0" z="1.0"/>
       <rotation x="0.0" y="0.0" z="0.0"/>

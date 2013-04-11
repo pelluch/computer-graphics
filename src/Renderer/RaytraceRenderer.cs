@@ -23,7 +23,7 @@ namespace Renderer
         private Vector[][] map;
         private Vector[,] buffer;
         private int y = 0, x = 0;
-        private bool antiAlias = true;
+        private bool antiAlias = false;
 
         private bool useParallel = true;
         private bool updateRows = false;
