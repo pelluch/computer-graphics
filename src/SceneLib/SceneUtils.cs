@@ -50,6 +50,7 @@ namespace SceneLib
         public Bitmap NormalImage;
         private IntPtr ptrNormalBitmap;
 
+        private object lockObject = new object();
         public string Name { get; set; }
         public string TextureFile { get; set; }
         public string BumpFile { get; set; }
@@ -75,21 +76,64 @@ namespace SceneLib
         {
             if (TextureImage == null)
                 return null;
-           
-            Color c = TextureImage.GetPixel(x, y);
-            Vector color = new Vector(c.R/255.0f, c.G/255.0f, c.B/255.0f, c.A/255.0f);
+
+            Vector color;
+            lock (lockObject)
+            {
+                Color c = TextureImage.GetPixel(x, y);
+                color = new Vector(c.R / 255.0f, c.G / 255.0f, c.B / 255.0f, c.A / 255.0f);
+            }
             return color;
-        }        
+        }
+
+        //Interpolation
+        public Vector GetTexturePixelColor(float u, float v)
+        {
+            if (TextureImage == null)
+                return null;
+
+            Vector color = new Vector();
+            
+
+            lock (lockObject)
+            {
+                float x = u * (TextureImage.Width - 1);
+                float y = v * (TextureImage.Height - 1);
+
+                float left = (float)Math.Floor(x);
+                float right = (float)Math.Ceiling(x);
+                float top = (float)Math.Floor(y);
+                float bottom = (float)Math.Ceiling(y);
+                float deltaX = x - left;
+                float deltaY = y - top;
+
+                Color c1, c2, c3, c4;
+
+                c1 = TextureImage.GetPixel((int)left, (int)top);
+                c2 = TextureImage.GetPixel((int)right, (int)top);
+                c3 = TextureImage.GetPixel((int)left, (int)bottom);
+                c4 = TextureImage.GetPixel((int)right, (int)bottom);
+
+                Vector v1 = new Vector(c1);
+                Vector v2 = new Vector(c2);
+                Vector v3 = new Vector(c3);
+                Vector v4 = new Vector(c4);
+
+                Vector topColor = v1 * (1 - deltaX) + v2 * deltaX;
+                Vector bottomColor = v3 * (1 - deltaX) + v4 * deltaX;
+                color = topColor * (1 - deltaY) + bottomColor * deltaY;
+                //color = new Vector(c.R / 255.0f, c.G / 255.0f, c.B / 255.0f, c.A / 255.0f);
+            }
+
+            return color;
+        }       
 
         public void CreatePointer() 
         {
-            BitmapData data = this.TextureImage.LockBits(new Rectangle(0, 0, TextureImage.Height, TextureImage.Width),
+            BitmapData data = this.TextureImage.LockBits(new Rectangle(0, 0, TextureImage.Width, TextureImage.Height),
             ImageLockMode.ReadOnly, PixelFormat.Format24bppRgb);
-            
             ptrBitmap = data.Scan0;
-
             this.TextureImage.UnlockBits(data);
-
         }
                
         
@@ -104,6 +148,7 @@ namespace SceneLib
 
         public abstract Vector SurfaceNormal(Vector point, Vector cameraDirection);
         public abstract bool IsHit(Ray ray, HitRecord record, float near, float far);
+     
 
         public SceneObject()
         {
@@ -113,218 +158,15 @@ namespace SceneLib
         }
     }
 
-    public class SceneSphere : SceneObject
-    {
-        public Vector Center { get; set; }
-        public float Radius { get; set; }
-        public SceneMaterial Material { get; set; }
-
-        public override Vector SurfaceNormal(Vector point, Vector eyeDirection)
-        {
-            Vector surfaceNormal = point - this.Center;
-            surfaceNormal.Normalize3();
-            float similarity = Vector.Dot3(surfaceNormal, -eyeDirection);
-            if (similarity < 0)
-            {
-                surfaceNormal = -surfaceNormal;
-            }
-            return surfaceNormal;
-        }
-
-       
-        public override bool IsHit(Ray ray, HitRecord record, float near, float far)
-        {
-            //e - c
-            Vector eMinusC = ray.Start - this.Center;
-            //d.(e-c)
-            float dDotEMinusC = Vector.Dot3(ray.Direction, eMinusC);
-            float dDotD = Vector.Dot3(ray.Direction, ray.Direction);
-            //d.(e-c)^2 - (d.d)((e-c).(e-c) - R^2))
-            float discriminant = dDotEMinusC * dDotEMinusC - dDotD * (Vector.Dot3(eMinusC, eMinusC) - this.Radius * this.Radius);
-            //Intersection occurs
-            float t1 = 0, t2 = 0, first_t = 0;
-            if (discriminant >= 0)
-            {
-                t1 = (-dDotEMinusC + (float)Math.Sqrt(discriminant)) / dDotD;
-                t2 = (-dDotEMinusC - (float)Math.Sqrt(discriminant)) / dDotD;
-                Vector diff;
-                Vector worldCoords;
-
-                if (t2 >= 0)
-                    first_t = t2;
-                else if (t1 >= 0)
-                    first_t = t1;
-                else
-                    return false;
-
-                // t*d
-                diff = ray.Direction * first_t;
-                // e + t*d
-                worldCoords = diff + ray.Start;
-                float distance = diff.Magnitude3();
-
-                if (distance <= record.Distance && distance <= ray.MaximumTravelDistance)
-                {
-
-                    if (ray.UseBounds)
-                    {
-                        float cameraOrthogonalDistance = Math.Abs(Vector.Dot3(diff, ray.CameraLookDirection));
-                        if (cameraOrthogonalDistance > far && cameraOrthogonalDistance < near)
-                        {
-                            return false;
-                        }
-                    }
-                    
-                    record.T = first_t;
-                    record.HitPoint = ray.Start + diff;
-                    record.Distance = distance;
-                    record.Material = this.Material;
-
-                    if (Material.TextureImage != null)
-                    {
-                        double theta = Math.Abs(Math.Acos((record.HitPoint.z - this.Center.z) / Radius));
-                        double phi = Math.Abs(Math.Atan2(record.HitPoint.y - Center.y, record.HitPoint.x - Center.x));
-                        float u = (float)(phi / (2 * Math.PI));
-                        float v = (float)((Math.PI - theta) / Math.PI);
-                        int i = (int)(u * (Material.TextureImage.Width - 1) + 0.5);
-                        int j = (int)(v * (Material.TextureImage.Height - 1) + 0.5);
-                        record.TextureColor = this.Material.GetTexturePixelColor(i, j);
-                    }
-
-                    return true;
-                }
-                
-            }
-        return false;
-        }
-        
-    }
+    
 
     public class LightSphere : SceneSphere
     {
-        public override bool IsHit(Ray ray, HitRecord record, float near, float far)
-        {
-            if (!ray.UseBounds)
-                return false;
-
-            return base.IsHit(ray, record, near, far);
-        }
 
         public override Vector SurfaceNormal(Vector point, Vector eyeDirection)
         {
             return -1.0f*base.SurfaceNormal(point, eyeDirection);
         }
-    }
-
-    public class SceneTriangle : SceneObject
-    {
-        public List<Vector> Vertex { get; set; }
-        public List<Vector> VertexClip { get; set; }
-        public List<Vector> Normal { get; set; }
-        public List<Vector> Colors { get; set; }
-        public List<SceneMaterial> Materials { get; set; }
-        public List<float> U { get; set; }
-        public List<float> V { get; set; }
-
-        public bool InClipCoords = false;
-     
-
-        public SceneTriangle()
-        {
-            Vertex = new List<Vector>();
-            VertexClip = new List<Vector>();
-            Normal = new List<Vector>();
-            Materials = new List<SceneMaterial>();
-            Colors = new List<Vector>();
-            U = new List<float>();
-            V = new List<float>();
-        }
-
-        //Returns non-barometric surface normal
-        public override Vector SurfaceNormal(Vector point, Vector eyeDirection)
-        {
-            //Triangles have to be correctly set!
-            Vector surfaceNormal = Vector.Cross3(Vertex[2] - Vertex[0], Vertex[1] - Vertex[0]);
-            surfaceNormal.Normalize3();
-            float similarity = Vector.Dot3(surfaceNormal, -1*eyeDirection);
-            if (similarity < 0)
-            {
-                surfaceNormal = surfaceNormal * (-1.0f);
-            }
-            return surfaceNormal;
-        }
-
-        public override bool IsHit(Ray ray, HitRecord record, float near, float far)
-        {
-            //Vamos precalculando variables auxiliares para facilitar el calculo y aumentar eficiencia
-            //Convencion de nombres usada es la misma del libro "Fundamentals of Computer Graphics":
-            /*
-             * | a d g | | beta  |   | j |
-             * | b e h | | gamma | = | k |
-             * | c f i | |   t   | = | l |
-            */
-
-            float a = Vertex[0].x - Vertex[1].x;
-            float b = Vertex[0].y - Vertex[1].y;
-            float c = Vertex[0].z - Vertex[1].z;
-
-            float d = Vertex[0].x - Vertex[2].x;
-            float e = Vertex[0].y - Vertex[2].y;
-            float f = Vertex[0].z - Vertex[2].z;
-
-            float g = ray.Direction.x;
-            float h = ray.Direction.y;
-            float i = ray.Direction.z;
-
-            float j = Vertex[0].x - ray.Start.x;
-            float k = Vertex[0].y - ray.Start.y;
-            float l = Vertex[0].z - ray.Start.z;
-
-            float eiMinushf = e * i - h * f;
-            float gfMinusdi = g * f - d * i;
-            float dhMinuseg = d * h - e * g;
-
-            float akMinusjb = a * k - j * b;
-            float jcMinusal = j * c - a * l;
-            float blMinuskc = b * l - k * c;
-
-            float M = a * eiMinushf + b * gfMinusdi + c * dhMinuseg;
-            //e + td = punto triangulo
-            float t = -(f * akMinusjb + e * jcMinusal + d * blMinuskc) / M;
-            if (t >= 0 )
-            {
-                float gamma = (i * akMinusjb + h * jcMinusal + g * blMinuskc) / M;
-                if (gamma >= 0)
-                {
-                    float beta = (j * eiMinushf + k * gfMinusdi + l * dhMinuseg) / M;
-                    //alpha = 1 - beta - gamma
-                    if (beta >= 0 && 1 - beta - gamma >= 0)
-                    {
-                        Vector diff = t * ray.Direction;
-                        float distance = diff.Magnitude3();
-                        if (distance <= record.Distance && distance <= ray.MaximumTravelDistance)
-                        {
-
-                            if (ray.UseBounds)
-                            {
-                                float cameraOrthogonalDistance = Math.Abs(Vector.Dot3(diff, ray.CameraLookDirection));
-                                if (cameraOrthogonalDistance > far && cameraOrthogonalDistance < near)
-                                {
-                                    return false;
-                                }
-                            }
-                            record.T = t;
-                            record.HitPoint = ray.Start + diff;
-                            record.Distance = distance;
-                            record.Material = Materials[0];
-
-                            return true;
-                        }
-                    }
-                }
-            }
-            return false;
-        }      
     }
 
     public class SceneModel : SceneObject
@@ -350,6 +192,7 @@ namespace SceneLib
         {
             return Triangles == null || index < 0 || index > Triangles.Count ? null : Triangles[index];
         }
+
         public override bool IsHit(Ray ray, HitRecord record, float near, float far)
         {
             throw new NotImplementedException();

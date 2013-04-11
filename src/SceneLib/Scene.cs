@@ -186,6 +186,7 @@ namespace SceneLib
                 sphere.Position = LoadXYZ(sphereNode.Elements("position").First());
                 sphere.Rotation = LoadXYZ(sphereNode.Elements("rotation").First());
                 sphere.Center = LoadXYZ(sphereNode.Elements("center").First());
+                sphere.Speed = LoadXYZ(sphereNode.Elements("speed").First());
                 objects.Add(sphere);
             }
 

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Text;
 
@@ -32,6 +33,11 @@ namespace SceneLib
 
         public Vector()
             : this(0, 0, 0, 1)
+        {
+        }
+
+        public Vector(Color c)
+            : this(c.R/255.0f, c.G/255.0f, c.B/255.0f, c.A/255.0f)
         {
         }
 
@@ -96,6 +102,7 @@ namespace SceneLib
         {
             return new Vector(scalar * v.x, scalar * v.y, scalar * v.z, scalar * v.w);
         }
+
 
         public static Vector operator *(Vector v1, Vector v2)
         {

@@ -24,6 +24,8 @@ namespace SceneLib
         public Vector Direction
         {  get { return direction; }}
 
+        public float Time
+        { get; set; }
         private float maximumTravelDistance;
         public float MaximumTravelDistance
         {
