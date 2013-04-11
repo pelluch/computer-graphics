@@ -35,6 +35,8 @@ namespace SceneLib
             get { return distance; }
             set { distance = value; }
         }
+        public Vector SurfaceNormal
+        { get; set; }
 
         private SceneMaterial material;
         public SceneMaterial Material

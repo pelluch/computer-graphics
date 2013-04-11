@@ -206,12 +206,12 @@ namespace SceneLib
             {
                 SceneCylinder cylinder = new SceneCylinder();
                 cylinder.Radius = LoadFloat(sphereNode, "radius");
-                cylinder.Height = LoadFloat(sphereNode, "height");
                 cylinder.Material = materialsTable[sphereNode.Attribute("material").Value];
                 cylinder.Scale = LoadXYZ(sphereNode.Elements("scale").First());
                 cylinder.Position = LoadXYZ(sphereNode.Elements("position").First());
                 cylinder.Rotation = LoadXYZ(sphereNode.Elements("rotation").First());
                 cylinder.BasePoint = LoadXYZ(sphereNode.Elements("base").First());
+                cylinder.EndPoint = LoadXYZ(sphereNode.Elements("end").First());
                 cylinder.HeightDirection = LoadXYZ(sphereNode.Elements("axis").First());
                 objects.Add(cylinder);
             }

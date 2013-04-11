@@ -100,7 +100,7 @@ namespace SceneLib
                     record.HitPoint = ray.Start + diff;
                     record.Distance = distance;
                     record.Material = this.Material;
-
+                    record.SurfaceNormal = SurfaceNormal(record.HitPoint, ray.Direction);
                     if (Material.TextureImage != null)
                     {
                         double cos = (record.HitPoint.z - newCenter.z) / Radius;

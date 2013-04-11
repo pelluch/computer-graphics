@@ -297,7 +297,7 @@ namespace Renderer
                 {
                     finalColor = new Vector();
                     hitSomething = true;
-                    surfaceNormal = sceneObject.SurfaceNormal(record.HitPoint, rayDirection);
+                    surfaceNormal = record.SurfaceNormal;
 
                     foreach (SceneLight light in scene.Lights)
                     {

@@ -107,6 +107,8 @@ namespace SceneLib
                             record.HitPoint = ray.Start + diff;
                             record.Distance = distance;
                             record.Material = Materials[0];
+                            record.SurfaceNormal = SurfaceNormal(record.HitPoint, ray.Direction);
+
                             if (record.Material.TextureImage != null)
                             {
                                 float alpha = 1 - beta - gamma;

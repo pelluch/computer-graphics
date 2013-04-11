@@ -35,7 +35,6 @@
       <texture filename=""/>
       <diffuse red="0.0" green="0.0" blue="1.0"/>
       <specular red="1.0" green="1.0" blue="1.0" shininess="100.0"/>
-      <reflective red="0.4" green="0.4" blue="0.4"/>
     </material>
 
     <material name="Green">
@@ -92,21 +91,23 @@
 
   <object_list>
 
-    <cylinder name="Cylinder1" material="Yellow" radius="50.0" height="100">
+    <cylinder name="Cylinder1" material="Yellow" radius="50.0">
       <scale x="1.0" y="1.0" z="1.0"/>
       <rotation x="0.0" y="0.0" z="0.0"/>
       <position x="0.0" y="0.0" z="0.0"/>
       <speed x="0.0" y="0.0" z="0.0"/>
       <base x="350.0" y="250.0" z="100.0"/>
+      <end x="450.0" y="250.0" z="100.0"/>
       <axis x="1" y="0" z="0"/>
     </cylinder>
     
-    <cylinder name="Cylinder2" material="Blue" radius="50.0" height="200">
+    <cylinder name="Cylinder2" material="Blue" radius="50.0">
       <scale x="1.0" y="1.0" z="1.0"/>
       <rotation x="0.0" y="0.0" z="0.0"/>
       <position x="0.0" y="0.0" z="0.0"/>
       <speed x="0.0" y="0.0" z="0.0"/>
       <base x="350.0" y="250.0" z="100.0"/>
+      <end x="350.0" y="250.0" z="-100.0"/>
       <axis x="0" y="0" z="-1.0"/>
     </cylinder>
     
