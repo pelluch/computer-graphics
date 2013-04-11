@@ -307,7 +307,7 @@ namespace Renderer
 
                         //Get cosine of angle between vectors
                         float similarity = Vector.Dot3(surfaceNormal, lightDirection);
-
+                    
                         Vector lambertColor = new Vector();
                         if (record.Material.TextureImage != null)
                         {

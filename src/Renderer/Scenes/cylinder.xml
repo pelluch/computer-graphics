@@ -1,0 +1,115 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+
+<!-- Scene Description in XML -->
+<scene>
+  <!-- Background Color and Ambient Light Property -->
+  <background>
+    <color red="0.0" green="0.0" blue="0.0"/>
+    <ambientLight red="0.1" green="0.1" blue="0.1"/>
+  </background>
+
+  <!-- Camera Description -->
+  <camera fieldOfView="39.31" nearClip="0.035" farClip="1500.0">
+    <position x="278.0" y="273.0" z="-800.0"/>
+    <target x="278.0" y="273.0" z="-700.0"/>
+    <up x="0.0" y="1.0" z="0.0"/>
+  </camera>
+
+  <!-- Light Sources Collection -->
+  <light_list>
+    <!-- Light Description, Color & Position -->
+    <light>
+      <color red="1" green="1" blue="1"/>
+      <position x="278.0" y="547.8" z="279.5"/>
+      <attenuation constant="1.0" linear="0.0" quadratic="0.0"/>
+    </light>
+
+  </light_list>
+
+
+
+  <!-- Material Type Collection -->
+  <material_list>
+    <!-- Material Descriptions -->
+    <material name="Blue">
+      <texture filename=""/>
+      <diffuse red="0.0" green="0.0" blue="1.0"/>
+      <specular red="1.0" green="1.0" blue="1.0" shininess="100.0"/>
+      <reflective red="0.4" green="0.4" blue="0.4"/>
+    </material>
+
+    <material name="Green">
+      <texture filename=""/>
+      <diffuse red="0.156" green="0.426" blue="0.107"/>
+      <specular red="1.0" green="1.0" blue="1.0" shininess="100.0"/>
+    </material>
+
+    <material name="Red">
+      <texture filename=""/>
+      <diffuse red="0.639" green="0.06" blue="0.062"/>
+      <specular red="0.0" green="0.0" blue="0.0" shininess="1.0"/>
+    </material>
+
+    <material name="Yellow">
+      <texture filename=""/>
+      <diffuse red="0.656" green="0.626" blue="0.107"/>
+      <specular red="1.0" green="1.0" blue="1.0" shininess="100.0"/>
+    </material>
+
+    <material name="White">
+      <texture filename=""/>
+      <diffuse red="0.739" green="0.725" blue="0.765"/>
+      <specular red="0.0" green="0.0" blue="0.0" shininess="1.0"/>
+    </material>
+
+    <material name="Mirror">
+      <texture filename=""/>
+      <diffuse red="0.3" green="0.3" blue="0.3"/>
+      <specular red="0.0" green="0.0" blue="0.0" shininess="1.0"/>
+      <reflective red="0.8" green="0.8" blue="0.8"/>
+    </material>
+
+    <material name="Earth">
+      <texture filename="Images/earthmap.jpg"/>
+      <diffuse red="0.639" green="0.6" blue="0.762"/>
+      <specular red="1" green="1" blue="1" shininess="100.0"/>
+    </material>
+
+
+    <material name="Ice">
+      <texture filename="Images/ice.jpg"/>
+      <diffuse red="0.639" green="0.6" blue="0.762"/>
+      <specular red="1" green="1" blue="1" shininess="100.0"/>
+    </material>
+
+    <material name="Fire">
+      <texture filename="Images/fire.jpg"/>
+      <diffuse red="0.639" green="0.6" blue="0.762"/>
+      <specular red="1" green="1" blue="1" shininess="100.0"/>
+    </material>
+
+  </material_list>
+
+  <object_list>
+
+    <cylinder name="Cylinder1" material="Yellow" radius="50.0" height="100">
+      <scale x="1.0" y="1.0" z="1.0"/>
+      <rotation x="0.0" y="0.0" z="0.0"/>
+      <position x="0.0" y="0.0" z="0.0"/>
+      <speed x="0.0" y="0.0" z="0.0"/>
+      <base x="350.0" y="250.0" z="100.0"/>
+      <axis x="1" y="0" z="0"/>
+    </cylinder>
+
+    <sphere name="Sphere3" material="Yellow" radius="100.0">
+      <scale x="1.0" y="1.0" z="1.0"/>
+      <rotation x="0.0" y="0.0" z="0.0"/>
+      <position x="0.0" y="0.0" z="0.0"/>
+      <speed x="0.0" y="0.0" z="0.0"/>
+      <center x="350.0" y="250.0" z="100.0"/>
+    </sphere>
+
+  </object_list>
+
+  <!-- End of Scene -->
+</scene>

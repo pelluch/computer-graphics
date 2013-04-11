@@ -201,6 +201,20 @@ namespace SceneLib
                 sphere.Center = LoadXYZ(sphereNode.Elements("center").First());
                 objects.Add(sphere);
             }
+
+            foreach (XElement sphereNode in xmlObjects.Elements("cylinder"))
+            {
+                SceneCylinder cylinder = new SceneCylinder();
+                cylinder.Radius = LoadFloat(sphereNode, "radius");
+                cylinder.Height = LoadFloat(sphereNode, "height");
+                cylinder.Material = materialsTable[sphereNode.Attribute("material").Value];
+                cylinder.Scale = LoadXYZ(sphereNode.Elements("scale").First());
+                cylinder.Position = LoadXYZ(sphereNode.Elements("position").First());
+                cylinder.Rotation = LoadXYZ(sphereNode.Elements("rotation").First());
+                cylinder.BasePoint = LoadXYZ(sphereNode.Elements("base").First());
+                cylinder.HeightDirection = LoadXYZ(sphereNode.Elements("axis").First());
+                objects.Add(cylinder);
+            }
         }
 
         private float LoadFloat(XElement node, string attribute)

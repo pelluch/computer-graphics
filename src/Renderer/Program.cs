@@ -69,7 +69,7 @@ namespace Renderer
          static void Init()
          {
              scene = new Scene(WIDTH, HEIGHT);
-             scene.Load(@"Scenes/cornellBox.xml");
+             scene.Load(@"Scenes/cylinder.xml");
              openGLrenderer = new OpenGLRenderer(scene, WIDTH, HEIGHT);
              raytraceRenderer = new RaytraceRenderer(scene, WIDTH, HEIGHT);
          }

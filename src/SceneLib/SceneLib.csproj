@@ -59,8 +59,10 @@
     <Compile Include="Matrix.cs" />
     <Compile Include="Ray.cs" />
     <Compile Include="Scene.cs" />
-    <Compile Include="SceneSphere.cs" />
-    <Compile Include="SceneTriangle.cs" />
+    <Compile Include="SceneObjects\SceneCylinder.cs" />
+    <Compile Include="SceneObjects\SceneObject.cs" />
+    <Compile Include="SceneObjects\SceneSphere.cs" />
+    <Compile Include="SceneObjects\SceneTriangle.cs" />
     <Compile Include="SceneUtils.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TextureHandler.cs" />
