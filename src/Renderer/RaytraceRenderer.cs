@@ -15,7 +15,7 @@ namespace Renderer
 {
     class RaytraceRenderer
     {
-        private Random rand = new Random();
+        private static Random rand = new Random();
         private Scene scene;
         private int width;
         private int height;
@@ -23,12 +23,13 @@ namespace Renderer
         private Vector[][] map;
         private Vector[,] buffer;
         private int y = 0, x = 0;
-        private bool antiAlias = false;
+        private bool antiAlias = true;
 
         private bool useParallel = true;
         private bool updateRows = false;
         private Stopwatch watch;
         private int imageIndex = 0;
+        private float maxTime = 10.0f;
 
         public RaytraceRenderer(Scene scene, int width, int height)
         {
@@ -175,6 +176,17 @@ namespace Renderer
 
         }
 
+        private object randLock = new object();
+        public double GenerateRandom()
+        {
+            double next = 0.0;
+            lock (randLock)
+            {
+                next = rand.NextDouble();
+            }
+            return next;
+        }
+       
         private Vector CalculatePixel(int screenX, int screenY)
         {
 
@@ -210,6 +222,8 @@ namespace Renderer
             Vector averageColor = new Vector();
             float totalSamples = cellsPerRow * cellsPerRow;
 
+            float currentTime = (float)GenerateRandom();
+
             if (antiAlias)
             {
                 for (int i = 0; i < cellsPerRow; i++)
@@ -217,9 +231,10 @@ namespace Renderer
                     double startX = screenX + i * cellWidth;
                     for (int j = 0; j < cellsPerRow; j++)
                     {
+                        
                         double startY = screenY + j * cellWidth;
-                        float sampleX = (float)(startX + rand.NextDouble() * cellWidth);
-                        float sampleY = (float)(startY + rand.NextDouble() * cellWidth);
+                        float sampleX = (float)(startX + GenerateRandom() * cellWidth);
+                        float sampleY = (float)(startY + GenerateRandom() * cellWidth);
 
                         float uCoord = (sampleX + 0.5f) * (right - left) / width + left;
                         float vCoord = (sampleY + 0.5f) * (top - bottom) / height + bottom;
@@ -233,13 +248,14 @@ namespace Renderer
                         rayDirection.Normalize3();
 
                         Ray ray = new Ray(rayStart, rayDirection, w, near, far);
+                        currentTime = (float)GenerateRandom() * maxTime;
+                        ray.Time = currentTime;
                         averageColor = averageColor + CalculateColor(ray, near, far, 0);
                     }
                 }
             }
             else
             {
-
                 float uCoord = (screenX + 0.5f) * (right - left) / width + left;
                 float vCoord = (screenY + 0.5f) * (top - bottom) / height + bottom;
                 float wCoord = -near;
@@ -252,6 +268,7 @@ namespace Renderer
                 rayDirection.Normalize3();
 
                 Ray ray = new Ray(rayStart, rayDirection, w, near, far);
+                ray.Time = currentTime;
                 Vector finalColor = CalculateColor(ray, near, far, 0);
                 return finalColor;
             }
@@ -321,7 +338,8 @@ namespace Renderer
                        
                         Vector shadowStart = record.HitPoint + lightDirection * 0.1f;
                         Ray shadowRay = new Ray(shadowStart, lightDirection);
-                        
+                        shadowRay.Time = ray.Time;
+
                         float lightDistance = (light.Position - shadowStart).Magnitude3();
                         shadowRay.MaximumTravelDistance = lightDistance;
 
@@ -345,8 +363,6 @@ namespace Renderer
             if (hitSomething)
             {
 
-
-
                 Vector d = record.HitPoint - scene.Camera.Position;
                 d.Normalize3();
 
@@ -356,6 +372,8 @@ namespace Renderer
                 HitRecord reflectionRecord = new HitRecord();
 
                 Ray reflectionRay = new Ray(record.HitPoint + reflection * 0.01f, reflection);
+                reflectionRay.Time = ray.Time;
+
                 if (recurseLevel < 20 && !record.Material.Reflective.IsBlack())
                 {
                     Vector reflectiveColor = record.Material.Reflective;

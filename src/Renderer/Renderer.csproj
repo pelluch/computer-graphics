@@ -127,6 +127,7 @@
     </Content>
     <Content Include="Scenes\sphere.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <SubType>Designer</SubType>
     </Content>
   </ItemGroup>
   <ItemGroup>

@@ -36,8 +36,8 @@ namespace Renderer
 
     class Program
     {
-        private static int WIDTH = 800;
-        private static int HEIGHT = 800;
+        private static int WIDTH = 400;
+        private static int HEIGHT = 400;
 
         private static RendererType mode = RendererType.OpenGL;
         
