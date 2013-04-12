@@ -9,26 +9,37 @@ using System.Drawing;
 
 namespace SceneLib
 {
+    /// <summary>
+    /// Represents a Scene to be rendered
+    /// </summary>
     public class Scene
     {
-        public CultureInfo CultureInfo { get; set; }
+
+        public CultureInfo CultureInfo { get; set; } //Used to read XML scene file
 
         private int width, height;
         private SceneBackground background;
-        private Dictionary<string, SceneMaterial> materialsTable;
-        private List<SceneObject> objects;
-        private List<SceneLight> lights;
-        private SceneCamera camera;       
+        private Dictionary<string, SceneMaterial> materialsTable; //Assocaites names to materials
+        private List<SceneObject> objects; //list of objects in scene
+        private List<SceneLight> lights; //list of lights
+        private List<SceneCamera> cameras; //list of cameras
+        private int currentCamera = 0;
 
         public List<SceneObject> Objects { get { return objects; } }
         public int Width { get { return width; } }
         public int Height { get { return height; } }
-        public SceneCamera Camera { get { return camera; } }
+        public SceneCamera Camera { get { return cameras[currentCamera]; } }  //First camera
         public SceneBackground Background { get { return background; } }
         public List<SceneLight> Lights { get { return lights; } }
+        public List<SceneCamera> Cameras
+        {
+            get { return cameras; }
+            set { cameras = value; }
+        }
 
         public Matrix Transform { get; set; }
 
+        public RenderingParameters RenderParams { get; set; }
 
         public Scene(int width, int height)
         {
@@ -37,17 +48,25 @@ namespace SceneLib
             materialsTable = new Dictionary<string, SceneMaterial>();
             objects = new List<SceneObject>();
             lights = new List<SceneLight>();
+            cameras = new List<SceneCamera>();
             background = new SceneBackground();
-            camera = new SceneCamera();
+            RenderParams = new RenderingParameters();
 
             CultureInfo = new CultureInfo("en-US");
         }
 
+        public void NextCamera()
+        {
+            currentCamera = (currentCamera + 1) % cameras.Count;
+        }
+
+        //Adds a new object to the scene
         public void AddObject(SceneObject obj)
         {
             objects.Add(obj);
         }
 
+        //Gets a material based on a name
         public SceneMaterial GetMaterial(string name)
         {
             if (materialsTable.ContainsKey(name))
@@ -55,6 +74,7 @@ namespace SceneLib
             return null;
         }
 
+        //Loads a scene from an XML file
         public void Load(string file)
         {
             XDocument xmlDoc = XDocument.Load(file);
@@ -66,13 +86,34 @@ namespace SceneLib
             background.Color = LoadColor(xmlBackground.Elements("color").First());
 
             //Loading camera
-            XElement xmlCamera = xmlScene.Elements("camera").First();
-            camera.FieldOfView = LoadFloat(xmlCamera, "fieldOfView");
-            camera.NearClip = LoadFloat(xmlCamera, "nearClip");
-            camera.FarClip = LoadFloat(xmlCamera, "farClip");
-            camera.Position = LoadXYZ(xmlCamera.Elements("position").First());
-            camera.Target = LoadXYZ(xmlCamera.Elements("target").First());
-            camera.Up = LoadXYZ(xmlCamera.Elements("up").First());
+            XElement xmlCamera = xmlScene.Elements("camera").FirstOrDefault();
+            if (xmlCamera != null)
+            {
+                SceneCamera camera = new SceneCamera();
+                camera.FieldOfView = LoadFloat(xmlCamera, "fieldOfView");
+                camera.NearClip = LoadFloat(xmlCamera, "nearClip");
+                camera.FarClip = LoadFloat(xmlCamera, "farClip");
+                camera.Position = LoadXYZ(xmlCamera.Elements("position").First());
+                camera.Target = LoadXYZ(xmlCamera.Elements("target").First());
+                camera.Up = LoadXYZ(xmlCamera.Elements("up").First());
+                cameras.Add(camera);
+            }
+
+            XElement xmlCameras = xmlScene.Elements("camera_list").FirstOrDefault();
+            if (xmlCameras != null)
+            {
+                foreach (XElement cameraNode in xmlCameras.Elements("camera"))
+                {
+                    SceneCamera camera = new SceneCamera();
+                    camera.FieldOfView = LoadFloat(cameraNode, "fieldOfView");
+                    camera.NearClip = LoadFloat(cameraNode, "nearClip");
+                    camera.FarClip = LoadFloat(cameraNode, "farClip");
+                    camera.Position = LoadXYZ(cameraNode.Elements("position").First());
+                    camera.Target = LoadXYZ(cameraNode.Elements("target").First());
+                    camera.Up = LoadXYZ(cameraNode.Elements("up").First());
+                    cameras.Add(camera);
+                }
+            }
 
             XElement xmlLights = xmlScene.Elements("light_list").First();
             foreach (XElement lightNode in xmlLights.Elements("light"))
@@ -97,6 +138,7 @@ namespace SceneLib
             {
                 string name = materialNode.Attribute("name").Value;
                 SceneMaterial material = new SceneMaterial();
+                material.Name = name;
                 if (materialNode.Elements("texture").Any())
                     material.TextureFile = materialNode.Elements("texture").First().Attribute("filename").Value;
                 if (material.TextureFile != null && material.TextureFile != String.Empty && File.Exists(material.TextureFile))
@@ -186,37 +228,26 @@ namespace SceneLib
                 sphere.Position = LoadXYZ(sphereNode.Elements("position").First());
                 sphere.Rotation = LoadXYZ(sphereNode.Elements("rotation").First());
                 sphere.Center = LoadXYZ(sphereNode.Elements("center").First());
-                sphere.Speed = LoadXYZ(sphereNode.Elements("speed").First());
+                sphere.Velocity = LoadXYZ(sphereNode.Elements("velocity").FirstOrDefault());
                 objects.Add(sphere);
             }
 
-            foreach (XElement sphereNode in xmlObjects.Elements("lightsphere"))
-            {
-                LightSphere sphere = new LightSphere();
-                sphere.Radius = LoadFloat(sphereNode, "radius");
-                sphere.Material = materialsTable[sphereNode.Attribute("material").Value];
-                sphere.Scale = LoadXYZ(sphereNode.Elements("scale").First());
-                sphere.Position = LoadXYZ(sphereNode.Elements("position").First());
-                sphere.Rotation = LoadXYZ(sphereNode.Elements("rotation").First());
-                sphere.Center = LoadXYZ(sphereNode.Elements("center").First());
-                objects.Add(sphere);
-            }
-
-            foreach (XElement sphereNode in xmlObjects.Elements("cylinder"))
+            foreach (XElement cylinderNode in xmlObjects.Elements("cylinder"))
             {
                 SceneCylinder cylinder = new SceneCylinder();
-                cylinder.Radius = LoadFloat(sphereNode, "radius");
-                cylinder.Material = materialsTable[sphereNode.Attribute("material").Value];
-                cylinder.Scale = LoadXYZ(sphereNode.Elements("scale").First());
-                cylinder.Position = LoadXYZ(sphereNode.Elements("position").First());
-                cylinder.Rotation = LoadXYZ(sphereNode.Elements("rotation").First());
-                cylinder.BasePoint = LoadXYZ(sphereNode.Elements("base").First());
-                cylinder.EndPoint = LoadXYZ(sphereNode.Elements("end").First());
-                cylinder.HeightDirection = LoadXYZ(sphereNode.Elements("axis").First());
+                cylinder.Radius = LoadFloat(cylinderNode, "radius");
+                cylinder.Material = materialsTable[cylinderNode.Attribute("material").Value];
+                cylinder.Scale = LoadXYZ(cylinderNode.Elements("scale").First());
+                cylinder.Position = LoadXYZ(cylinderNode.Elements("position").First());
+                cylinder.Rotation = LoadXYZ(cylinderNode.Elements("rotation").First());
+                cylinder.BasePoint = LoadXYZ(cylinderNode.Elements("base").First());
+                cylinder.EndPoint = LoadXYZ(cylinderNode.Elements("end").First());
+          
                 objects.Add(cylinder);
             }
         }
 
+        #region LoadHelpers
         private float LoadFloat(XElement node, string attribute)
         {
             if (node == null)
@@ -228,6 +259,8 @@ namespace SceneLib
 
         private Vector LoadXYZ(XElement node)
         {
+            if (node == null)
+                return new Vector();
             return new Vector(LoadFloat(node, "x"), LoadFloat(node, "y"), LoadFloat(node, "z"));
         }
 
@@ -240,5 +273,6 @@ namespace SceneLib
         {
             return new Vector(LoadFloat(node, "red"), LoadFloat(node, "green"), LoadFloat(node, "blue"), LoadFloat(node, "shininess"));
         }
+        #endregion
     }
 }

@@ -23,13 +23,13 @@ namespace Renderer
         private Vector[][] map;
         private Vector[,] buffer;
         private int y = 0, x = 0;
-        private bool antiAlias = false;
+        private bool antiAlias = true;
 
         private bool useParallel = true;
         private bool updateRows = false;
         private Stopwatch watch;
         private int imageIndex = 0;
-        private float maxTime = 10.0f;
+        private float maxTime = 0.0f;
 
         public RaytraceRenderer(Scene scene, int width, int height)
         {
@@ -222,7 +222,7 @@ namespace Renderer
             Vector averageColor = new Vector();
             float totalSamples = cellsPerRow * cellsPerRow;
 
-            float currentTime = (float)GenerateRandom();
+            
 
             if (antiAlias)
             {
@@ -248,7 +248,7 @@ namespace Renderer
                         rayDirection.Normalize3();
 
                         Ray ray = new Ray(rayStart, rayDirection, w, near, far);
-                        currentTime = (float)GenerateRandom() * maxTime;
+                        float currentTime = (float)GenerateRandom() * maxTime;
                         ray.Time = currentTime;
                         averageColor = averageColor + CalculateColor(ray, near, far, 0);
                     }
@@ -267,6 +267,7 @@ namespace Renderer
                 List<SceneLight> lights = scene.Lights;
                 rayDirection.Normalize3();
 
+                float currentTime = (float)GenerateRandom()*maxTime;
                 Ray ray = new Ray(rayStart, rayDirection, w, near, far);
                 ray.Time = currentTime;
                 Vector finalColor = CalculateColor(ray, near, far, 0);
@@ -374,15 +375,20 @@ namespace Renderer
                 Ray reflectionRay = new Ray(record.HitPoint + reflection * 0.01f, reflection);
                 reflectionRay.Time = ray.Time;
 
-                if (recurseLevel < 20 && !record.Material.Reflective.IsBlack())
+                if (recurseLevel < 2 && !record.Material.Reflective.IsBlack())
                 {
-                    Vector reflectiveColor = record.Material.Reflective;
-                    Vector reflectedObjectColor = CalculateColor(reflectionRay, float.MinValue, float.MaxValue, recurseLevel + 1);
-                    return Vector.LightAdd(finalColor, Vector.ColorMultiplication(reflectiveColor, reflectedObjectColor));
+                    if(recurseLevel < 2 || record.Material.Name == "Mirror2")
+                    {
+                        Vector reflectiveColor = record.Material.Reflective;
+                        Vector reflectedObjectColor = CalculateColor(reflectionRay, float.MinValue, float.MaxValue, recurseLevel + 1);
+                        finalColor = Vector.LightAdd(finalColor, Vector.ColorMultiplication(reflectiveColor, reflectedObjectColor));
+                    }
                 }
                  
             }
+
             finalColor = Vector.LightAdd(finalColor, scene.Background.AmbientLight);
+            finalColor.w = 1.0f;
             return finalColor;
         }
 

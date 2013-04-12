@@ -10,7 +10,7 @@ namespace SceneLib
     {
         public Vector Center { get; set; }
         public float Radius { get; set; }
-        public Vector Speed { get; set; }
+        public Vector Velocity { get; set; }
         private int textureWidth;
         private int textureHeight;
         private SceneMaterial material;
@@ -47,11 +47,11 @@ namespace SceneLib
         public override bool IsHit(Ray ray, HitRecord record, float near, float far)
         {
             Vector newCenter;
-            if (Speed.IsBlack())
+            if (Velocity.IsBlack())
                 newCenter = Center;
             else
             {
-                newCenter = this.Center + ray.Time * this.Speed;
+                newCenter = this.Center + ray.Time * this.Velocity;
             }
 
            

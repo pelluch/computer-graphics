@@ -11,7 +11,16 @@ namespace SceneLib
         private enum IntersectionType { Cylinder, Base, End };
 
         public Vector BasePoint { get; set; }
-        public Vector EndPoint { get; set; }
+        private Vector endPoint;
+        public Vector EndPoint 
+        {
+            get { return endPoint; }
+            set 
+            { 
+                HeightDirection = value - BasePoint;
+                endPoint = value;
+            }
+        }
         public float Radius { get; set; }
         private Vector heightDirection; 
         public Vector HeightDirection 
