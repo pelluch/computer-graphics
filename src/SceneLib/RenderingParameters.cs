@@ -34,6 +34,7 @@ namespace SceneLib
     /// </summary>
     public class RenderingParameters
     {
+        public static bool showMouse = false;
         public SceneTextureMode MinTextureMode { get; set; }
         public SceneTextureMode MagTextureMode { get; set; }
         public SceneRenderMode RenderMode { get; set; }
@@ -54,11 +55,16 @@ namespace SceneLib
         public bool EnableSoftShadows { get; set; }
         public bool EnableMotionBlur { get; set; }
         public bool EnableTextureMapping { get; set; }
-
+        public int Width { get; set; }
+        public int Height { get; set; }
         public int PixelSize { get; set; }
+        public float MaxTime { get; set; }
 
         public RenderingParameters()
         {
+            MaxTime = 0.0f;
+            Height = 800;
+            Width = 800;
             MinTextureMode = SceneTextureMode.Nearest;
             MagTextureMode = SceneTextureMode.Nearest;
             RenderMode = SceneRenderMode.Normal;
@@ -67,7 +73,7 @@ namespace SceneLib
             EnableShading = true;
             EnableReflections = true;
             EnableRefractions = true;
-            EnableShadows = true;
+            EnableShadows = false;
             EnableAttenuation = true;
             EnableAntialias = true;
             EnableParallelization = true;

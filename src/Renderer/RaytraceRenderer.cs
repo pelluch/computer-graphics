@@ -23,28 +23,26 @@ namespace Renderer
         private Vector[][] map;
         private Vector[,] normals;
         private SceneMaterial[,] materials;
-        public RenderingParameters renderingParameters = new RenderingParameters();
+        public RenderingParameters renderingParameters;
         private Vector[,] buffer;
         private int y = 0, x = 0;
         //private bool updateRows = false;
         private Stopwatch watch;
         private int imageIndex = 0;
-        private float maxTime = 20.0f;
         private int current_x = 0, current_y = 0;
-        public bool showMouse = false;
-
         public void ShowMouse(int x, int y)
         {
             current_x = x;
             current_y = y;
-            showMouse = true;
+            RenderingParameters.showMouse = true;
         }
 
-        public RaytraceRenderer(Scene scene, int width, int height)
+        public RaytraceRenderer(Scene scene, RenderingParameters rendParams)
         {
             this.scene = scene;
-            this.width = width;
-            this.height = height;
+            this.renderingParameters = rendParams;
+            this.width = rendParams.Width;
+            this.height = rendParams.Height;
             this.buffer = new Vector[width, height];
             this.normals = new Vector[width, height];
             this.materials = new SceneMaterial[width, height];
@@ -260,7 +258,7 @@ namespace Renderer
                         rayDirection.Normalize3();
 
                         Ray ray = new Ray(rayStart, rayDirection, w, near, far);
-                        float currentTime = (float)GenerateRandom() * maxTime;
+                        float currentTime = (float)GenerateRandom() * renderingParameters.MaxTime;
                         ray.Time = currentTime;
                         averageColor = averageColor + CalculateColor(ray, near, far, 0, 0, 1.0f);
                     }
@@ -279,7 +277,7 @@ namespace Renderer
                 List<SceneLight> lights = scene.Lights;
                 rayDirection.Normalize3();
 
-                float currentTime = (float)GenerateRandom() * maxTime;
+                float currentTime = (float)GenerateRandom() * renderingParameters.MaxTime;
                 Ray ray = new Ray(rayStart, rayDirection, w, near, far);
                 ray.Time = currentTime;
                 Vector finalColor = CalculateColor(ray, near, far, 0, 0, 1.0f);
@@ -316,7 +314,7 @@ namespace Renderer
 
                 refractionRay = new Ray(record.HitPoint + refractiveDir * 0.1f, refractiveDir);
                 refractionRay.Time = ray.Time;
-                if (showMouse)
+                if (RenderingParameters.showMouse)
                 {
                     //Console.WriteLine("Refracting");
                 //    Console.WriteLine("Ray direction: ");
@@ -357,7 +355,7 @@ namespace Renderer
                     refractive = shadowRecord.Material.RefractionIndex.x;
                     makesShadow = MakesShadow(refractedShadow, light, reflections, refractions + 1, shadowRecord.Material.RefractionIndex.x, time);
 
-                    if (showMouse && makesShadow)
+                    if (RenderingParameters.showMouse && makesShadow)
                     {
                         Console.WriteLine("Shadow made after getting out from traslucent material.");
                     }
@@ -365,7 +363,7 @@ namespace Renderer
                 }
                 else
                 {
-                    if (showMouse)
+                    if (RenderingParameters.showMouse)
                         Console.WriteLine("Made shadow from " + shadowRecord.Material.Name);
                     return true;
                 }
@@ -407,7 +405,7 @@ namespace Renderer
 
                         //Get cosine of angle between vectors
                         float similarity = Vector.Dot3(surfaceNormal, lightDirection);
-
+                      
                         Vector lambertColor = new Vector();
                         if (record.Material.TextureImage != null)
                         {
@@ -441,7 +439,7 @@ namespace Renderer
 
             if (hitSomething)
             {
-                if (showMouse)
+                if (RenderingParameters.showMouse)
                 {
                 //    Console.WriteLine("Reflections: " + reflections);
                 //    Console.WriteLine("Refractions: " + refractions);
@@ -478,7 +476,7 @@ namespace Renderer
                 if (renderingParameters.EnableRefractions && !record.Material.RefractionIndex.IsBlack())
                 {
                     Ray refractedRay = CastRefractionRay(ray, record, refractive);
-                    if(showMouse)
+                    if (RenderingParameters.showMouse)
                         Console.WriteLine("REFRACTING");
 
                     finalColor = 0.8f * CalculateColor(refractedRay, float.MinValue, float.MaxValue, reflections, refractions + 1, record.Material.RefractionIndex.x);
@@ -489,9 +487,7 @@ namespace Renderer
                 //////////////////////////////////////////////////////////////                
                 if (renderingParameters.EnableReflections && reflections < 20 && !record.Material.Reflective.IsBlack() )
                 {
-                    Vector d = record.HitPoint - scene.Camera.Position;
-                    d.Normalize3();
-
+                    Vector d = rayDirection;
                     //Check for reflections
                     Vector reflection = d -2* Vector.Dot3(d, surfaceNormal) * surfaceNormal;
                     reflection.Normalize3();
@@ -506,22 +502,23 @@ namespace Renderer
                     //    Console.WriteLine();
                     //}
                     Vector reflectiveColor = record.Material.Reflective;
-                    if (showMouse)
+                    if (RenderingParameters.showMouse)
                     {
                         Console.WriteLine("REFLECTING - NORMAL: " + surfaceNormal + "\tReflection: " + reflection);
                     }
                     Vector reflectedObjectColor = CalculateColor(reflectionRay, float.MinValue, float.MaxValue, reflections + 1, refractions, refractive);
                     finalColor = Vector.LightAdd(finalColor, Vector.ColorMultiplication(reflectiveColor, reflectedObjectColor));
+                    finalColor = Vector.LightAdd(finalColor, scene.Background.AmbientLight);
                 }
 
             }
 
             if (reflections == 0 && refractions == 0)
             {
-                finalColor = Vector.LightAdd(finalColor, scene.Background.AmbientLight);
-                if (showMouse)
+                //finalColor = Vector.LightAdd(finalColor, scene.Background.AmbientLight);
+                if (RenderingParameters.showMouse)
                 {
-                    showMouse = false;
+                    RenderingParameters.showMouse = false;
                     Console.WriteLine("-------------------------------------------------------");
                     Console.WriteLine("-------------------------------------------------------");
                 }

@@ -16,6 +16,7 @@ namespace SceneLib
         public SceneMaterial Material { get; set; }
         public Vector TextureColor  { get; set; }
         public List<Vector> ShadedColors { get; set; }
+        public string ObjectName { get; set; }
 
         public void ClearVectors()
         {
@@ -24,6 +25,7 @@ namespace SceneLib
 
         public HitRecord()
         {
+            ObjectName = "";
             Distance = float.MaxValue;
             Material = new SceneMaterial();
             TextureColor = new Vector();

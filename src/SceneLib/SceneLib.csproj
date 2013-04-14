@@ -60,9 +60,11 @@
     <Compile Include="Ray.cs" />
     <Compile Include="RenderingParameters.cs" />
     <Compile Include="Scene.cs" />
+    <Compile Include="SceneObjects\Plane.cs" />
     <Compile Include="SceneObjects\SceneCylinder.cs" />
     <Compile Include="SceneObjects\SceneObject.cs" />
     <Compile Include="SceneObjects\SceneSphere.cs" />
+    <Compile Include="SceneObjects\SceneTable.cs" />
     <Compile Include="SceneObjects\SceneTorus.cs" />
     <Compile Include="SceneObjects\SceneTriangle.cs" />
     <Compile Include="SceneUtils.cs" />

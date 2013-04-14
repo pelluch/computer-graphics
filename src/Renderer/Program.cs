@@ -36,21 +36,20 @@ namespace Renderer
 
     class Program
     {
-        private static int WIDTH = 800;
-        private static int HEIGHT = 800;
-
+       
         private static RendererType mode = RendererType.OpenGL;
         
         private static OpenGLRenderer openGLrenderer;
         private static RaytraceRenderer raytraceRenderer;
         private static Scene scene;
+        private static RenderingParameters rendParams = new RenderingParameters();
 
          static void Main(string[] args)
          {
              Glut.glutInit();
              Glut.glutInitDisplayMode(Glut.GLUT_SINGLE | Glut.GLUT_RGB);
 
-             Glut.glutInitWindowSize(WIDTH, HEIGHT);
+             Glut.glutInitWindowSize(rendParams.Width, rendParams.Height);
              Glut.glutInitWindowPosition(100, 100);
              Glut.glutCreateWindow("Renderer");
   
@@ -81,10 +80,10 @@ namespace Renderer
 
          static void Init()
          {
-             scene = new Scene(WIDTH, HEIGHT);
+             scene = new Scene(rendParams.Width, rendParams.Height);
              scene.Load(@"Scenes/cornellBox2.xml");
-             openGLrenderer = new OpenGLRenderer(scene, WIDTH, HEIGHT);
-             raytraceRenderer = new RaytraceRenderer(scene, WIDTH, HEIGHT);
+             openGLrenderer = new OpenGLRenderer(scene, rendParams.Width, rendParams.Height);
+             raytraceRenderer = new RaytraceRenderer(scene, rendParams);
          }
 
         

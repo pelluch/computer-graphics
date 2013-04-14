@@ -6,6 +6,7 @@ using System.Xml.Linq;
 using System.Globalization;
 using System.IO;
 using System.Drawing;
+using SceneLib.SceneObjects;
 
 namespace SceneLib
 {
@@ -244,6 +245,49 @@ namespace SceneLib
                 cylinder.EndPoint = LoadXYZ(cylinderNode.Elements("end").First());
           
                 objects.Add(cylinder);
+            }
+
+            foreach (XElement planeNode in xmlObjects.Elements("plane"))
+            {
+                Plane plane = new Plane();
+                plane.Material = materialsTable[planeNode.Attribute("material").Value];
+                plane.Height = LoadFloat(planeNode, "height");
+                plane.Width = LoadFloat(planeNode, "width");
+                plane.Scale = LoadXYZ(planeNode.Elements("scale").First());
+                plane.Position = LoadXYZ(planeNode.Elements("position").First());
+                plane.Rotation = LoadXYZ(planeNode.Elements("rotation").First());
+                plane.Center = LoadXYZ(planeNode.Elements("center").First());
+                plane.L1 = LoadXYZ(planeNode.Elements("l1").First());
+                plane.L2 = LoadXYZ(planeNode.Elements("l2").First());
+                plane.Initialize();
+                objects.Add(plane);
+            }
+
+            foreach (XElement tableNode in xmlObjects.Elements("table"))
+            {
+                SceneTable table = new SceneTable();
+                table.Material = materialsTable[tableNode.Attribute("material").Value];
+                table.Height = LoadFloat(tableNode, "height");
+                table.Width = LoadFloat(tableNode, "width");
+                table.Scale = LoadXYZ(tableNode.Elements("scale").First());
+                table.Position = LoadXYZ(tableNode.Elements("position").First());
+                table.Rotation = LoadXYZ(tableNode.Elements("rotation").First());
+                table.Radius = LoadFloat(tableNode, "radius");
+                XElement planeNode = tableNode.Elements("plane").First();
+                Plane plane = new Plane();
+                plane.Material = table.Material;
+                plane.Height = LoadFloat(planeNode, "height");
+                plane.Width = LoadFloat(planeNode, "width");
+                plane.Scale = LoadXYZ(planeNode.Elements("scale").First());
+                plane.Position = LoadXYZ(planeNode.Elements("position").First());
+                plane.Rotation = LoadXYZ(planeNode.Elements("rotation").First());
+                plane.Center = LoadXYZ(planeNode.Elements("center").First());
+                plane.L1 = LoadXYZ(planeNode.Elements("l1").First());
+                plane.L2 = LoadXYZ(planeNode.Elements("l2").First());
+                plane.Initialize();
+                table.Initialize(plane);
+
+                objects.Add(table);
             }
         }
 

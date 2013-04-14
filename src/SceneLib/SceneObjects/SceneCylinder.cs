@@ -32,7 +32,6 @@ namespace SceneLib
                 heightDirection.Normalize3();
             }
         }
-        public float Height { get; set; }
 
         private int textureWidth;
         private int textureHeight;
