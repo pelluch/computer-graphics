@@ -163,12 +163,7 @@ namespace SceneLib
 
         public override string ToString()
         {
-            string toReturn = "";
-            toReturn += "x: " + this.x + "\n";
-            toReturn += "y: " + this.y + "\n";
-            toReturn += "z: " + this.z + "\n";
-            toReturn += "w: " + this.w + "\n";
-
+            string toReturn = "" + this.x + ", " + this.y + ", " + this.z;
             return toReturn;
         }
 

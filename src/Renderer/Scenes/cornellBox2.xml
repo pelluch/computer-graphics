@@ -95,9 +95,9 @@
 
     <material name="Blue">
       <texture filename=""/>
-      <diffuse red="0.0639" green="0.06" blue="0.762"/>
-      <specular red="1.0" green="1.0" blue="1.0" shininess="10.0"/>
-      <reflective red="0.0" green="0.0" blue="0.0"/>
+      <diffuse red="0.0639" green="0.06" blue="0.4"/>
+      <specular red="1.0" green="1.0" blue="1.0" shininess="1000.0"/>
+      <reflective red="0.5" green="0.5" blue="0.5"/>
     </material>
 
     <material name="Ice">
@@ -145,16 +145,15 @@
       <texture filename=""/>
       <diffuse red="0.0" green="0.0" blue="0.0"/>
       <specular red="0.0" green="0.0" blue="0.0" shininess="1.0"/>
-      <reflective red="0.5" green="0.5" blue="0.5"/>
+      <reflective red="0.8" green="0.8" blue="0.8"/>
     </material>
- 
 
-  <material name="Mirror2">
-    <texture filename=""/>
-    <diffuse red="0.0" green="0.0" blue="0.0"/>
-    <specular red="0.0" green="0.0" blue="0.0" shininess="1.0"/>
-    <reflective red="0.5" green="0.5" blue="0.5"/>
-  </material>
+    <material name="Mirror2">
+      <texture filename=""/>
+      <diffuse red="0.3" green="0.3" blue="0.3"/>
+      <specular red="0.0" green="0.0" blue="0.0" shininess="1.0"/>
+      <reflective red="0.7" green="0.9" blue="0.8"/>
+    </material>
     
   </material_list>
   
@@ -220,21 +219,21 @@
       <position x="0.0" y="0.0" z="0.0"/>
 
 
-      <vertex index="0" material="Mirror">
+      <vertex index="0" material="Translucent">
         <position x="556.0" y="78.8" z="0.0"/>
         <normal x="0.0" y="1.0" z="0.0"/>
         <texture u="0.0" v="0.0"/>
       </vertex>
 
 
-      <vertex index="1" material="Mirror">
+      <vertex index="1" material="Translucent">
         <position x="556.0" y="78.8" z="559.2"/>
         <normal x="0.0" y="1.0" z="0.0"/>
         <texture u="0.0" v="0.0"/>
       </vertex>
 
 
-      <vertex index="2" material="Mirror">
+      <vertex index="2" material="Translucent">
         <position x="0.0" y="78.8" z="559.2"/>
         <normal x="0.0" y="1.0" z="0.0"/>
         <texture u="0.0" v="0.0"/>
@@ -247,21 +246,21 @@
       <position x="0.0" y="0.0" z="0.0"/>
 
 
-      <vertex index="0" material="Mirror">
+      <vertex index="0" material="Translucent">
         <position x="556.0" y="78.8" z="0.0"/>
         <normal x="0.0" y="1.0" z="0.0"/>
         <texture u="0.0" v="0.0"/>
       </vertex>
 
 
-      <vertex index="1" material="Mirror">
+      <vertex index="1" material="Translucent">
         <position x="0.0" y="78.8" z="0.0"/>
         <normal x="0.0" y="1.0" z="0.0"/>
         <texture u="0.0" v="0.0"/>
       </vertex>
 
 
-      <vertex index="2" material="Mirror">
+      <vertex index="2" material="Translucent">
         <position x="0.0" y="78.8" z="559.2"/>
         <normal x="0.0" y="1.0" z="0.0"/>
         <texture u="0.0" v="0.0"/>
@@ -328,21 +327,21 @@
       <position x="0.0" y="0.0" z="0.0"/>
 
 
-      <vertex index="0" material="Mirror">
+      <vertex index="0" material="Blue">
         <position x="556.0" y="548.8" z="0.0"/>
         <normal x="0.0" y="-1.0" z="0.0"/>
         <texture u="1.0" v="0.0"/>
       </vertex>
 
 
-      <vertex index="1" material="Mirror">
+      <vertex index="1" material="Blue">
         <position x="556.0" y="548.8" z="559.2"/>
         <normal x="0.0" y="-1.0" z="0.0"/>
         <texture u="1.0" v="1.0"/>
       </vertex>
 
 
-      <vertex index="2" material="Mirror">
+      <vertex index="2" material="Blue">
         <position x="0.0" y="548.8" z="559.2"/>
         <normal x="0.0" y="-1.0" z="0.0"/>
         <texture u="0.0" v="0.0"/>
@@ -355,21 +354,21 @@
       <position x="0.0" y="0.0" z="0.0"/>
 
 
-      <vertex index="0" material="Mirror">
+      <vertex index="0" material="Blue">
         <position x="556.0" y="548.8" z="0.0"/>
         <normal x="0.0" y="-1.0" z="0.0"/>
         <texture u="0.0" v="0.0"/>
       </vertex>
 
 
-      <vertex index="1" material="Mirror">
+      <vertex index="1" material="Blue">
         <position x="0.0" y="548.8" z="0.0"/>
         <normal x="0.0" y="-1.0" z="0.0"/>
         <texture u="1.0" v="0.0"/>
       </vertex>
 
 
-      <vertex index="2" material="Mirror">
+      <vertex index="2" material="Blue">
         <position x="0.0" y="548.8" z="559.2"/>
         <normal x="0.0" y="-1.0" z="0.0"/>
         <texture u="1.0" v="1.0"/>
@@ -382,21 +381,21 @@
       <position x="0.0" y="0.0" z="0.0"/>
 
 
-      <vertex index="0" material="Mirror2">
+      <vertex index="0" material="Mirror">
         <position x="549.6" y="0.0" z="559.2"/>
         <normal x="0.0" y="0.0" z="-1.0"/>
         <texture u="0.0" v="0.0"/>
       </vertex>
 
 
-      <vertex index="1" material="Mirror2">
+      <vertex index="1" material="Mirror">
         <position x="0.0" y="0.0" z="559.2"/>
         <normal x="0.0" y="0.0" z="-1.0"/>
         <texture u="0.0" v="0.0"/>
       </vertex>
 
 
-      <vertex index="2" material="Mirror2">
+      <vertex index="2" material="Mirror">
         <position x="0.0" y="548.8" z="559.2"/>
         <normal x="0.0" y="0.0" z="-1.0"/>
         <texture u="0.0" v="0.0"/>
@@ -409,21 +408,21 @@
       <position x="0.0" y="0.0" z="0.0"/>
 
 
-      <vertex index="0" material="Mirror2">
+      <vertex index="0" material="Mirror">
         <position x="549.6" y="0.0" z="559.2"/>
         <normal x="0.0" y="0.0" z="-1.0"/>
         <texture u="0.0" v="0.0"/>
       </vertex>
 
 
-      <vertex index="1" material="Mirror2">
+      <vertex index="1" material="Mirror">
         <position x="556.0" y="548.8" z="559.2"/>
         <normal x="0.0" y="0.0" z="-1.0"/>
         <texture u="0.0" v="0.0"/>
       </vertex>
 
 
-      <vertex index="2" material="Mirror2">
+      <vertex index="2" material="Mirror">
         <position x="0.0" y="548.8" z="559.2"/>
         <normal x="0.0" y="0.0" z="-1.0"/>
         <texture u="0.0" v="0.0"/>
@@ -543,7 +542,7 @@
       <center x="370.0" y="120.0" z="370.0"/>
     </sphere>
 
-    <sphere name="Sphere2" material="Fire" radius="100.0">
+    <sphere name="Sphere2" material="Yellow" radius="100.0">
       <scale x="1.0" y="1.0" z="1.0"/>
       <rotation x="0.0" y="0.0" z="0.0"/>
       <position x="0.0" y="0.0" z="0.0"/>
@@ -551,15 +550,15 @@
       <velocity x="-1" y="0" z="0"/>
       <center x="130.0" y="100.0" z="130.0"/>
     </sphere>
-
-    <cylinder name="Cylinder1" material="Blue" radius="100.0">
+<!--
+    <cylinder name="Cylinder1" material="Blue" radius="50.0">
       <scale x="1.0" y="1.0" z="1.0"/>
       <rotation x="0.0" y="0.0" z="0.0"/>
       <position x="0.0" y="0.0" z="0.0"/>
       <base x="430.0" y="100.0" z="130.0"/>
       <end x="330.0" y="150.0" z="0.0"/>
     </cylinder>
-    
+    -->
   </object_list>
 
   <!-- End of Scene -->

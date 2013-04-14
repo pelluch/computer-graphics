@@ -36,8 +36,8 @@ namespace Renderer
 
     class Program
     {
-        private static int WIDTH = 400;
-        private static int HEIGHT = 400;
+        private static int WIDTH = 800;
+        private static int HEIGHT = 800;
 
         private static RendererType mode = RendererType.OpenGL;
         
@@ -70,10 +70,12 @@ namespace Renderer
          {
              if (state == 1)
              {
+
                  Console.WriteLine("x: " + x);
                  Console.WriteLine("y: " + y);
-                 raytraceRenderer.ShowMouse(x, y);
-                 raytraceRenderer.CalculatePixel(x, y);
+                 raytraceRenderer.ShowMouse(x+10, 785-y);
+                 raytraceRenderer.CalculatePixel(x+10, 785-y);
+                 
              }             
          }
 
@@ -135,6 +137,7 @@ namespace Renderer
                  raytraceRenderer.ResetTracer();
                  Glut.glutPostRedisplay();
              }
+ 
          }
 
          static void KeyboardHandle(byte key, int x, int y)
@@ -231,7 +234,24 @@ namespace Renderer
                  raytraceRenderer.ResetTracer();
                  Glut.glutPostRedisplay();
              }
-
+             else if (key == (byte)'x')
+             {
+                 raytraceRenderer.renderingParameters.EnableRefractions = !raytraceRenderer.renderingParameters.EnableRefractions;
+                 raytraceRenderer.ResetTracer();
+                 Glut.glutPostRedisplay();
+             }
+             else if (key == (byte)'z')
+             {
+                 raytraceRenderer.renderingParameters.EnableShadows = !raytraceRenderer.renderingParameters.EnableShadows;
+                 raytraceRenderer.ResetTracer();
+                 Glut.glutPostRedisplay();
+             }
+             else if (key == (byte)'c')
+             {
+                 raytraceRenderer.renderingParameters.EnableAntialias = !raytraceRenderer.renderingParameters.EnableAntialias;
+                 raytraceRenderer.ResetTracer();
+                 Glut.glutPostRedisplay();
+             }
 
 
          }

@@ -128,6 +128,7 @@
     </Content>
     <Content Include="Scenes\cornellBox_1.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <SubType>Designer</SubType>
     </Content>
     <Content Include="Scenes\cylinder.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>

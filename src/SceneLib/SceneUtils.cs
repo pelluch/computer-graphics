@@ -70,6 +70,7 @@ namespace SceneLib
             Specular = new Vector(0, 0, 0);
             Diffuse = new Vector(0, 0, 0);
             Reflective = new Vector(0, 0, 0);
+            RefractionIndex = new Vector(0, 0, 0);
         }
 
         public Vector GetTexturePixelColor(int x, int y)

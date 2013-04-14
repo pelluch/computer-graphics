@@ -43,6 +43,7 @@ namespace SceneLib
         public bool EnableShading { get; set; }
         public bool EnableReflections { get; set; }
         public bool EnableRefractions { get; set; }
+        public bool EnableParallelization { get; set; }
         public bool EnableShadows { get; set; }
         public bool EnableAttenuation { get; set; }
         public bool EnableAntialias { get; set; }
@@ -69,6 +70,7 @@ namespace SceneLib
             EnableShadows = true;
             EnableAttenuation = true;
             EnableAntialias = true;
+            EnableParallelization = true;
             EnableDepthOfField = false;
             EnableTestDepth = true;
             EnableFustrumCulling = true;
