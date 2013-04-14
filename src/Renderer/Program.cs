@@ -61,19 +61,31 @@ namespace Renderer
 
              Glut.glutKeyboardFunc(new Glut.KeyboardCallback(KeyboardHandle));
              Glut.glutSpecialFunc(new Glut.SpecialCallback(SpecialKeysHandler));
-             
+             Glut.glutMouseFunc(new Glut.MouseCallback(MouseHandler));
              Glut.glutMainLoop();
   
          }
-  
+
+         public static void MouseHandler(int button, int state, int x, int y)
+         {
+             if (state == 1)
+             {
+                 Console.WriteLine("x: " + x);
+                 Console.WriteLine("y: " + y);
+                 raytraceRenderer.ShowMouse(x, y);
+                 raytraceRenderer.CalculatePixel(x, y);
+             }             
+         }
+
          static void Init()
          {
              scene = new Scene(WIDTH, HEIGHT);
-             scene.Load(@"Scenes/cornellBox.xml");
+             scene.Load(@"Scenes/cornellBox2.xml");
              openGLrenderer = new OpenGLRenderer(scene, WIDTH, HEIGHT);
              raytraceRenderer = new RaytraceRenderer(scene, WIDTH, HEIGHT);
          }
 
+        
          static void Draw()
          {
              switch (mode)
@@ -219,6 +231,8 @@ namespace Renderer
                  raytraceRenderer.ResetTracer();
                  Glut.glutPostRedisplay();
              }
+
+
 
          }
 

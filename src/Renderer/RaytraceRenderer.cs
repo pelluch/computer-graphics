@@ -23,13 +23,22 @@ namespace Renderer
         private Vector[][] map;
         private Vector[,] buffer;
         private int y = 0, x = 0;
-        private bool antiAlias = true;
+        private bool antiAlias = false;
 
         private bool useParallel = true;
         private bool updateRows = false;
         private Stopwatch watch;
         private int imageIndex = 0;
         private float maxTime = 0.0f;
+        private int current_x = 0, current_y = 0;
+        public bool showMouse = false;
+
+        public void ShowMouse(int x, int y)
+        {
+            current_x = x;
+            current_y = y;
+            showMouse = true;
+        }
 
         public RaytraceRenderer(Scene scene, int width, int height)
         {
@@ -187,7 +196,7 @@ namespace Renderer
             return next;
         }
        
-        private Vector CalculatePixel(int screenX, int screenY)
+        public Vector CalculatePixel(int screenX, int screenY)
         {
 
             //Console.WriteLine("Drawing pixel " + screenX + ", " + screenY);
@@ -375,10 +384,18 @@ namespace Renderer
                 Ray reflectionRay = new Ray(record.HitPoint + reflection * 0.01f, reflection);
                 reflectionRay.Time = ray.Time;
 
-                if (recurseLevel < 2 && !record.Material.Reflective.IsBlack())
+                if (recurseLevel < 1 && !record.Material.Reflective.IsBlack())
                 {
-                    if(recurseLevel < 2 || record.Material.Name == "Mirror2")
+                    if(record.Material.Name == "Mirror2")
                     {
+                        if (showMouse)
+                        {
+                            Console.WriteLine("Reflection direction: ");
+                            Console.WriteLine(reflection);
+                            Console.WriteLine("Surface normal: ");
+                            Console.WriteLine(surfaceNormal);
+                            showMouse = false;
+                        }
                         Vector reflectiveColor = record.Material.Reflective;
                         Vector reflectedObjectColor = CalculateColor(reflectionRay, float.MinValue, float.MaxValue, recurseLevel + 1);
                         finalColor = Vector.LightAdd(finalColor, Vector.ColorMultiplication(reflectiveColor, reflectedObjectColor));
