@@ -392,7 +392,7 @@ namespace Renderer
                     hitSomething = true;
                     surfaceNormal = record.SurfaceNormal;
 
-                    if (record.Material.RefractionIndex.x > 0.0f)
+                    if (record.Material.RefractionIndex.x > 0.0f && record.Material.Refractiveness.x == 1.0f)
                     {
                         continue;
                     }
@@ -441,45 +441,57 @@ namespace Renderer
             {
                 if (RenderingParameters.showMouse)
                 {
-                //    Console.WriteLine("Reflections: " + reflections);
-                //    Console.WriteLine("Refractions: " + refractions);
                     Console.WriteLine("Hit material " + record.Material.Name);
-                //    Console.WriteLine("Normal: " + record.SurfaceNormal);
                 }
                 finalColor = new Vector();
                 //////////////////////////////////////////////////////////////
                 ///////////////////////SHADOWS///////////////////////////////
                 /////////////////////////////////////////////////////////////
-                if (record.Material.RefractionIndex.x == 0.0f) //Not refractive surface
-                {
+                
+                    if (RenderingParameters.showMouse)
+                    {
+                        Console.WriteLine("Checking for shadows!");
+                    }
                     for (int i = 0; i < scene.Lights.Count; i++) //For each light
                     {
                         if (renderingParameters.EnableShadows)
                         {
-                            Vector direction = scene.Lights[i].Position - record.HitPoint;
-                            direction.Normalize3();
-                            Vector shadowStart = record.HitPoint + direction * 0.1f;
-                            Ray shadowRay = new Ray(shadowStart, direction);
-                            bool makesShadow = MakesShadow(shadowRay, scene.Lights[i], reflections, refractions, refractive, ray.Time);
-                            if (makesShadow)
+                            if (record.Material.RefractionIndex.x == 0.0f) //Not refractive surface
                             {
-                                record.ShadedColors[i] = new Vector();
+                                Vector direction = scene.Lights[i].Position - record.HitPoint;
+                                direction.Normalize3();
+                                Vector shadowStart = record.HitPoint + direction * 0.1f;
+                                Ray shadowRay = new Ray(shadowStart, direction);
+                                bool makesShadow = MakesShadow(shadowRay, scene.Lights[i], reflections, refractions, refractive, ray.Time);
+                                if (makesShadow)
+                                {
+                                    record.ShadedColors[i] = new Vector();
+                                }
                             }
                         }
-                        finalColor = Vector.LightAdd(finalColor, record.ShadedColors[i]);
-                        finalColor.w = 1.0f;
+                        if (record.Material.Refractiveness.x != 1.0f)
+                        {
+                            finalColor = Vector.LightAdd(finalColor, record.ShadedColors[i]);
+                            finalColor.w = 1.0f;
+                        }
                     }
-                }
+                
                 ///////////////////////////////////////////////////////////////
                 //////////////////////REFRACTIONS/////////////////////////////
                 //////////////////////////////////////////////////////////////     
-                if (renderingParameters.EnableRefractions && !record.Material.RefractionIndex.IsBlack())
+                if (renderingParameters.EnableRefractions && refractions < 10 && !record.Material.RefractionIndex.IsBlack())
                 {
+                    if (record.Material.Refractiveness.x < 1.0f)
+                    {
+                        int a = 1;
+                    }
                     Ray refractedRay = CastRefractionRay(ray, record, refractive);
+                    Vector refractiveNess = record.Material.Refractiveness;
                     if (RenderingParameters.showMouse)
                         Console.WriteLine("REFRACTING");
 
-                    finalColor = 0.8f * CalculateColor(refractedRay, float.MinValue, float.MaxValue, reflections, refractions + 1, record.Material.RefractionIndex.x);
+                    finalColor = Vector.ColorMultiplication(refractiveNess, CalculateColor(refractedRay, float.MinValue, float.MaxValue, reflections, refractions + 1, record.Material.RefractionIndex.x))
+                        + Vector.ColorMultiplication(new Vector(1.0f, 1.0f, 1.0f) - refractiveNess, finalColor);
                 }
 
                 ///////////////////////////////////////////////////////////////

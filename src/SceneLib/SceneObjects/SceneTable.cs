@@ -90,15 +90,15 @@ namespace SceneLib.SceneObjects
             foreach (SceneObject obj in components)
             {
                 bool currentHit  =  obj.IsHit(ray, record, float.MinValue, float.MaxValue);
-                if (RenderingParameters.showMouse && isHit)
-                {
-                    Console.WriteLine("Hit by " + record.ObjectName);
-                    Console.WriteLine("t: " + record.T);
-                    Console.WriteLine("Distance: " + record.Distance);
-                }
+                
                 isHit = isHit || currentHit;
             }
-
+            if (RenderingParameters.showMouse && isHit)
+            {
+                Console.WriteLine("Hit by " + record.ObjectName);
+                Console.WriteLine("t: " + record.T);
+                Console.WriteLine("Distance: " + record.Distance);
+            }
             return isHit;
         }
     }

@@ -18,40 +18,31 @@ namespace SceneLib
             set 
             { 
                 HeightDirection = value - BasePoint;
+                HeightDirection.Normalize3();
+                Tangent = Vector.Cross3(HeightDirection, BasePoint);
+                Tangent.Normalize3();
                 endPoint = value;
             }
         }
+        public Vector Tangent
+        { get; set; }
         public float Radius { get; set; }
-        private Vector heightDirection; 
-        public Vector HeightDirection 
+        public Vector HeightDirection
         {
-            get { return heightDirection; }
-            set
-            {
-                heightDirection = value;
-                heightDirection.Normalize3();
-            }
+            get;
+            set;
         }
-
+        private float Height
+        {
+            get { return (EndPoint - BasePoint).Magnitude3(); }
+        }
         private int textureWidth;
         private int textureHeight;
         private SceneMaterial material;
         public SceneMaterial Material
         {
-            get
-            {
-                return material;
-            }
-            set
-            {
-                material = value;
-                if (value.TextureImage != null)
-                {
-                    textureWidth = value.TextureImage.Width;
-                    textureHeight = value.TextureImage.Height;
-                }
-            }
-
+            get;
+            set;
         }
 
         public override Vector SurfaceNormal(Vector point, Vector cameraDirection)
@@ -136,7 +127,7 @@ namespace SceneLib
             float hDotd = Vector.Dot3(this.HeightDirection, ray.Direction);
             if (hDotd != 0)
             {
-                float basePlaneT = Vector.Dot3(this.heightDirection, this.BasePoint) - Vector.Dot3(this.heightDirection, ray.Start);
+                float basePlaneT = Vector.Dot3(this.HeightDirection, this.BasePoint) - Vector.Dot3(this.HeightDirection, ray.Start);
                 basePlaneT = basePlaneT / hDotd;
                 if (basePlaneT > 0 && IsCap(this.BasePoint, basePlaneT * ray.Direction + ray.Start) && basePlaneT < first_t)
                 {
@@ -144,7 +135,7 @@ namespace SceneLib
                     first_t = basePlaneT;
                 }
 
-                float endPlaneT = Vector.Dot3(this.heightDirection, this.EndPoint) - Vector.Dot3(this.heightDirection, ray.Start);
+                float endPlaneT = Vector.Dot3(this.HeightDirection, this.EndPoint) - Vector.Dot3(this.HeightDirection, ray.Start);
                 endPlaneT = endPlaneT / hDotd;
                 if (endPlaneT > 0 && IsCap(this.EndPoint, endPlaneT * ray.Direction + ray.Start) && endPlaneT < first_t)
                 {
@@ -182,10 +173,38 @@ namespace SceneLib
                 if (intersectionType == IntersectionType.Cylinder)
                 {
                     record.SurfaceNormal = SurfaceNormal(record.HitPoint, ray.Direction);
+                    if (Material.TextureImage != null)
+                    {
+                        float heightReached = Vector.Dot3(HeightDirection, record.HitPoint - this.BasePoint);
+                        float u = heightReached / Height;
+                        Vector circCenter = BasePoint + HeightDirection * heightReached;
+                        Vector projection = record.HitPoint - circCenter;
+                        projection.Normalize3();
+                        float similarity = Vector.Dot3(projection, Tangent);
+                        float theta = (float)Math.Acos(similarity);
+                        float v = (float)((Math.PI - theta) / Math.PI);
+                        v = v < 0 ? -v : v;
+                        record.TextureColor = this.Material.GetTexturePixelColor(u, v);
+                         // float v = 
+                    }
                 }
                 else
                 {
                     record.SurfaceNormal = PlaneNormal(record.HitPoint, ray.Direction);
+                    if (Material.TextureImage != null)
+                    {
+                        Vector circCenter = intersectionType == IntersectionType.Base ? BasePoint : EndPoint;
+                        Vector projection = record.HitPoint - circCenter;
+                        float length = projection.Magnitude3();
+                        projection.Normalize3();
+                        float similarity = Vector.Dot3(projection, Tangent);
+                        float theta = (float)Math.Acos(similarity);
+                        float u = length / Radius;
+                        float v = (float)((Math.PI - theta) / Math.PI);
+                        v = v < 0 ? -v : v;
+                        record.TextureColor = this.Material.GetTexturePixelColor(u, v);
+                        // float v = 
+                    }
                 }
                // record.SurfaceNormal = SurfaceNormal(record.HitPoint, ray.Direction);
                 return true;

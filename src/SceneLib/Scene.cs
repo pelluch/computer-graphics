@@ -162,6 +162,8 @@ namespace SceneLib
                     material.Reflective = LoadColor(materialNode.Elements("reflective").First());
                 if (materialNode.Elements("refraction_index").Any())
                     material.RefractionIndex = LoadColor(materialNode.Elements("refraction_index").First());
+                if (materialNode.Elements("refractiveness").Any())
+                    material.Refractiveness = LoadColor(materialNode.Elements("refractiveness").First());
                 materialsTable.Add(name, material);
             }
 
@@ -243,7 +245,7 @@ namespace SceneLib
                 cylinder.Rotation = LoadXYZ(cylinderNode.Elements("rotation").First());
                 cylinder.BasePoint = LoadXYZ(cylinderNode.Elements("base").First());
                 cylinder.EndPoint = LoadXYZ(cylinderNode.Elements("end").First());
-          
+                //cylinder.Velocity = LoadXYZ(cylinderNode.Elements("velocity").FirstOrDefault());
                 objects.Add(cylinder);
             }
 

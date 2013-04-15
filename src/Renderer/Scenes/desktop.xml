@@ -1,0 +1,448 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+
+<!-- Scene Description in XML -->
+<scene desc="Simple Test Scene - Triangle + Sphere. Based on test.ray by Mark Tomczak"
+	   author="Raphael Mun">
+  <!-- Background Color and Ambient Light Property -->
+  <background>
+    <color red="0.0" green="0.0" blue="0.0"/>
+    <ambientLight red="0.1" green="0.1" blue="0.1"/>
+  </background>
+
+  <!-- Camera Description -->
+
+  <camera fieldOfView="39.31" nearClip="1" farClip="1500.0">
+    <position x="278.0" y="273.0" z="-800.0"/>
+    <target x="278.0" y="273.0" z="-700.0"/>
+    <up x="0.0" y="1.0" z="0.0"/>
+  </camera>
+
+  <!--<camera_list>
+    <camera fieldOfView="39.31" nearClip="1" farClip="1500.0">
+      <position x="278.0" y="273.0" z="-800.0"/>
+      <target x="278.0" y="273.0" z="-700.0"/>
+      <up x="0.0" y="1.0" z="0.0"/>
+    </camera>
+    <camera fieldOfView="39.31" nearClip="1" farClip="1500.0">
+      <position x="278.0" y="273.0" z="1300.0"/>
+      <target x="278.0" y="273.0" z="1200.0"/>
+      <up x="0.0" y="1.0" z="0.0"/>
+    </camera>
+  </camera_list>-->
+
+  <!-- Light Sources Collection -->
+  <light_list>
+    <!-- Light Description, Color & Position -->
+    <light>
+      <color red="0.8" green="0.8" blue="0.8"/>
+      <position x="278.0" y="547.8" z="219.5"/>
+      <a x="20" y="0" z="0"/>
+      <b x="0" y="0" z="-20"/>
+      <attenuation constant="1.0" linear="0.00" quadratic="0.00"/>
+    </light>
+
+    <light>
+      <color red="0.8" green="0.8" blue="0.8"/>
+      <position x="278.0" y="273.0" z="-800.0"/>
+      <a x="20" y="0" z="0"/>
+      <b x="0" y="0" z="-20"/>
+      <attenuation constant="1.0" linear="0.00" quadratic="0.00"/>
+    </light>
+
+    <!--<light>
+      <color red="1" green="1" blue="1"/>
+      <position x="278.0" y="547.8" z="279.5"/>
+      <a x="20" y="0" z="0"/>
+      <b x="0" y="0" z="-20"/>
+      <attenuation constant="1.0" linear="0.002" quadratic="0.00"/>
+    </light>-->
+    <!--<light>
+      <color red="1" green="1" blue="1"/>
+      <position x="20" y="547.8" z="0"/>
+      <attenuation constant="1" linear="0.002" quadratic="0.00"/>
+    </light>-->
+    <!--<light>
+      <color red="1" green="1" blue="1"/>
+      <position x="500" y="547.8" z="0"/>
+      <attenuation constant="1" linear="0.002" quadratic="0.00"/>
+    </light>-->
+
+  </light_list>
+
+  <!-- Material Type Collection -->
+  <material_list>
+    <!-- Material Descriptions -->
+    <material name="Green">
+      <texture filename=""/>
+      <diffuse red="0.156" green="0.426" blue="0.107"/>
+      <specular red="0.0" green="0.0" blue="0.0" shininess="1.0"/>
+      <!--<reflective red="1" green="1" blue="1"/>-->
+    </material>
+
+    <material name="Translucent">
+      <texture filename=""/>
+      <diffuse red="0.7" green="0.7" blue="0.9"/>
+      <specular red="0.0" green="0.0" blue="0.0" shininess="1.0"/>
+      <refraction_index red="1.03" green="1.03" blue="1.03"/>
+      <refractiveness red="0.5" green="0.5" blue="0.5"/>
+    </material>
+
+    <material name="Glass">
+      <texture filename=""/>
+      <diffuse red="0.5" green="0.8" blue="1.0"/>
+      <specular red="0.0" green="0.0" blue="0.0" shininess="1.0"/>
+      <refraction_index red="1.80" green="1.80" blue="1.80"/>
+      <refractiveness red ="0.5" green="0.5" blue="0.5"/>
+
+    </material>
+
+
+    <material name="Transparent">
+      <texture filename=""/>
+      <diffuse red="0.7" green="0.7" blue="0.9"/>
+      <specular red="0.0" green="0.0" blue="0.0" shininess="1.0"/>
+      <refraction_index red="1.00" green="1.00" blue="1.00"/>
+    </material>
+    
+    <material name="Wood">
+      <texture filename="Images/wood.jpg"/>
+      <diffuse red="1" green="1" blue="1"/>
+      <specular red="0.0" green="0.0" blue="0.0" shininess="1.0"/>
+    </material>
+
+    <material name="Red">
+      <texture filename=""/>
+      <diffuse red="0.639" green="0.06" blue="0.062"/>
+      <specular red="0.0" green="0.0" blue="0.0" shininess="1.0"/>
+      <!--<reflective red="0.5" green="0.5" blue="0.5"/>-->
+    </material>
+
+    <material name="Blue">
+      <texture filename=""/>
+      <diffuse red="0.0639" green="0.06" blue="0.5"/>
+      <specular red="1.0" green="1.0" blue="1.0" shininess="100.0"/>
+      <reflective red="0.0" green="0.0" blue="0.0"/>
+    </material>
+
+    <material name="Ice">
+      <texture filename="Images/ice.jpg"/>
+      <diffuse red="0.639" green="0.6" blue="0.762"/>
+      <specular red="1" green="1" blue="1" shininess="100.0"/>
+      <reflective red="0.5" green="0.5" blue="0.5"/>
+    </material>
+
+    <material name="Stripes">
+      <texture filename="Images/stripes.jpg"/>
+      <diffuse red="0.639" green="0.6" blue="0.762"/>
+      <specular red="1" green="1" blue="1" shininess="100.0"/>
+    </material>
+    
+    <material name="Fire">
+      <texture filename="Images/fire.jpg"/>
+      <diffuse red="0.639" green="0.6" blue="0.762"/>
+      <specular red="1" green="1" blue="1" shininess="100.0"/>
+    </material>
+
+    <material name="Grid">
+      <texture filename="Images/beach_grid.jpg"/>
+      <diffuse red="0.639" green="0.6" blue="0.762"/>
+      <specular red="1" green="1" blue="1" shininess="100.0"/>
+      <refraction_index red="1.00" green="1.00" blue="1.00"/>
+      <refractiveness red ="0.7" green="0.7" blue="0.7"/>
+      <!--<reflective red="0.5" green="0.5" blue="0.5"/>-->
+    </material>
+
+    <material name="Sand">
+      <texture filename="Images/sand.jpg"/>
+      <diffuse red="0.639" green="0.6" blue="0.762"/>
+      <specular red="1" green="1" blue="1" shininess="100.0"/>
+      <!--<reflective red="0.5" green="0.5" blue="0.5"/>-->
+    </material>
+
+    <material name="Beach1">
+      <texture filename="Images/beach1.jpg"/>
+      <diffuse red="0.639" green="0.6" blue="0.762"/>
+      <specular red="1" green="1" blue="1" shininess="100.0"/>
+      <!--<reflective red="0.5" green="0.5" blue="0.5"/>-->
+    </material>
+
+    <material name="Beach2">
+      <texture filename="Images/beach2.jpg"/>
+      <diffuse red="0.639" green="0.6" blue="0.762"/>
+      <specular red="1" green="1" blue="1" shininess="100.0"/>
+      <!--<reflective red="0.5" green="0.5" blue="0.5"/>-->
+    </material>
+    
+    <material name="Earth">
+      <texture filename="Images/earthmap.jpg"/>
+      <diffuse red="0.639" green="0.6" blue="0.762"/>
+      <specular red="1" green="1" blue="1" shininess="100.0"/>
+
+    </material>
+
+    <material name="Yellow">
+      <texture filename=""/>
+      <diffuse red="0.639" green="0.606" blue="0.062"/>
+      <specular red="0.9" green="0.9" blue="0.9" shininess="10.0"/>
+      <!--<reflective red="0.5" green="0.5" blue="0.5"/>-->
+    </material>
+
+    <material name="White">
+      <texture filename=""/>
+      <diffuse red="0.739" green="0.725" blue="0.765"/>
+      <!--<specular red="1" green="1" blue="1" shininess="100.0"/>-->
+    </material>
+
+    <material name="Mirror">
+      <texture filename=""/>
+      <diffuse red="0.0" green="0.0" blue="0.0"/>
+      <specular red="0.0" green="0.0" blue="0.0" shininess="1.0"/>
+      <reflective red="0.65" green="0.65" blue="0.65"/>
+    </material>
+
+    <material name="Mirror2">
+      <texture filename=""/>
+      <diffuse red="0.3" green="0.3" blue="0.3"/>
+      <specular red="0.0" green="0.0" blue="0.0" shininess="1.0"/>
+      <reflective red="0.7" green="0.9" blue="0.8"/>
+    </material>
+
+  </material_list>
+
+  <!-- List of Scene Objects -->
+  <object_list>
+    
+    <table name="Table1" width="25" height="155" material="Wood" radius="10">
+      <scale x="1.0" y="1.0" z="1.0"/>
+      <rotation x="1.0" y="1.0" z="0.0"/>
+      <position x="0.0" y="0.0" z="0.0"/>
+      <plane width="70" height="175">
+        <scale x="1.0" y="1.0" z="1.0"/>
+        <rotation x="0.0" y="0.0" z="0.0"/>
+        <position x="0.0" y="0.0" z="0.0"/>
+        <center x="400.0" y="180.0" z="175.0"/>
+        <l1 x="1.0" y="0.0" z="0.0"/>
+        <l2 x="0.0" y="0.0" z="1.0"/>
+      </plane>
+    </table>
+    
+    <cylinder name="Glass" material="Glass" radius="15.0">
+      <scale x="1.0" y="1.0" z="1.0"/>
+      <rotation x="0.0" y="0.0" z="0.0"/>
+      <position x="0.0" y="0.0" z="0.0"/>
+      <base x="355.0" y="180.01" z="175.0"/>
+      <end x="355.0" y="230" z="175.0"/>
+    </cylinder>
+
+    <cylinder name="Straw" material="Red" radius="2.0">
+      <scale x="1.0" y="1.0" z="1.0"/>
+      <rotation x="0.0" y="0.0" z="0.0"/>
+      <position x="0.0" y="0.0" z="0.0"/>
+      <base x="355.0" y="180.02" z="175.0"/>
+      <end x="350.0" y="250" z="175.0"/>
+    </cylinder>
+    
+    <sphere name="Sphere1" material="Earth" radius="25.0">
+      <scale x="1.0" y="1.0" z="1.0"/>
+      <rotation x="0.0" y="0.0" z="0.0"/>
+      <position x="0.0" y="0.0" z="0.0"/>
+      <velocity x="0.0" y="0" z="0"/>
+      <center x="400.0" y="205.0" z="175.0"/>
+    </sphere>
+
+    <sphere name="Sphere2" material="Stripes" radius="50.0">
+      <scale x="1.0" y="1.0" z="1.0"/>
+      <rotation x="0.0" y="0.0" z="0.0"/>
+      <position x="0.0" y="0.0" z="0.0"/>
+      <velocity x="0.0" y="-20" z="0.0"/>
+      <center x="150.0" y="500.0" z="-50.0"/>
+    </sphere>
+    
+    <plane name="Ceiling" material="Mirror" width="300" height="300">
+      <scale x="1.0" y="1.0" z="1.0"/>
+      <rotation x="0.0" y="0.0" z="0.0"/>
+      <position x="0.0" y="0.0" z="0.0"/>
+      <center x="300" y="600.0" z="300.0"/>
+      <l1 x="0.0" y="0.0" z="1.0"/>
+      <l2 x="1.0" y="0.0" z="0.0"/>
+    </plane>
+    
+    <plane name="BackWall" material="Mirror" width="300" height="300">
+      <scale x="1.0" y="1.0" z="1.0"/>
+      <rotation x="0.0" y="0.0" z="0.0"/>
+      <position x="0.0" y="0.0" z="0.0"/>
+      <center x="300" y="300.0" z="500.0"/>
+      <l1 x="0.0" y="1.0" z="0.0"/>
+      <l2 x="1.0" y="0.0" z="0.0"/>
+    </plane>
+    
+    <plane name="LeftWall" material="Beach2" width="300" height="300">
+      <scale x="1.0" y="1.0" z="1.0"/>
+      <rotation x="0.0" y="0.0" z="0.0"/>
+      <position x="0.0" y="0.0" z="0.0"/>
+      <center x="0.0" y="300.0" z="300.0"/>
+      <l1 x="0.0" y="1.0" z="0.0"/>
+      <l2 x="0.0" y="0" z="1.0"/>
+    </plane>
+
+
+    <plane name="WaterTop" material="Translucent" width="300" height="300">
+      <scale x="1.0" y="1.0" z="1.0"/>
+      <rotation x="0.0" y="0.0" z="0.0"/>
+      <position x="0.0" y="0.0" z="0.0"/>
+      <center x="300.0" y="80" z="300.0"/>
+      <l1 x="1.0" y="0.0" z="0.0"/>
+      <l2 x="0.0" y="0" z="1.0"/>
+    </plane>
+
+    <plane name="WaterFront" material="Translucent" width="40" height="300">
+      <scale x="1.0" y="1.0" z="1.0"/>
+      <rotation x="0.0" y="0.0" z="0.0"/>
+      <position x="0.0" y="0.0" z="0.0"/>
+      <center x="300" y="40.0" z="0.0"/>
+      <l1 x="0.0" y="1.0" z="0.0"/>
+      <l2 x="1.0" y="0.0" z="0.0"/>
+    </plane>
+    
+    <plane name="Floor" material="Sand" width="300" height="300">
+      <scale x="1.0" y="1.0" z="1.0"/>
+      <rotation x="0.0" y="0.0" z="0.0"/>
+      <position x="0.0" y="0.0" z="0.0"/>
+      <center x="300.0" y="0" z="300.0"/>
+      <l1 x="1.0" y="0.0" z="0.0"/>
+      <l2 x="0.0" y="0" z="1.0"/>
+    </plane>
+    
+    <plane name="RightWall" material="Beach1" width="300" height="300">
+      <scale x="1.0" y="1.0" z="1.0"/>
+      <rotation x="0.0" y="0.0" z="0.0"/>
+      <position x="0.0" y="0.0" z="0.0"/>
+      <center x="600.0" y="300.0" z="300.0"/>
+      <l1 x="0.0" y="1.0" z="0.0"/>
+      <l2 x="0.0" y="0" z="1.0"/>
+    </plane>
+
+    <plane name="Mirror" material="Mirror" width="275" height="150">
+      <scale x="1.0" y="1.0" z="1.0"/>
+      <rotation x="0.0" y="0.0" z="0.0"/>
+      <position x="0.0" y="0.0" z="0.0"/>
+      <center x="599.0" y="300.0" z="300.0"/>
+      <l1 x="0.0" y="1.0" z="0.0"/>
+      <l2 x="0.0" y="0" z="1.0"/>
+    </plane>
+    
+    <triangle name="Umbrella1" material="Grid">
+      <scale x="1.0" y="1.0" z="1.0"/>
+      <rotation x="0.0" y="0.0" z="0.0"/>
+      <position x="0.0" y="0.0" z="0.0"/>
+
+      <vertex index="0" material="Grid">
+        <position x="200.0" y="600" z="175.0"/>
+        <normal x="0.0" y="1.0" z="0.0"/>
+        <texture u="0.0" v="0.0"/>
+      </vertex>
+
+
+      <vertex index="1" material="Grid">
+        <position x="300.0" y="300" z="275.0"/>
+        <normal x="0.0" y="1.0" z="0.0"/>
+        <texture u="0.0" v="1.0"/>
+      </vertex>
+
+
+      <vertex index="2" material="Grid">
+        <position x="300.0" y="300" z="75.0"/>
+        <normal x="0.0" y="1.0" z="0.0"/>
+        <texture u="1.0" v="1.0"/>
+      </vertex>
+    </triangle>
+
+    <triangle name="Umbrella2" material="Grid">
+      <scale x="1.0" y="1.0" z="1.0"/>
+      <rotation x="0.0" y="0.0" z="0.0"/>
+      <position x="0.0" y="0.0" z="0.0"/>
+
+      <vertex index="0" material="Grid">
+        <position x="200.0" y="600" z="175.0"/>
+        <normal x="0.0" y="1.0" z="0.0"/>
+        <texture u="0.0" v="0.0"/>
+      </vertex>
+
+
+      <vertex index="1" material="Grid">
+        <position x="300.0" y="300" z="75.0"/>
+        <normal x="0.0" y="1.0" z="0.0"/>
+        <texture u="1.0" v="0.0"/>
+      </vertex>
+
+
+      <vertex index="2" material="Grid">
+        <position x="100.0" y="300" z="75.0"/>
+        <normal x="0.0" y="1.0" z="0.0"/>
+        <texture u="0.0" v="1.0"/>
+      </vertex>
+    </triangle>
+
+    <triangle name="Umbrella3" material="Grid">
+      <scale x="1.0" y="1.0" z="1.0"/>
+      <rotation x="0.0" y="0.0" z="0.0"/>
+      <position x="0.0" y="0.0" z="0.0"/>
+
+      <vertex index="0" material="Grid">
+        <position x="200.0" y="600" z="175.0"/>
+        <normal x="0.0" y="1.0" z="0.0"/>
+        <texture u="0.0" v="0.0"/>
+      </vertex>
+
+
+      <vertex index="1" material="Grid">
+        <position x="100.0" y="300" z="75.0"/>
+        <normal x="0.0" y="1.0" z="0.0"/>
+        <texture u="0.0" v="1.0"/>
+      </vertex>
+
+
+      <vertex index="2" material="Grid">
+        <position x="100.0" y="300" z="275.0"/>
+        <normal x="0.0" y="1.0" z="0.0"/>
+        <texture u="1.0" v="0.0"/>
+      </vertex>
+    </triangle>
+
+    <triangle name="Umbrella4" material="Grid">
+      <scale x="1.0" y="1.0" z="1.0"/>
+      <rotation x="0.0" y="0.0" z="0.0"/>
+      <position x="0.0" y="0.0" z="0.0"/>
+
+      <vertex index="0" material="Grid">
+        <position x="200.0" y="600" z="175.0"/>
+        <normal x="0.0" y="1.0" z="0.0"/>
+        <texture u="0.0" v="0.0"/>
+      </vertex>
+
+
+      <vertex index="1" material="Grid">
+        <position x="100.0" y="300" z="175.0"/>
+        <normal x="0.0" y="1.0" z="0.0"/>
+        <texture u="0.0" v="1.0"/>
+      </vertex>
+
+
+      <vertex index="2" material="Grid">
+        <position x="300.0" y="300" z="175.0"/>
+        <normal x="0.0" y="1.0" z="0.0"/>
+        <texture u="1.0" v="0.0"/>
+      </vertex>
+    </triangle>
+    <cylinder name="BeachCylinder" material="Red" radius="12.0">
+      <scale x="1.0" y="1.0" z="1.0"/>
+      <rotation x="0.0" y="0.0" z="0.0"/>
+      <position x="0.0" y="0.0" z="0.0"/>
+      <base x="200.0" y="0" z="175.0"/>
+      <end x="200.0" y="300" z="175.0"/>
+    </cylinder>
+
+  </object_list>
+
+  <!-- End of Scene -->
+</scene>

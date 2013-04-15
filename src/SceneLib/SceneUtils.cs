@@ -60,6 +60,7 @@ namespace SceneLib
         public Vector Transparent { get; set; }
         public Vector Reflective { get; set; }
         public Vector RefractionIndex { get; set; }
+        public Vector Refractiveness { get; set; }
         public float Shininess { get { return Specular.w; } set { Specular.w = value; } }
         public IntPtr PtrBitmap {get { return ptrBitmap; } }
         public IntPtr PtrBumpBitmap { get { return ptrBumpBitmap; } }
@@ -71,6 +72,7 @@ namespace SceneLib
             Diffuse = new Vector(0, 0, 0);
             Reflective = new Vector(0, 0, 0);
             RefractionIndex = new Vector(0, 0, 0);
+            Refractiveness = new Vector();
         }
 
         public Vector GetTexturePixelColor(int x, int y)

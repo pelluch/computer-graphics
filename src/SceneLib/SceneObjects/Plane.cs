@@ -97,6 +97,8 @@ namespace SceneLib
                 t2.U.Add(0);
                 t2.V.Add(0);
             }
+            
+            this.Vertex = vertex;
         }
 
         public void Initialize()
@@ -165,7 +167,59 @@ namespace SceneLib
             if (isHit)
             {
                 record.ObjectName = this.Name;
-            }
+                if (Material.TextureImage != null)
+                {
+                    Vector l1 = Vertex[1] - Vertex[0];
+                    Vector l2 = Vertex[3] - Vertex[0];
+                    float f = l1.x;
+                    float g = l2.x;
+                    float h = record.HitPoint.x;
+                    float i = Vertex[0].x;
+
+                    float j = l1.y;
+                    float k = l2.y;
+                    float l = record.HitPoint.y;
+                    float m = Vertex[0].y;
+
+                    float n = l1.z;
+                    float o = l2.z;
+                    float p = record.HitPoint.z;
+                    float q = Vertex[0].z;
+
+                    float det = g * j - f * k;
+                    if (det == 0)
+                    {
+                        det = o * j - n * k;
+                        if (det == 0)
+                        {
+                            det = g * n - f * o;
+                            j = n;
+                            k = o;
+                            l = p;
+                            m = q;
+                        }
+                        else
+                        {
+                            f = n;
+                            h = o;
+                            h = p;
+                            i = q;
+                        }
+                    }
+                    if (det != 0)
+                    {
+                        float alpha = (g * l - g * m - h * k + i * k) / det;
+                        float beta = (-f * l + f * m + h * j - i * j) / det;
+                        //if (RenderingParameters.showMouse)
+                        //{
+                        //Console.WriteLine("alpha: " + alpha + "\tbeta: " + beta);
+
+                        record.TextureColor = this.Material.GetTexturePixelColor(alpha, beta);
+                    }
+                   // }
+                }
+                
+            }           
             return isHit;
         }
     }

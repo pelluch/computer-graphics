@@ -86,6 +86,12 @@
       <refraction_index red="1.03" green="1.03" blue="1.03"/>
     </material>
 
+    <material name="Wood">
+      <texture filename="Images/wood.jpg"/>
+      <diffuse red="1" green="1" blue="1"/>
+      <specular red="0.0" green="0.0" blue="0.0" shininess="1.0"/>
+    </material>
+    
     <material name="Red">
       <texture filename=""/>
       <diffuse red="0.639" green="0.06" blue="0.062"/>
@@ -111,7 +117,6 @@
       <texture filename="Images/fire.jpg"/>
       <diffuse red="0.639" green="0.6" blue="0.762"/>
       <specular red="1" green="1" blue="1" shininess="100.0"/>
-      <reflective red="0.1" green="0.1" blue="0.1"/>
     </material>
     
     <material name="Grid">
@@ -323,7 +328,7 @@
 
  
 
-    <table name="Table1" width="50" height="200" material="Blue" radius="10">
+    <table name="Table1" width="50" height="200" material="Wood" radius="10">
       <scale x="1.0" y="1.0" z="1.0"/>
       <rotation x="0.0" y="0.0" z="0.0"/>
       <position x="0.0" y="0.0" z="0.0"/>
@@ -334,6 +339,20 @@
         <center x="278.0" y="220.0" z="0.0"/>
         <l1 x="1.0" y="0.0" z="0.0"/>
         <l2 x="0.0" y="0.0" z="1.0"/>
+      </plane>
+    </table>
+
+    <table name="Table2" width="25" height="150" material="Earth" radius="5">
+      <scale x="1.0" y="1.0" z="1.0"/>
+      <rotation x="0.0" y="0.0" z="0.0"/>
+      <position x="0.0" y="0.0" z="0.0"/>
+      <plane width="100" height="50">
+        <scale x="1.0" y="1.0" z="1.0"/>
+        <rotation x="0.0" y="0.0" z="0.0"/>
+        <position x="0.0" y="0.0" z="0.0"/>
+        <center x="278.0" y="420.0" z="0.0"/>
+        <l1 x="1.0" y="0.0" z="0.0"/>
+        <l2 x="0.0" y="-1.0" z="0.0"/>
       </plane>
     </table>
     

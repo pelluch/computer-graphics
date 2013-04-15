@@ -62,7 +62,7 @@ namespace SceneLib
 
         public RenderingParameters()
         {
-            MaxTime = 0.0f;
+            MaxTime = 3.0f;
             Height = 800;
             Width = 800;
             MinTextureMode = SceneTextureMode.Nearest;
@@ -73,7 +73,7 @@ namespace SceneLib
             EnableShading = true;
             EnableReflections = true;
             EnableRefractions = true;
-            EnableShadows = false;
+            EnableShadows = true;
             EnableAttenuation = true;
             EnableAntialias = true;
             EnableParallelization = true;
