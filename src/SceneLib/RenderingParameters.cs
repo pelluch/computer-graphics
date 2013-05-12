@@ -63,8 +63,8 @@ namespace SceneLib
         public RenderingParameters()
         {
             MaxTime = 3.0f;
-            Height = 800;
-            Width = 800;
+            Height = 500;
+            Width = 500;
             MinTextureMode = SceneTextureMode.Nearest;
             MagTextureMode = SceneTextureMode.Nearest;
             RenderMode = SceneRenderMode.Normal;

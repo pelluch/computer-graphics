@@ -14,7 +14,7 @@ namespace Renderer
         Raytracer,
         OpenGL,
         RasterizerWireframe,
-        Rasterizer
+        Rasterizer,
     }
 
     enum NumberKeys
@@ -41,6 +41,8 @@ namespace Renderer
         
         private static OpenGLRenderer openGLrenderer;
         private static RaytraceRenderer raytraceRenderer;
+        private static TransformationRenderer transformationRenderer;
+
         private static Scene scene;
         private static RenderingParameters rendParams = new RenderingParameters();
 
@@ -84,6 +86,7 @@ namespace Renderer
              scene.Load(@"Scenes/desktop.xml");
              openGLrenderer = new OpenGLRenderer(scene, rendParams.Width, rendParams.Height);
              raytraceRenderer = new RaytraceRenderer(scene, rendParams);
+             transformationRenderer = new TransformationRenderer(scene, rendParams.Width, rendParams.Height);
          }
 
         
@@ -97,6 +100,9 @@ namespace Renderer
                  case RendererType.OpenGL:
                      openGLrenderer.Render();
                      break;
+                 case RendererType.Rasterizer:
+                     transformationRenderer.Render();
+                     break;
                  default:
                      break;
              }
@@ -107,6 +113,10 @@ namespace Renderer
              if (mode == RendererType.Raytracer)
              {
                  raytraceRenderer.Update();
+             }
+             else if (mode == RendererType.Rasterizer)
+             {
+                 transformationRenderer.Update();
              }
          }
 
@@ -163,7 +173,7 @@ namespace Renderer
              }
              else if (key == (int)NumberKeys.Three)
              {
-                 mode = RendererType.RasterizerWireframe;
+                 mode = RendererType.RasterizerWireframe;                 
                  Glut.glutPostRedisplay();
              }
              else if (key == (int)NumberKeys.Four)

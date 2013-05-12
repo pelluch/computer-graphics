@@ -47,16 +47,7 @@ namespace Renderer
             this.normals = new Vector[width, height];
             this.materials = new SceneMaterial[width, height];
 
-            this.map = new Vector[height][];
 
-            for (int y = 0; y < height; y++)
-            {
-                map[y] = new Vector[width];
-                for (int x = 0; x < height; x++)
-                {
-                    map[y][x] = new Vector(x, y);
-                }
-            }
             watch = new Stopwatch();
         }
 
