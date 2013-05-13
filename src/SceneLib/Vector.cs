@@ -21,6 +21,29 @@ namespace SceneLib
             this.w = w;
         }
 
+        public float this[int index]
+        {
+            get
+            {
+                float returnValue = 0.0f;
+                switch (index)
+                {
+                    case 0:
+                        returnValue = x;
+                        break;
+                    case 1:
+                        returnValue = y;
+                        break;
+                    case 2:
+                        returnValue = z;
+                        break;
+                    case 3:
+                        returnValue = w;
+                        break;
+                }
+                return returnValue;
+            }
+        }
         public Vector(float x, float y, float z) 
             : this(x,y,z,1)
         {

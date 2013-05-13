@@ -13,7 +13,7 @@ using System.Diagnostics;
 
 namespace Renderer
 {
-    class RaytraceRenderer
+    public class RaytraceRenderer : Renderer
     {
         private static Random rand = new Random();
         private Scene scene;
@@ -531,26 +531,7 @@ namespace Renderer
             return finalColor;
         }
 
-        private Vector CalculateU(Vector up, Vector w)
-        {
-            Vector u = Vector.Cross3(up, w);
-            u.Normalize3();
-            return u;
-        }
-
-        private Vector CalculateV(Vector w, Vector u)
-        {
-            Vector v = Vector.Cross3(w, u);
-            return v;
-        }
-
-        private Vector CalculateW(Vector eye, Vector target)
-        {
-            // -(t - e)
-            Vector gazeDirection = eye - target;
-            gazeDirection.Normalize3();
-            return gazeDirection;
-        }
+       
 
         private void SaveImage(Vector[,] buffer, string fileName)
         {

@@ -7,17 +7,66 @@ namespace SceneLib
 {
     public class Matrix
     {
-        public float M11 {get; set;} public float M12 { get; set; } public float M13 { get; set; } public float M14 { get; set; }
-        public float M21 { get; set; } public float M22 { get; set; } public float M23 { get; set; } public float M24 { get; set; }
-        public float M31 { get; set; } public float M32 { get; set; } public float M33 { get; set; } public float M34 { get; set; }
-        public float M41 { get; set; } public float M42 { get; set; } public float M43 { get; set; } public float M44 { get; set; }
+        private const int MATRIX_SIZE = 4;
+        public float[] data;
+        public float[] Data
+        {
+            get { return data; }
+        }
 
+        public Matrix()
+        {
+            data = new float[MATRIX_SIZE*MATRIX_SIZE];
+        }
+
+        public Matrix(float[] coeffs)
+        {
+            data = coeffs;
+        }
+
+        public Matrix(Vector[] colVectors)
+        {
+            data = new float[MATRIX_SIZE * MATRIX_SIZE];
+            for (int row = 0; row < MATRIX_SIZE; ++row)
+            {
+                for (int col = 0; col < MATRIX_SIZE; ++col)
+                {
+                    data[row * MATRIX_SIZE + col] = colVectors[col][row];
+                }
+            }
+        }
+
+        public float this[int row, int col]
+        {
+            get
+            {
+                float coeff = data[row * MATRIX_SIZE + col];
+                return coeff;
+            }
+            set
+            {
+                data[row * MATRIX_SIZE + col] = value;
+            }
+        }
+
+        public override string ToString()
+        {
+            for (int row = 0; row < MATRIX_SIZE; ++row)
+            {
+                for (int col = 0; col < MATRIX_SIZE; ++col)
+                {
+                    Console.Write(data[row * MATRIX_SIZE + col] + " ");
+                }
+                Console.WriteLine("");
+            }
+            return base.ToString();
+        }
         public static Vector operator *(Matrix M, Vector v)
         {
-            float x = M.M11 * v.x + M.M12 * v.y + M.M13 * v.z + M.M14 * v.w;
-            float y = M.M21 * v.x + M.M22 * v.y + M.M23 * v.z + M.M24 * v.w;
-            float z = M.M31 * v.x + M.M32 * v.y + M.M33 * v.z + M.M34 * v.w;
-            float w = M.M41 * v.x + M.M42 * v.y + M.M43 * v.z + M.M44 * v.w;
+            float x = M[0,0] * v.x + M[0,1] * v.y + M[0,2] * v.z + M[0,3] * v.w;
+            float y = M[1, 0] * v.x + M[1, 1] * v.y + M[1, 2] * v.z + M[1, 3] * v.w;
+            float z = M[2, 0] * v.x + M[2, 1] * v.y + M[2, 2] * v.z + M[2, 3] * v.w;
+            float w = M[3, 0] * v.x + M[3, 1] * v.y + M[3, 2] * v.z + M[3, 3] * v.w;
 
             Vector transformedVector = new Vector(x, y, z, w);
             return transformedVector;
@@ -25,77 +74,33 @@ namespace SceneLib
 
         public static Matrix operator *(float scalar, Matrix M)
         {
-            Matrix result = new Matrix();
-            result.M11 = M.M11 * scalar;
-            result.M12 = M.M12 * scalar;
-            result.M13 = M.M13 * scalar;
-            result.M14 = M.M14 * scalar;
-            result.M21 = M.M21 * scalar;
-            result.M22 = M.M22 * scalar;
-            result.M23 = M.M23 * scalar;
-            result.M24 = M.M24 * scalar;
-            result.M31 = M.M31 * scalar;
-            result.M32 = M.M32 * scalar;
-            result.M33 = M.M33 * scalar;
-            result.M34 = M.M34 * scalar;
-            result.M41 = M.M41 * scalar;
-            result.M42 = M.M42 * scalar;
-            result.M43 = M.M43 * scalar;
-            result.M44 = M.M44 * scalar;
-            return result;
+            float[] newData = new float[MATRIX_SIZE*MATRIX_SIZE];
+            for (int i = 0; i < MATRIX_SIZE * MATRIX_SIZE; i++)
+                newData[i] = M.Data[i] * scalar;
+            Matrix M2 = new Matrix(newData);
+            return M2;
         }
 
         public static Matrix operator *(Matrix M1, Matrix M2)
-        {
-            Vector v1 = new Vector(M2.M11, M2.M21, M2.M31, M2.M41);
-            Vector v2 = new Vector(M2.M12, M2.M22, M2.M32, M2.M42);
-            Vector v3 = new Vector(M2.M13, M2.M23, M2.M33, M2.M43);
-            Vector v4 = new Vector(M2.M14, M2.M24, M2.M34, M2.M44);
+        {  
+            Vector v1 = new Vector(M2[0,0], M2[1,0], M2[2,0], M2[3,0]);
+            Vector v2 = new Vector(M2[0, 1], M2[1, 1], M2[2, 1], M2[3, 1]);
+            Vector v3 = new Vector(M2[0, 2], M2[1, 2], M2[2, 2], M2[3, 2]);
+            Vector v4 = new Vector(M2[0, 3], M2[1, 3], M2[2, 3], M2[3, 3]);
 
             Vector v1Result = M1 * v1;
             Vector v2Result = M1 * v2;
             Vector v3Result = M1 * v3;
             Vector v4Result = M1 * v4;
-
-            Matrix result = new Matrix();
-            result.M11 = v1Result.x;
-            result.M12 = v2Result.x;
-            result.M13 = v3Result.x;
-            result.M14 = v4Result.x;
-            result.M21 = v1Result.y;
-            result.M22 = v2Result.y;
-            result.M23 = v3Result.y;
-            result.M24 = v4Result.y;
-            result.M31 = v1Result.z;
-            result.M32 = v2Result.z;
-            result.M33 = v3Result.z;
-            result.M34 = v4Result.z;
-            result.M41 = v1Result.w;
-            result.M42 = v2Result.w;
-            result.M43 = v3Result.w;
-            result.M44 = v4Result.w; 
+            Vector[] colVectors = new Vector[] { v1Result, v2Result, v3Result, v4Result };
+            Matrix result = new Matrix(colVectors);
             return result;
         }
 
         public static Matrix Identity()
         {
-            Matrix result = new Matrix();
-            result.M11 = 1;
-            result.M12 = 0;
-            result.M13 = 0;
-            result.M14 = 0;
-            result.M21 = 0;
-            result.M22 = 1;
-            result.M23 = 0;
-            result.M24 = 0;
-            result.M31 = 0;
-            result.M32 = 0;
-            result.M33 = 1;
-            result.M34 = 0;
-            result.M41 = 0;
-            result.M42 = 0;
-            result.M43 = 0;
-            result.M44 = 1;
+            float[] newData = new float[] { 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1 };
+            Matrix result = new Matrix(newData);
             return result;
         }
 
