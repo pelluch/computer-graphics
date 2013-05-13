@@ -128,24 +128,28 @@ namespace Renderer
              {
                  scene.Lights[0].Position += new Vector(10, 0, 0);
                  raytraceRenderer.ResetTracer();
+                 transformationRenderer.ResetRenderer();
                  Glut.glutPostRedisplay();
              }
              else if (key == (int)ArrowKeys.Up)
              {
                  scene.Lights[0].Position += new Vector(0, 0, 10);
                  raytraceRenderer.ResetTracer();
+                 transformationRenderer.ResetRenderer();
                  Glut.glutPostRedisplay();
              }
              else if (key == (int)ArrowKeys.Right)
              {
                  scene.Lights[0].Position += new Vector(-10, 0, 0);
-                 raytraceRenderer.ResetTracer();                 
+                 raytraceRenderer.ResetTracer();
+                 transformationRenderer.ResetRenderer();
                  Glut.glutPostRedisplay();
              }
              else if (key == (int)ArrowKeys.Down)
              {
                  scene.Lights[0].Position += new Vector(0, 0, -10);
                  raytraceRenderer.ResetTracer();
+                 transformationRenderer.ResetRenderer();
                  Glut.glutPostRedisplay();
              }
  
@@ -171,6 +175,7 @@ namespace Renderer
              {
                  mode = RendererType.Raytracer;
                  raytraceRenderer.ResetTracer();
+                 transformationRenderer.ResetRenderer();
                  Glut.glutPostRedisplay();
              }
              else if (key == (int)NumberKeys.Three)
@@ -188,6 +193,7 @@ namespace Renderer
                  scene.Camera.Position += dir * camSpeed;
                  scene.Camera.Target += dir * camSpeed;
                  raytraceRenderer.ResetTracer();
+                 transformationRenderer.ResetRenderer();
                  Glut.glutPostRedisplay();
              }
              else if (key == (byte)'s')
@@ -195,6 +201,7 @@ namespace Renderer
                  scene.Camera.Position -= dir * camSpeed;
                  scene.Camera.Target -= dir * camSpeed;
                  raytraceRenderer.ResetTracer();
+                 transformationRenderer.ResetRenderer();
                  Glut.glutPostRedisplay();
              }
              else if (key == (byte)'a')
@@ -202,6 +209,7 @@ namespace Renderer
                  scene.Camera.Position -= right * camSpeed;
                  scene.Camera.Target -= right * camSpeed;
                  raytraceRenderer.ResetTracer();
+                 transformationRenderer.ResetRenderer();
                  Glut.glutPostRedisplay();
              }
              else if (key == (byte)'d')
@@ -209,6 +217,7 @@ namespace Renderer
                  scene.Camera.Position += right * camSpeed;
                  scene.Camera.Target += right * camSpeed;
                  raytraceRenderer.ResetTracer();
+                 transformationRenderer.ResetRenderer();
                  Glut.glutPostRedisplay();
              }
              else if (key == (byte)'i')
@@ -218,6 +227,7 @@ namespace Renderer
                  scene.Camera.Target = scene.Camera.Position + tempVec * tar_posDist;
                  scene.Camera.Up = Vector.Cross3(right, tempVec);
                  raytraceRenderer.ResetTracer();
+                 transformationRenderer.ResetRenderer();
                  Glut.glutPostRedisplay();
              }
              else if (key == (byte)'k')
@@ -227,6 +237,7 @@ namespace Renderer
                  scene.Camera.Target = scene.Camera.Position + tempVec * tar_posDist;
                  scene.Camera.Up = Vector.Cross3(right, tempVec);
                  raytraceRenderer.ResetTracer();
+                 transformationRenderer.ResetRenderer();
                  Glut.glutPostRedisplay();
              }
              else if (key == (byte)'j')
@@ -235,6 +246,7 @@ namespace Renderer
                  tempVec.Normalize3();
                  scene.Camera.Target = scene.Camera.Position + tempVec * tar_posDist;
                  raytraceRenderer.ResetTracer();
+                 transformationRenderer.ResetRenderer();
                  Glut.glutPostRedisplay();
              }
              else if (key == (byte)'l')
@@ -243,24 +255,28 @@ namespace Renderer
                  tempVec.Normalize3();
                  scene.Camera.Target = scene.Camera.Position + tempVec * tar_posDist;
                  raytraceRenderer.ResetTracer();
+                 transformationRenderer.ResetRenderer();
                  Glut.glutPostRedisplay();
              }
              else if (key == (byte)'x')
              {
                  raytraceRenderer.renderingParameters.EnableRefractions = !raytraceRenderer.renderingParameters.EnableRefractions;
                  raytraceRenderer.ResetTracer();
+                 transformationRenderer.ResetRenderer();
                  Glut.glutPostRedisplay();
              }
              else if (key == (byte)'z')
              {
                  raytraceRenderer.renderingParameters.EnableShadows = !raytraceRenderer.renderingParameters.EnableShadows;
                  raytraceRenderer.ResetTracer();
+                 transformationRenderer.ResetRenderer();
                  Glut.glutPostRedisplay();
              }
              else if (key == (byte)'c')
              {
                  raytraceRenderer.renderingParameters.EnableAntialias = !raytraceRenderer.renderingParameters.EnableAntialias;
                  raytraceRenderer.ResetTracer();
+                 transformationRenderer.ResetRenderer();
                  Glut.glutPostRedisplay();
              }
 

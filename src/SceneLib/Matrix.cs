@@ -81,6 +81,15 @@ namespace SceneLib
             return M2;
         }
 
+        public static Matrix operator /(float scalar, Matrix M)
+        {
+            float[] newData = new float[MATRIX_SIZE * MATRIX_SIZE];
+            for (int i = 0; i < MATRIX_SIZE * MATRIX_SIZE; i++)
+                newData[i] = M.Data[i] / scalar;
+            Matrix M2 = new Matrix(newData);
+            return M2;
+        }
+
         public static Matrix operator *(Matrix M1, Matrix M2)
         {  
             Vector v1 = new Vector(M2[0,0], M2[1,0], M2[2,0], M2[3,0]);

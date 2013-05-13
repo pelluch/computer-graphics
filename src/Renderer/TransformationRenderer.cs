@@ -15,7 +15,7 @@ namespace Renderer
         private Scene scene;
         private int width;
         private int height;
-        
+        private bool isDrawing = false;
         private Vector[,] buffer;
         private float[,] zBuffer;
 
@@ -30,9 +30,31 @@ namespace Renderer
             this.height = rendParams.Height;
             this.buffer = new Vector[width, height];
             this.zBuffer = new float[width, height];
+            for (int i = 0; i < zBuffer.GetLength(0); ++i)
+            {
+                for (int j = 0; j < zBuffer.GetLength(1); ++j)
+                {
+                    zBuffer[i, j] = float.MinValue;
+                    buffer[i, j] = new Vector();
+                }
+            }
+            this.isDrawing = true;
         }
-                
 
+        public void ResetRenderer()
+        {
+            this.buffer = new Vector[width, height];
+            this.zBuffer = new float[width, height];
+            for (int i = 0; i < zBuffer.GetLength(0); ++i)
+            {
+                for (int j = 0; j < zBuffer.GetLength(1); ++j)
+                {
+                    buffer[i, j] = new Vector();
+                    zBuffer[i, j] = float.MinValue;
+                }
+            }
+            isDrawing = true;
+        }
         public void Update()
         {
             InnerRender();
@@ -75,32 +97,129 @@ namespace Renderer
 
         }
 
+        private Matrix ViewPortMatrix()
+        {
+            float nx = renderingParameters.Width;
+            float ny = renderingParameters.Height;
+
+            float[] viewData = new float[]{ nx/2.0f, 0, 0, (nx-1)/2.0f,
+                0, ny/2.0f, 0, (ny-1)/2.0f,
+                0, 0, 1, 0,
+                0, 0, 0, 1};
+
+            Matrix viewMatrix = new Matrix(viewData);
+            return viewMatrix;
+        }
+
+        private Matrix PerspectiveMatrix()
+        {
+            float far = -scene.Camera.FarClip;
+            //float far = float.MaxValue;
+
+            float near = -scene.Camera.NearClip;
+            float[] perspectiveData = new float[] { near, 0, 0, 0,
+                0, near, 0, 0,
+                0, 0, near+far, -far*near,
+                0, 0, 1, 0};
+            Matrix perspectiveMatrix = new Matrix(perspectiveData);
+            return perspectiveMatrix;
+
+        }
         /// <summary>
         /// Método de prueba
         /// </summary>
         private void InnerRender()
         {
-
-            foreach(SceneObject obj in scene.Objects)
+            if (isDrawing)
             {
+                Matrix cameraMatrix = CameraMatrix();
+                Matrix orthogonalProjection = OrthogonalMatrix();
+                Matrix perspectiveMatrix = PerspectiveMatrix();
+                Matrix viewMatrix = ViewPortMatrix();
 
+                Console.WriteLine(orthogonalProjection);
+                foreach (SceneObject obj in scene.Objects)
+                {
+                    SceneTriangle triangle = obj as SceneTriangle;
+                    Vector[] points = new Vector[3];
+                    Vector[] colors = new Vector[3];
+                    
+
+                    for(int i = 0; i < triangle.Vertex.Count; ++i)
+                    {
+                        Vector vertex = triangle.Vertex[i];
+                        //colors[i] = triangle.Materials[i].Diffuse;
+
+                        Vector cameraSpace = cameraMatrix * vertex;
+                        Vector perspectiveSpace = perspectiveMatrix * cameraSpace;
+                        Vector perspectiveSpaceDivided = perspectiveSpace / perspectiveSpace.w;
+                        Vector portSpace = orthogonalProjection * perspectiveSpace;
+                        //Vector portSpaceDivided = portSpace / portSpace.w;
+                        Vector screenSpace = viewMatrix * portSpace;
+                        screenSpace = screenSpace / screenSpace.w;
+                        points[i] = screenSpace;
+
+
+                        Vector surfaceNormal = triangle.Normal[i];
+                        Vector lightDirection;
+                        Vector vertexColor = new Vector();
+
+                        foreach (SceneLight light in scene.Lights)
+                        {
+                            Vector currentLightColor = new Vector();
+                            lightDirection = light.Position - vertex;
+                            lightDirection.Normalize3();
+
+                            //Get cosine of angle between vectors
+                            float similarity = Vector.Dot3(surfaceNormal, lightDirection);
+                            Vector lambertColor = new Vector();
+                            lambertColor = Vector.ColorMultiplication(light.Color, triangle.Materials[i].Diffuse) * Math.Max(0, similarity);
+             
+
+                            //Get half vector between camera direction and light direction
+                            Vector eyeDirection = scene.Camera.Position - vertex;
+                            eyeDirection.Normalize3();
+                            Vector halfVector = eyeDirection + lightDirection;
+                            halfVector.Normalize3();
+
+                            //Phong shading calculations
+                            float normalHalfSimilarity = Vector.Dot3(surfaceNormal, halfVector);
+                            Vector phongLightCoefficient = Vector.ColorMultiplication(light.Color, triangle.Materials[i].Specular);
+                            float shininessComponent = (float)Math.Pow(Math.Max(0, normalHalfSimilarity), triangle.Materials[i].Shininess);
+                            Vector phongColor = phongLightCoefficient * shininessComponent;
+
+                            //Add colors and ambient light
+                            //Assume no transparency
+
+                            currentLightColor = Vector.LightAdd(lambertColor, phongColor);
+                            vertexColor = Vector.LightAdd(vertexColor, currentLightColor);
+
+                            //currentLightColor = Vector.LightAdd(lambertColor, phongColor);
+                            //record.ShadedColors.Add(currentLightColor);
+                        }
+                        colors[i] = vertexColor;
+
+                    }
+                    DrawTriangle(points[0], points[1], points[2], colors[0], colors[1], colors[2], false);
+                }
+                //for (int i = 0; i < 16; i++)
+                //{
+                //    Vector center = new Vector(200, 150);
+                //    Vector pos = center + new Vector((float)(150 * Math.Cos(Math.PI / 16.0 + Math.PI * 2 * i / 16)), (float)(150 * Math.Sin(Math.PI / 16.0 + Math.PI * 2 * i / 16)));
+                //    DrawLine(new Vector(200, 150), pos, new Vector(1, 0, 0), new Vector(0, 1, 0), true);
+
+                //    Vector pos2 = center + new Vector((float)(150 * Math.Cos(Math.PI * 2 * i / 16)), (float)(150 * Math.Sin(Math.PI * 2 * i / 16)));
+                //    DrawLine(new Vector(200, 150), pos2, new Vector(1, 0, 0), new Vector(0, 0, 1), true);
+                //}
+
+                //DrawTriangle(new Vector(80, 80), new Vector(250, 270), new Vector(260, 40), new Vector(1, 0, 0), new Vector(0, 1, 0),
+                //    new Vector(0, 0, 1), true);
+
+                Console.WriteLine();
+                Glut.glutPostRedisplay();
+                isDrawing = false;
+                //DrawLine(new Vector(50, 50), new Vector(100, 100), new Vector(0, 0, 1), new Vector(1, 0, 0), true);
             }
-            //for (int i = 0; i < 16; i++)
-            //{
-            //    Vector center = new Vector(200, 150);
-            //    Vector pos = center + new Vector((float)(150 * Math.Cos(Math.PI / 16.0 + Math.PI * 2 * i / 16)), (float)(150 * Math.Sin(Math.PI / 16.0 + Math.PI * 2 * i / 16)));
-            //    DrawLine(new Vector(200, 150), pos, new Vector(1, 0, 0), new Vector(0, 1, 0), true);
-
-            //    Vector pos2 = center + new Vector((float)(150 * Math.Cos(Math.PI * 2 * i / 16)), (float)(150 * Math.Sin(Math.PI * 2 * i / 16)));
-            //    DrawLine(new Vector(200, 150), pos2, new Vector(1, 0, 0), new Vector(0, 0, 1), true);
-            //}
-
-            //DrawTriangle(new Vector(80, 80), new Vector(250, 270), new Vector(260, 40), new Vector(1, 0, 0), new Vector(0, 1, 0),
-            //    new Vector(0, 0, 1), true);
-
-
-            //DrawLine(new Vector(50, 50), new Vector(100, 100), new Vector(0, 0, 1), new Vector(1, 0, 0), true);
-
         }
 
 
@@ -123,6 +242,29 @@ namespace Renderer
             return;
         }
 
+        private Matrix OrthogonalMatrix()
+        {
+            float far = -scene.Camera.FarClip;
+            //float far = float.MaxValue;
+
+            float near = -scene.Camera.NearClip;
+
+            //Use radians
+            float fov = (float)Math.PI * (scene.Camera.FieldOfView / 180.0f);
+            float tanAngle = (float)Math.Tan(fov / 2.0);
+            float top = tanAngle * Math.Abs(near);
+            float bottom = -top;
+            float aspectRatio = width / height;
+            float left = aspectRatio * bottom;
+            float right = -left;
+
+            float[] matrixData = new float[]{2.0f/(right-left), 0, 0, -(right+left)/(right-left),
+                0, 2.0f/(top-bottom), 0, -(top+bottom)/(top-bottom),
+                0, 0, 2.0f/(near-far), -(near+far)/(near-far),
+                0, 0, 0, 1};
+            Matrix orthogonalMatrix = new Matrix(matrixData);
+            return orthogonalMatrix;
+        }
         private Matrix CameraMatrix()
         {
             //Console.WriteLine("Drawing pixel " + screenX + ", " + screenY);
@@ -134,11 +276,7 @@ namespace Renderer
             Vector up = scene.Camera.Up;
             //Console.WriteLine("up: " + up);
 
-            //Use radians
-            float fov = (float)Math.PI * (scene.Camera.FieldOfView / 180.0f);
             float near = scene.Camera.NearClip;
-            //float far = scene.Camera.FarClip;
-            float far = float.MaxValue;
 
             Vector w = CalculateW(eye, target);
             Vector u = CalculateU(up, w);
@@ -438,11 +576,19 @@ namespace Renderer
 
                     float v = (-y1y3 * (x - x3) + x1x3 * (y - y3)) / den2;
                     if (v < 0 || v > 1) continue;
-
+                    
                     float w = 1 - u - v;
                     if (w < 0 || w > 1) continue;
 
-                    this.buffer[(int)x, (int)y] = u * c1 + v * c2 + w * c3;
+                    float z = u * p1.z + v * p2.z + w * p3.z;
+                    float minZ = this.zBuffer[(int)x, (int)y];
+                    //z es negativo, por eso el >
+                    if (z > minZ)
+                    {
+                        minZ = z;
+                        this.zBuffer[(int)x, (int)y] = z;
+                        this.buffer[(int)x, (int)y] = u * c1 + v * c2 + w * c3;
+                    }
                 }
 
             }
