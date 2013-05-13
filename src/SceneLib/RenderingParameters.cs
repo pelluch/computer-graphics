@@ -76,7 +76,7 @@ namespace SceneLib
             EnableShadows = true;
             EnableAttenuation = true;
             EnableAntialias = true;
-            EnableParallelization = true;
+            EnableParallelization = false;
             EnableDepthOfField = false;
             EnableTestDepth = true;
             EnableFustrumCulling = true;

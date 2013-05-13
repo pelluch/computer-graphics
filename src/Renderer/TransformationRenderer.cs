@@ -7,6 +7,8 @@ using Tao.OpenGl;
 using Tao.FreeGlut;
 using System.Drawing;
 using System.IO;
+using System.Threading.Tasks;
+using System.Diagnostics;
 
 namespace Renderer
 {
@@ -18,6 +20,7 @@ namespace Renderer
         private bool isDrawing = false;
         private Vector[,] buffer;
         private float[,] zBuffer;
+        private Stopwatch watch;
 
         private int imageIndex = 0;
         public RenderingParameters renderingParameters;
@@ -38,6 +41,7 @@ namespace Renderer
                     buffer[i, j] = new Vector();
                 }
             }
+            watch = new Stopwatch();
             this.isDrawing = true;
         }
 
@@ -54,6 +58,7 @@ namespace Renderer
                 }
             }
             isDrawing = true;
+            watch.Reset();
         }
         public void Update()
         {
@@ -130,6 +135,9 @@ namespace Renderer
         /// </summary>
         private void InnerRender()
         {
+            if (!watch.IsRunning)
+                watch.Start();
+
             if (isDrawing)
             {
                 Matrix cameraMatrix = CameraMatrix();
@@ -218,6 +226,8 @@ namespace Renderer
                 Console.WriteLine();
                 Glut.glutPostRedisplay();
                 isDrawing = false;
+                watch.Stop();
+                Console.WriteLine((double)watch.ElapsedMilliseconds / 1000.0);
                 //DrawLine(new Vector(50, 50), new Vector(100, 100), new Vector(0, 0, 1), new Vector(1, 0, 0), true);
             }
         }
@@ -567,32 +577,64 @@ namespace Renderer
             float den1 = (y2y3 * x1x3 - x2x3 * y1y3);
             float den2 = (-y1y3 * x2x3 + x1x3 * y2y3);
 
-            for (float x = leftmost; x <= rightmost; x++)
+            if (renderingParameters.EnableParallelization)
             {
-                for (float y = bottommost; y <= topmost; y++)
+                ParallelOptions opts = new ParallelOptions();
+                Parallel.For((long)leftmost, (long)rightmost, x =>
                 {
-                    float u = (y2y3 * (x - x3) - x2x3 * (y - y3)) / den1;
-                    if (u < 0 || u > 1) continue;
-
-                    float v = (-y1y3 * (x - x3) + x1x3 * (y - y3)) / den2;
-                    if (v < 0 || v > 1) continue;
-                    
-                    float w = 1 - u - v;
-                    if (w < 0 || w > 1) continue;
-
-                    float z = u * p1.z + v * p2.z + w * p3.z;
-                    float minZ = this.zBuffer[(int)x, (int)y];
-                    //z es negativo, por eso el >
-                    if (z > minZ)
+                    for (float y = bottommost; y <= topmost; y++)
                     {
-                        minZ = z;
-                        this.zBuffer[(int)x, (int)y] = z;
-                        this.buffer[(int)x, (int)y] = u * c1 + v * c2 + w * c3;
+                        float u = (y2y3 * (x - x3) - x2x3 * (y - y3)) / den1;
+                        if (u < 0 || u > 1) continue;
+
+                        float v = (-y1y3 * (x - x3) + x1x3 * (y - y3)) / den2;
+                        if (v < 0 || v > 1) continue;
+
+                        float w = 1 - u - v;
+                        if (w < 0 || w > 1) continue;
+
+                        float z = u * p1.z + v * p2.z + w * p3.z;
+                        float minZ = this.zBuffer[(int)x, (int)y];
+                        //z es negativo, por eso el >
+                        if (z > minZ)
+                        {
+                            minZ = z;
+                            this.zBuffer[(int)x, (int)y] = z;
+                            this.buffer[(int)x, (int)y] = u * c1 + v * c2 + w * c3;
+                        }
                     }
+
                 }
-
+                );
             }
+            else
+            {
+                for (float x = leftmost; x <= rightmost; x++)
+                {
+                    for (float y = bottommost; y <= topmost; y++)
+                    {
+                        float u = (y2y3 * (x - x3) - x2x3 * (y - y3)) / den1;
+                        if (u < 0 || u > 1) continue;
 
+                        float v = (-y1y3 * (x - x3) + x1x3 * (y - y3)) / den2;
+                        if (v < 0 || v > 1) continue;
+
+                        float w = 1 - u - v;
+                        if (w < 0 || w > 1) continue;
+
+                        float z = u * p1.z + v * p2.z + w * p3.z;
+                        float minZ = this.zBuffer[(int)x, (int)y];
+                        //z es negativo, por eso el >
+                        if (z > minZ)
+                        {
+                            minZ = z;
+                            this.zBuffer[(int)x, (int)y] = z;
+                            this.buffer[(int)x, (int)y] = u * c1 + v * c2 + w * c3;
+                        }
+                    }
+
+                }
+            }
         }
 
     }
