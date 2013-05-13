@@ -149,12 +149,15 @@ namespace Renderer
                 foreach (SceneObject obj in scene.Objects)
                 {
                     SceneTriangle triangle = obj as SceneTriangle;
-                    Vector[] points = new Vector[3];
-                    Vector[] colors = new Vector[3];
-                    
+                    List<Vector> points = new List<Vector>();
+                    List<Vector> colors = new List<Vector>();
+                    List<RasterizedVertex> rasterizedVertex = new List<RasterizedVertex>();
 
-                    for(int i = 0; i < triangle.Vertex.Count; ++i)
+                    for(int i = 0; i < 3; ++i)
                     {
+                       
+
+
                         Vector vertex = triangle.Vertex[i];
                         //colors[i] = triangle.Materials[i].Diffuse;
 
@@ -164,13 +167,32 @@ namespace Renderer
                         Vector portSpace = orthogonalProjection * perspectiveSpace;
                         //Vector portSpaceDivided = portSpace / portSpace.w;
                         Vector screenSpace = viewMatrix * portSpace;
-                        screenSpace = screenSpace / screenSpace.w;
-                        points[i] = screenSpace;
+                        //screenSpace = screenSpace / screenSpace.w;
+                     
 
+                        rasterizedVertex.Add(new RasterizedVertex());
+                        rasterizedVertex[i].U = triangle.U[i];
+                        rasterizedVertex[i].V = triangle.V[i];
+                        rasterizedVertex[i].Position = screenSpace;
+                        rasterizedVertex[i].Material = triangle.Materials[i];
+                        rasterizedVertex[i].Normal = triangle.Normal[i];
+
+                        if (triangle.Materials[i] != null && triangle.Materials[i].TextureFile != null && triangle.Materials[i].TextureFile != "")
+                            rasterizedVertex[i].HasTexture = true;
 
                         Vector surfaceNormal = triangle.Normal[i];
                         Vector lightDirection;
                         Vector vertexColor = new Vector();
+
+                        Vector diffuse = new Vector();
+                        if (rasterizedVertex[i].HasTexture)
+                        {
+                            diffuse = new Vector(1, 1, 1, 1);
+                        }
+                        else
+                        {
+                            diffuse = triangle.Materials[i].Diffuse;
+                        }
 
                         foreach (SceneLight light in scene.Lights)
                         {
@@ -181,8 +203,8 @@ namespace Renderer
                             //Get cosine of angle between vectors
                             float similarity = Vector.Dot3(surfaceNormal, lightDirection);
                             Vector lambertColor = new Vector();
-                            lambertColor = Vector.ColorMultiplication(light.Color, triangle.Materials[i].Diffuse) * Math.Max(0, similarity);
-             
+                            lambertColor = Vector.ColorMultiplication(light.Color, diffuse) * Math.Max(0, similarity);
+
 
                             //Get half vector between camera direction and light direction
                             Vector eyeDirection = scene.Camera.Position - vertex;
@@ -205,10 +227,11 @@ namespace Renderer
                             //currentLightColor = Vector.LightAdd(lambertColor, phongColor);
                             //record.ShadedColors.Add(currentLightColor);
                         }
-                        colors[i] = vertexColor;
-
+                        
+                        colors.Add(vertexColor);
+                        rasterizedVertex[i].BlinnPhongColor = vertexColor;
                     }
-                    DrawTriangle(points[0], points[1], points[2], colors[0], colors[1], colors[2], false);
+                    DrawTriangle(rasterizedVertex);
                 }
                 //for (int i = 0; i < 16; i++)
                 //{
@@ -231,7 +254,6 @@ namespace Renderer
                 //DrawLine(new Vector(50, 50), new Vector(100, 100), new Vector(0, 0, 1), new Vector(1, 0, 0), true);
             }
         }
-
 
 
         private void SaveImage(Vector[,] buffer, string fileName)
@@ -547,14 +569,19 @@ namespace Renderer
         /// <param name="c2">Color asociado al vertice 2</param>
         /// <param name="c3">Color asociado al vertice 3</param>
         /// <param name="antialias">Define con o sin antialias.</param>
-        private void DrawTriangle(Vector p1, Vector p2, Vector p3, Vector c1, Vector c2,
-            Vector c3, bool antialias)
+        private void DrawTriangle(List<RasterizedVertex> rasterized)
         {
+            bool antiAlias = renderingParameters.EnableAntialias;
+            //if (antialias)
+            //    DrawTriangleWire(points,colors, mats, antialias);
 
-            if (antialias)
-                DrawTriangleWire(p1, p2, p3, c1, c2, c3, antialias);
+            float h0 = rasterized[0].Position.w;
+            float h1 = rasterized[1].Position.w;
+            float h2 = rasterized[2].Position.w;
 
-            float x1 = p1.x, x2 = p2.x, x3 = p3.x, y1 = p1.y, y2 = p2.y, y3 = p3.y;
+            float x1 = rasterized[0].Position.x / rasterized[0].Position.w, x2 = rasterized[1].Position.x / rasterized[1].Position.w, x3 = rasterized[2].Position.x / rasterized[2].Position.w;
+            float y1 = rasterized[0].Position.y / rasterized[0].Position.w, y2 = rasterized[1].Position.y / rasterized[1].Position.w, y3 = rasterized[2].Position.y / rasterized[2].Position.w;
+
             float y1y3 = y1 - y3, y1y2 = y1 - y2, y2y3 = y2 - y3;
             float x1x3 = x1 - x3, x1x2 = x1 - x2, x2x3 = x2 - x3;
 
@@ -576,64 +603,51 @@ namespace Renderer
 
             float den1 = (y2y3 * x1x3 - x2x3 * y1y3);
             float den2 = (-y1y3 * x2x3 + x1x3 * y2y3);
-
-            if (renderingParameters.EnableParallelization)
-            {
-                ParallelOptions opts = new ParallelOptions();
-                Parallel.For((long)leftmost, (long)rightmost, x =>
-                {
-                    for (float y = bottommost; y <= topmost; y++)
-                    {
-                        float u = (y2y3 * (x - x3) - x2x3 * (y - y3)) / den1;
-                        if (u < 0 || u > 1) continue;
-
-                        float v = (-y1y3 * (x - x3) + x1x3 * (y - y3)) / den2;
-                        if (v < 0 || v > 1) continue;
-
-                        float w = 1 - u - v;
-                        if (w < 0 || w > 1) continue;
-
-                        float z = u * p1.z + v * p2.z + w * p3.z;
-                        float minZ = this.zBuffer[(int)x, (int)y];
-                        //z es negativo, por eso el >
-                        if (z > minZ)
-                        {
-                            minZ = z;
-                            this.zBuffer[(int)x, (int)y] = z;
-                            this.buffer[(int)x, (int)y] = u * c1 + v * c2 + w * c3;
-                        }
-                    }
-
-                }
-                );
-            }
-            else
-            {
+            
+        
                 for (float x = leftmost; x <= rightmost; x++)
                 {
                     for (float y = bottommost; y <= topmost; y++)
                     {
-                        float u = (y2y3 * (x - x3) - x2x3 * (y - y3)) / den1;
-                        if (u < 0 || u > 1) continue;
+                        float alpha = (y2y3 * (x - x3) - x2x3 * (y - y3)) / den1;
+                        if (alpha < 0 || alpha > 1) continue;
 
-                        float v = (-y1y3 * (x - x3) + x1x3 * (y - y3)) / den2;
-                        if (v < 0 || v > 1) continue;
+                        float betta = (-y1y3 * (x - x3) + x1x3 * (y - y3)) / den2;
+                        if (betta < 0 || betta > 1) continue;
 
-                        float w = 1 - u - v;
-                        if (w < 0 || w > 1) continue;
+                        float gamma = 1 - alpha - betta;
+                        if (gamma < 0 || gamma > 1) continue;
 
-                        float z = u * p1.z + v * p2.z + w * p3.z;
+                        float z = alpha * rasterized[0].Position.z / rasterized[0].Position.w + betta * rasterized[1].Position.z / rasterized[1].Position.w + gamma * rasterized[2].Position.z / rasterized[2].Position.w;
                         float minZ = this.zBuffer[(int)x, (int)y];
                         //z es negativo, por eso el >
                         if (z > minZ)
                         {
-                            minZ = z;
-                            this.zBuffer[(int)x, (int)y] = z;
-                            this.buffer[(int)x, (int)y] = u * c1 + v * c2 + w * c3;
-                        }
-                    }
+                            if (rasterized[0].HasTexture)
+                            {
+                                float d = h1 * h2 + h2 * betta * (h0 - h1) + h1 * gamma * (h0 - h2);
+                                betta = h0 * h2 * betta / d;
+                                gamma = h0 * h1 * gamma / d;
+                                alpha = (1 - betta - gamma);
 
-                }
+                                float uCoord = alpha * rasterized[0].U + betta * rasterized[1].U + gamma * rasterized[2].U;
+                                float vCoord = alpha * rasterized[0].V + betta * rasterized[1].V + gamma * rasterized[2].V;
+                                Vector textureColor = rasterized[0].Material.GetTexturePixelColor(uCoord, vCoord);
+
+                                this.buffer[(int)x, (int)y] = alpha * Vector.ColorMultiplication(rasterized[0].BlinnPhongColor, textureColor) +
+                                    betta * Vector.ColorMultiplication(rasterized[1].BlinnPhongColor, textureColor) +
+                                    gamma * Vector.ColorMultiplication(rasterized[2].BlinnPhongColor, textureColor);
+                            }
+                            else
+                            {
+                                minZ = z;
+                                this.zBuffer[(int)x, (int)y] = z;
+                                this.buffer[(int)x, (int)y] = alpha * rasterized[0].BlinnPhongColor + betta * rasterized[1].BlinnPhongColor + gamma * rasterized[2].BlinnPhongColor;
+                            }
+                        }
+
+
+                    }
             }
         }
 
