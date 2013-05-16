@@ -40,6 +40,7 @@ namespace SceneLib
         public SceneRenderMode RenderMode { get; set; }
         public ShadingMode ShadeMode { get; set; }
 
+        public bool WireFrame { get; set; }
         public bool EnablePersepctiveCorrected { get; set; }
         public bool EnableShading { get; set; }
         public bool EnableReflections { get; set; }
@@ -59,9 +60,11 @@ namespace SceneLib
         public int Height { get; set; }
         public int PixelSize { get; set; }
         public float MaxTime { get; set; }
+        public Vector BackgroundColor { get; set; }
 
         public RenderingParameters()
         {
+          
             MaxTime = 3.0f;
             Height = 500;
             Width = 500;
@@ -69,6 +72,7 @@ namespace SceneLib
             MagTextureMode = SceneTextureMode.Nearest;
             RenderMode = SceneRenderMode.Normal;
             ShadeMode = ShadingMode.Phong;
+            BackgroundColor = new Vector(1,1,1,1);
             EnablePersepctiveCorrected = true;
             EnableShading = true;
             EnableReflections = true;

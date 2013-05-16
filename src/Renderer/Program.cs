@@ -83,7 +83,7 @@ namespace Renderer
          static void Init()
          {
              scene = new Scene(rendParams.Width, rendParams.Height);
-             scene.Load(@"Scenes/testScene.xml");
+             scene.Load(@"Scenes/rasterTest.xml");
              openGLrenderer = new OpenGLRenderer(scene, rendParams.Width, rendParams.Height);
              raytraceRenderer = new RaytraceRenderer(scene, rendParams);
              transformationRenderer = new TransformationRenderer(scene, rendParams);
@@ -105,6 +105,9 @@ namespace Renderer
                  case RendererType.Rasterizer:
                      transformationRenderer.Render();
                      break;
+                 case RendererType.RasterizerWireframe:
+                     transformationRenderer.Render();
+                     break;
                  default:
                      break;
              }
@@ -118,6 +121,12 @@ namespace Renderer
              }
              else if (mode == RendererType.Rasterizer)
              {
+                 rendParams.WireFrame = false;
+                 transformationRenderer.Update();
+             }
+             else if (mode == RendererType.RasterizerWireframe)
+             {
+                 rendParams.WireFrame = true;
                  transformationRenderer.Update();
              }
          }
@@ -180,12 +189,16 @@ namespace Renderer
              }
              else if (key == (int)NumberKeys.Three)
              {
-                 mode = RendererType.RasterizerWireframe;                 
+                 mode = RendererType.RasterizerWireframe;
+                 rendParams.WireFrame = true;
+                 transformationRenderer.ResetRenderer();
                  Glut.glutPostRedisplay();
              }
              else if (key == (int)NumberKeys.Four)
              {
                  mode = RendererType.Rasterizer;
+                 rendParams.WireFrame = false;
+                 transformationRenderer.ResetRenderer();
                  Glut.glutPostRedisplay();
              }
              else if (key == (byte)'w')
@@ -275,6 +288,13 @@ namespace Renderer
              else if (key == (byte)'c')
              {
                  raytraceRenderer.renderingParameters.EnableAntialias = !raytraceRenderer.renderingParameters.EnableAntialias;
+                 raytraceRenderer.ResetTracer();
+                 transformationRenderer.ResetRenderer();
+                 Glut.glutPostRedisplay();
+             }
+             else if (key == (byte)'v')
+             {
+                 rendParams.EnableAntialias = !rendParams.EnableAntialias;
                  raytraceRenderer.ResetTracer();
                  transformationRenderer.ResetRenderer();
                  Glut.glutPostRedisplay();
