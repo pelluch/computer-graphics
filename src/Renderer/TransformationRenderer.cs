@@ -21,6 +21,8 @@ namespace Renderer
         private Vector[,] buffer;
         private float[,] zBuffer;
         private Stopwatch watch;
+        private Queue<Vector> pointsToDraw = new Queue<Vector>();
+        private Queue<Vector> colorsToDraw = new Queue<Vector>();
 
         private int imageIndex = 0;
         public RenderingParameters renderingParameters;
@@ -47,6 +49,8 @@ namespace Renderer
 
         public void ResetRenderer()
         {
+            if (renderingParameters.Interactive && !renderingParameters.FinishedInteracting) return;
+
             this.buffer = new Vector[width, height];
             this.zBuffer = new float[width, height];
             for (int i = 0; i < zBuffer.GetLength(0); ++i)
@@ -64,6 +68,24 @@ namespace Renderer
         {
             InnerRender();
 
+        }
+
+        public void StepOnce()
+        {
+            Vector coords = pointsToDraw.Dequeue();
+            Vector color = colorsToDraw.Dequeue();
+            buffer[(int)coords.x, (int)coords.y] = color;
+            Console.WriteLine("Coords: " + coords);
+            Console.WriteLine("Color: " + color);
+            if (pointsToDraw.Count == 0)
+            {
+                renderingParameters.FinishedInteracting = true;
+                renderingParameters.Interactive = false;
+            }
+            if((int)coords.x == 289 && (int)coords.y == 187)
+            {
+                Console.WriteLine(buffer[(int)coords.x, (int)coords.y]);
+            }
         }
 
         public void Render()
@@ -133,38 +155,43 @@ namespace Renderer
 
         public void TestRaster()
         {
-            for (int i = 0; i < 16; i++)
+            if (!renderingParameters.Interactive || renderingParameters.FinishedInteracting)
             {
-                Vector center = new Vector(200, 150);
-                Vector pos = center + new Vector((float)(150 * Math.Cos(Math.PI / 16.0 + Math.PI * 2 * i / 16)), (float)(150 * Math.Sin(Math.PI / 16.0 + Math.PI * 2 * i / 16)));
-                //Console.WriteLine(pos);
-                DrawLine(new Vector(200, 150), pos, new Vector(1, 0, 0), new Vector(0, 1, 0), renderingParameters.EnableAntialias);
+                if (renderingParameters.Interactive) renderingParameters.FinishedInteracting = false;
 
-                Vector pos2 = center + new Vector((float)(150 * Math.Cos(Math.PI * 2 * i / 16)), (float)(150 * Math.Sin(Math.PI * 2 * i / 16)));
-                //Console.WriteLine(pos);
-                DrawLine(new Vector(200, 150), pos2, new Vector(1, 0, 0), new Vector(0, 0, 1), renderingParameters.EnableAntialias);
-                //Glut.glutPostRedisplay();
+                for (int i = 0; i < 16; i++)
+                {
+                    Vector center = new Vector(200, 150);
+                    Vector pos = center + new Vector((float)(150 * Math.Cos(Math.PI / 16.0 + Math.PI * 2 * i / 16)), (float)(150 * Math.Sin(Math.PI / 16.0 + Math.PI * 2 * i / 16)));
+                    //Console.WriteLine(pos);
+                    DrawLine(new Vector(200, 150), pos, new Vector(1, 0, 0), new Vector(0, 1, 0), renderingParameters.EnableAntialias);
+
+                    Vector pos2 = center + new Vector((float)(150 * Math.Cos(Math.PI * 2 * i / 16)), (float)(150 * Math.Sin(Math.PI * 2 * i / 16)));
+                    //Console.WriteLine(pos);
+                    DrawLine(new Vector(200, 150), pos2, new Vector(1, 0, 0), new Vector(0, 0, 1), renderingParameters.EnableAntialias);
+                    //Glut.glutPostRedisplay();
+                }
+
+                List<RasterizedVertex> rasterized = new List<RasterizedVertex>();
+
+                RasterizedVertex v1 = new RasterizedVertex();
+                v1.BlinnPhongColor = new Vector(1, 0, 0);
+                v1.Position = new Vector(80, 80);
+                rasterized.Add(v1);
+
+                RasterizedVertex v2 = new RasterizedVertex();
+                v2.BlinnPhongColor = new Vector(0, 1, 0);
+                v2.Position = new Vector(250, 270);
+                rasterized.Add(v2);
+
+                RasterizedVertex v3 = new RasterizedVertex();
+                v3.BlinnPhongColor = new Vector(0, 0, 1);
+                v3.Position = new Vector(260, 40);
+                rasterized.Add(v3);
+
+
+                DrawTriangle(rasterized);
             }
-
-            List<RasterizedVertex> rasterized = new List<RasterizedVertex>();
-
-            RasterizedVertex v1 = new RasterizedVertex();
-            v1.BlinnPhongColor = new Vector(1, 0, 0);
-            v1.Position = new Vector(80, 80);
-            rasterized.Add(v1);
-
-            RasterizedVertex v2 = new RasterizedVertex();
-            v2.BlinnPhongColor = new Vector(0, 1, 0);
-            v2.Position = new Vector(250, 270);
-            rasterized.Add(v2);
-
-            RasterizedVertex v3 = new RasterizedVertex();
-            v3.BlinnPhongColor = new Vector(0, 0, 1);
-            v3.Position = new Vector(260, 40);
-            rasterized.Add(v3);
-            
-
-            DrawTriangle(rasterized);
         }
 
         /// <summary>
@@ -180,14 +207,14 @@ namespace Renderer
             //Para efectos del clipping plane
             float D = -Vector.Dot3(w, scene.Camera.Position) + scene.Camera.NearClip * Vector.Dot3(w, w);
 
-            if (isDrawing)
-            {
-                TestRaster();
-                isDrawing = false;
-                Glut.glutPostRedisplay();
-                return;
+            //if (isDrawing)
+            //{
+            //    TestRaster();
+            //    isDrawing = false;
+            //    Glut.glutPostRedisplay();
+            //    return;
 
-            }
+            //}
             if (isDrawing)
             {
                 Matrix cameraMatrix = CameraMatrix();
@@ -478,44 +505,45 @@ namespace Renderer
 
             int xinc1, xinc2, yinc1, yinc2, den, num, numadd, numpixels;
 
-            if (x2 >= x1)
+            
+            if (x2 >= x1) //Left to right
             {
                 xinc1 = 1;
                 xinc2 = 1;
             }
-            else
+            else //Right to left
             {
                 xinc1 = -1;
                 xinc2 = -1;
             }
 
-            if (y2 >= y1)
+            if (y2 >= y1) //Top to bottom
             {
                 yinc1 = 1;
                 yinc2 = 1;
             }
-            else
+            else //Bottom to top
             {
                 yinc1 = -1;
                 yinc2 = -1;
             }
 
-            if (deltax >= deltay)  //La pendiente es menor que 1, aumentaremos x de uno en uno
+            if (deltax >= deltay)  //m < 1 -> increase x
             {
                 xinc1 = 0;
                 yinc2 = 0;
                 den = deltax;
-                num = deltax / 2;
+                num = deltax >> 1;
                 numadd = deltay;
                 numpixels = deltax;
                 colorM = (c2 - c1) / (x2 - x1);
             }
-            else
+            else //m > 1 -> increase y
             {
                 xinc2 = 0;
                 yinc1 = 0;
                 den = deltay;
-                num = deltay / 2;
+                num = deltay >> 1;
                 numadd = deltax;
                 numpixels = deltay;
                 colorM = (c2 - c1) / (y2 - y1);
@@ -523,8 +551,15 @@ namespace Renderer
 
             for (int pixels = 0; pixels <= numpixels; pixels++)
             {
-                this.buffer[x, y] = c;
-                this.buffer[x + 1, y] = new Vector(0, 0, 1);
+                
+                if (renderingParameters.Interactive)
+                {
+                    pointsToDraw.Enqueue(new Vector(x, y));
+                    colorsToDraw.Enqueue(c);
+                }
+                else this.buffer[x, y] = c;
+
+                //this.buffer[x + 1,y] = new Vector(0, 0, 1);
                 num += numadd;
                 if (num >= den)
                 {
@@ -550,7 +585,8 @@ namespace Renderer
         private void DrawLineXiaolin(Vector p1, Vector p2, Vector c1, Vector c2)
         {
             //Algoritmo de Xaolin
-            float y1 = p1.y, y2 = p2.y, x1 = p1.x, x2 = p2.x;
+            float y1 = p1.y / p1.w, y2 = p2.y / p2.w, x1 = p1.x / p1.w, x2 = p2.x / p2.w;
+            float z1 = p1.z / p1.w, z2 = p2.z / p2.w;
 
             //Punto de inicio = punto final
             if (x1 == x2 && y1 == y2)
@@ -577,7 +613,7 @@ namespace Renderer
 
             //Pendiente de la recta.
             float m;
-
+            float zm;
             //Si la recta va de izquierda a derecha...
             if (x2 >= x1)
             {
@@ -607,6 +643,7 @@ namespace Renderer
                 numpixels = (int)deltax;
                 m = (y2 - y1) / (x2 - x1);
                 colorM = (c2 - c1) / (x2 - x1);
+                zm = (z2 - z1) / (x2 - x1);
             }
             //La pendiente es mayor que uno. Si la regla es vertical, ingresa aquí y no se producen errores.
             else
@@ -616,13 +653,14 @@ namespace Renderer
                 numpixels = (int)deltay;
                 m = (x2 - x1) / (y2 - y1);
                 colorM = (c2 - c1) / (y2 - y1);
+                zm = (z2 - z1) / (y2 - y1);
 
             }
             int decreasing;
             if (xinc2 == -1 || yinc2 == -1) decreasing = -1;
             else decreasing = 1;
 
-            float y = y1, x = x1;
+            float y = y1, x = x1, z = z1;
             Vector c = new Vector(c1.x, c1.y, c1.z, 1);
 
             //Al contrario del algoritmo tradicional de Xaolin, no es necesario hacer un caso específico
@@ -640,8 +678,10 @@ namespace Renderer
                 fractionalColor.w = 1.0f;
                 this.buffer[(int)x, (int)y] = fractionalColor;
 
-                if ((int)x != (int)(x + xinc1) || (int)y != (int)(y + yinc1))
+                float minZ = this.zBuffer[(int)(x + xinc1), (int)(y + yinc1)];
+                if (z > minZ)
                 {
+                    this.zBuffer[(int)(x + xinc1), (int)(y + yinc1)] = z;
                     Vector invFractionalColor = c*invFractional + this.buffer[(int)(x + xinc1), (int)(y + yinc1)] * fractional;
                     invFractionalColor.w = 1.0f;
 
@@ -657,6 +697,7 @@ namespace Renderer
 
                 y = y + yinc2;
                 x = x + xinc2;
+                z = z + zm;
             }
         }
 
@@ -724,18 +765,18 @@ namespace Renderer
         private void DrawTriangle(List<RasterizedVertex> rasterized)
         {
             //bool antiAlias = renderingParameters.EnableAntialias;
-            if (renderingParameters.WireFrame)
-            {
-                DrawTriangleWire(rasterized);
-                return;
-            }
-            if (renderingParameters.EnableAntialias)
-            {
-                for (int i = 0; i < 3; i++)
-                {
-                    DrawLineXiaolin(rasterized[i].Position, rasterized[(i + 1) % 3].Position, rasterized[i].BlinnPhongColor, rasterized[(i + 1) % 3].BlinnPhongColor);
-                }
-            }
+            //if (renderingParameters.WireFrame)
+            //{
+            //    DrawTriangleWire(rasterized);
+            //    return;
+            //}
+            //if (renderingParameters.EnableAntialias)
+            //{
+            //    for (int i = 0; i < 3; i++)
+            //    {
+            //        DrawLineXiaolin(rasterized[i].Position, rasterized[(i + 1) % 3].Position, rasterized[i].BlinnPhongColor, rasterized[(i + 1) % 3].BlinnPhongColor);
+            //    }
+            //}
    
 
             float h0 = rasterized[0].Position.w;
@@ -794,7 +835,9 @@ namespace Renderer
                         if (z > minZ)
                         {
                             if (rasterized[0].HasTexture)
-                            {
+                            {                            
+                                minZ = z;
+                                this.zBuffer[(int)x, (int)y] = z;
                                 float d = h1 * h2 + h2 * betta * (h0 - h1) + h1 * gamma * (h0 - h2);
                                 betta = h0 * h2 * betta / d;
                                 gamma = h0 * h1 * gamma / d;

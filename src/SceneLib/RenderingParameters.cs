@@ -61,6 +61,8 @@ namespace SceneLib
         public int PixelSize { get; set; }
         public float MaxTime { get; set; }
         public Vector BackgroundColor { get; set; }
+        public bool Interactive { get; set; }
+        public bool FinishedInteracting { get; set; }
 
         public RenderingParameters()
         {
@@ -88,7 +90,8 @@ namespace SceneLib
             EnableSoftShadows = false;
             EnableMotionBlur = true;
             EnableTextureMapping = true;
-
+            Interactive = false;
+            FinishedInteracting = false;
             PixelSize = 1;
         }
     }

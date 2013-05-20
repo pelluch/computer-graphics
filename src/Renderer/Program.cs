@@ -83,7 +83,7 @@ namespace Renderer
          static void Init()
          {
              scene = new Scene(rendParams.Width, rendParams.Height);
-             scene.Load(@"Scenes/rasterTest.xml");
+             scene.Load(@"Scenes/testScene.xml");
              openGLrenderer = new OpenGLRenderer(scene, rendParams.Width, rendParams.Height);
              raytraceRenderer = new RaytraceRenderer(scene, rendParams);
              transformationRenderer = new TransformationRenderer(scene, rendParams);
@@ -297,6 +297,20 @@ namespace Renderer
                  rendParams.EnableAntialias = !rendParams.EnableAntialias;
                  raytraceRenderer.ResetTracer();
                  transformationRenderer.ResetRenderer();
+                 Glut.glutPostRedisplay();
+             }
+             else if (key == (byte)'b')
+             {
+                 raytraceRenderer.ResetTracer();
+                 transformationRenderer.ResetRenderer();
+                 rendParams.Interactive = true;
+                 rendParams.FinishedInteracting = true;
+                 //raytraceRenderer.ResetTracer();                 
+                 Glut.glutPostRedisplay();
+             }
+             else if (key == (byte)'n')
+             {
+                 transformationRenderer.StepOnce();             
                  Glut.glutPostRedisplay();
              }
 

@@ -163,6 +163,7 @@
     </Content>
     <Content Include="Scenes\rasterTest.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <SubType>Designer</SubType>
     </Content>
     <Content Include="Scenes\testScene.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
@@ -170,6 +171,7 @@
     </Content>
     <Content Include="Scenes\viewTest.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <SubType>Designer</SubType>
     </Content>
   </ItemGroup>
   <ItemGroup>
