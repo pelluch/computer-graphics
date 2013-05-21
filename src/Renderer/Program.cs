@@ -83,7 +83,7 @@ namespace Renderer
          static void Init()
          {
              scene = new Scene(rendParams.Width, rendParams.Height);
-             scene.Load(@"Scenes/testScene.xml");
+             scene.Load(@"Scenes/viewTest.xml");
              openGLrenderer = new OpenGLRenderer(scene, rendParams.Width, rendParams.Height);
              raytraceRenderer = new RaytraceRenderer(scene, rendParams);
              transformationRenderer = new TransformationRenderer(scene, rendParams);
@@ -295,9 +295,13 @@ namespace Renderer
              else if (key == (byte)'v')
              {
                  rendParams.EnableAntialias = !rendParams.EnableAntialias;
+                 if (rendParams.EnableAntialias) Console.WriteLine("Antialising enabled");
+                 else Console.WriteLine("Antialiasing disabled");
+
                  raytraceRenderer.ResetTracer();
                  transformationRenderer.ResetRenderer();
                  Glut.glutPostRedisplay();
+                 
              }
              else if (key == (byte)'b')
              {
