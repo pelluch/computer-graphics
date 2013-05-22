@@ -18,14 +18,13 @@ namespace Renderer
         private int width;
         private int height;
         private bool isDrawing = false;
-        private Vector[,] buffer;
+        //private Vector[,] buffer;
         private float[,] zBuffer;
         private Stopwatch watch;
-        private Queue<Vector> pointsToDraw = new Queue<Vector>();
-        private Queue<Vector> colorsToDraw = new Queue<Vector>();
-
-        private int imageIndex = 0;
         public RenderingParameters renderingParameters;
+        private List<Vector> planeNormals = new List<Vector>();
+        private List<Vector> planePoints = new List<Vector>();
+        private List<string> planeNames = new List<string>();
 
         public TransformationRenderer(Scene scene, RenderingParameters rendParams)
         {
@@ -49,8 +48,6 @@ namespace Renderer
 
         public void ResetRenderer()
         {
-            if (renderingParameters.Interactive && !renderingParameters.FinishedInteracting) return;
-
             this.buffer = new Vector[width, height];
             this.zBuffer = new float[width, height];
             for (int i = 0; i < zBuffer.GetLength(0); ++i)
@@ -68,24 +65,6 @@ namespace Renderer
         {
             InnerRender();
 
-        }
-
-        public void StepOnce()
-        {
-            Vector coords = pointsToDraw.Dequeue();
-            Vector color = colorsToDraw.Dequeue();
-            buffer[(int)coords.x, (int)coords.y] = color;
-            Console.WriteLine("Coords: " + coords);
-            Console.WriteLine("Color: " + color);
-            if (pointsToDraw.Count == 0)
-            {
-                renderingParameters.FinishedInteracting = true;
-                renderingParameters.Interactive = false;
-            }
-            if((int)coords.x == 289 && (int)coords.y == 187)
-            {
-                Console.WriteLine(buffer[(int)coords.x, (int)coords.y]);
-            }
         }
 
         public void Render()
@@ -155,164 +134,245 @@ namespace Renderer
 
         public void TestRaster()
         {
-            if (!renderingParameters.Interactive || renderingParameters.FinishedInteracting)
+
+            for (int i = 0; i < 16; i++)
             {
-                if (renderingParameters.Interactive) renderingParameters.FinishedInteracting = false;
+                Vector center = new Vector(200, 150);
+                Vector pos = center + new Vector((float)(150 * Math.Cos(Math.PI / 16.0 + Math.PI * 2 * i / 16)), (float)(150 * Math.Sin(Math.PI / 16.0 + Math.PI * 2 * i / 16)));
+                //Console.WriteLine(pos);
+                DrawLine(new Vector(200, 150), pos, new Vector(1, 0, 0), new Vector(0, 1, 0), renderingParameters.EnableAntialias);
 
-                for (int i = 0; i < 16; i++)
-                {
-                    Vector center = new Vector(200, 150);
-                    Vector pos = center + new Vector((float)(150 * Math.Cos(Math.PI / 16.0 + Math.PI * 2 * i / 16)), (float)(150 * Math.Sin(Math.PI / 16.0 + Math.PI * 2 * i / 16)));
-                    //Console.WriteLine(pos);
-                    DrawLine(new Vector(200, 150), pos, new Vector(1, 0, 0), new Vector(0, 1, 0), renderingParameters.EnableAntialias);
-
-                    Vector pos2 = center + new Vector((float)(150 * Math.Cos(Math.PI * 2 * i / 16)), (float)(150 * Math.Sin(Math.PI * 2 * i / 16)));
-                    //Console.WriteLine(pos);
-                    DrawLine(new Vector(200, 150), pos2, new Vector(1, 0, 0), new Vector(0, 0, 1), renderingParameters.EnableAntialias);
-                    //Glut.glutPostRedisplay();
-                }
-
-                List<RasterizedVertex> rasterized = new List<RasterizedVertex>();
-
-                RasterizedVertex v1 = new RasterizedVertex();
-                v1.BlinnPhongColor = new Vector(1, 0, 0);
-                v1.Position = new Vector(80, 80);
-                rasterized.Add(v1);
-
-                RasterizedVertex v2 = new RasterizedVertex();
-                v2.BlinnPhongColor = new Vector(0, 1, 0);
-                v2.Position = new Vector(250, 270);
-                rasterized.Add(v2);
-
-                RasterizedVertex v3 = new RasterizedVertex();
-                v3.BlinnPhongColor = new Vector(0, 0, 1);
-                v3.Position = new Vector(260, 40);
-                rasterized.Add(v3);
-
-
-                DrawTriangle(rasterized);
+                Vector pos2 = center + new Vector((float)(150 * Math.Cos(Math.PI * 2 * i / 16)), (float)(150 * Math.Sin(Math.PI * 2 * i / 16)));
+                //Console.WriteLine(pos);
+                DrawLine(new Vector(200, 150), pos2, new Vector(1, 0, 0), new Vector(0, 0, 1), renderingParameters.EnableAntialias);
+                //Glut.glutPostRedisplay();
             }
+
+            List<RasterizedVertex> rasterized = new List<RasterizedVertex>();
+
+            RasterizedVertex v1 = new RasterizedVertex();
+            v1.BlinnPhongColor = new Vector(1, 0, 0);
+            v1.Position = new Vector(80, 80);
+            rasterized.Add(v1);
+
+            RasterizedVertex v2 = new RasterizedVertex();
+            v2.BlinnPhongColor = new Vector(0, 1, 0);
+            v2.Position = new Vector(250, 270);
+            rasterized.Add(v2);
+
+            RasterizedVertex v3 = new RasterizedVertex();
+            v3.BlinnPhongColor = new Vector(0, 0, 1);
+            v3.Position = new Vector(260, 40);
+            rasterized.Add(v3);
+
+
+            DrawTriangle(rasterized);
+
         }
 
-        private List<SceneTriangle> ClipNear()
+        private List<SceneTriangle> ClipFrustrum()
         {
             List<SceneTriangle> clippedTriangles = new List<SceneTriangle>();
+            foreach (SceneObject sceneObj in scene.Objects) clippedTriangles.Add(sceneObj as SceneTriangle);
 
             Vector w = CalculateW(scene.Camera.Position, scene.Camera.Target);
             Vector q = scene.Camera.Position - scene.Camera.NearClip * w;
 
             //Para efectos del clipping plane
-            float D = -Vector.Dot3(w, scene.Camera.Position) + scene.Camera.NearClip * Vector.Dot3(w, w);
+           // float D = -Vector.Dot3(w, scene.Camera.Position) + scene.Camera.NearClip * Vector.Dot3(w, w);
 
             Console.WriteLine("Z: " + scene.Camera.Position.z);
-            Console.WriteLine("q: " + q);
-            Console.WriteLine("w: " + w);
-
-            foreach (SceneObject sceneObj in scene.Objects)
+            //Console.WriteLine("q: " + q);
+            //Console.WriteLine("w: " + w);
+            planeNormals.Clear();
+            planePoints.Clear();
+            planeNames.Clear();
+            planeNormals.Add(-w);
+            planePoints.Add(scene.Camera.Position - w * scene.Camera.NearClip);
+            planeNormals.Add(w);
+            planePoints.Add(scene.Camera.Position - w * scene.Camera.FarClip);
+            planeNames.Add("Near");
+            planeNames.Add("Far");
+            Console.WriteLine("////////////////////////////////////////////////////////");
+            Console.WriteLine("Num triangles: " + clippedTriangles.Count);
+            Console.WriteLine("Num planes: " + planeNormals.Count);
+            Console.WriteLine("Z: " + scene.Camera.Position.z);
+            for (int current_plane = 0; current_plane < planeNormals.Count; current_plane++)
             {
-                SceneTriangle triangle = sceneObj as SceneTriangle;
-
-
-                List<RasterizedVertex> outside = new List<RasterizedVertex>();
-                List<RasterizedVertex> inside = new List<RasterizedVertex>();
-
-                for (int i = 0; i < 3; ++i)
+                
+                Console.WriteLine("Plane: " + planeNames[current_plane]);
+               // Cons
+                float D = -Vector.Dot3(planeNormals[current_plane], planePoints[current_plane]);
+                List<SceneTriangle> newTriangles = new List<SceneTriangle>();
+                foreach (SceneTriangle triangle in clippedTriangles)
                 {
-                    float x = triangle.Vertex[i].x, y = triangle.Vertex[i].y, z = triangle.Vertex[i].z;
+                    List<RasterizedVertex> outside = new List<RasterizedVertex>();
+                    List<RasterizedVertex> inside = new List<RasterizedVertex>();
                     
-                    float planeDistance = Vector.Dot3(w, triangle.Vertex[i]) + D;
-                    Console.WriteLine("Vertex: " + triangle.Vertex[i]);
-                    Console.WriteLine("Distance: " + planeDistance);
-                    if (planeDistance > 0)
+                    for (int i = 0; i < 3; ++i)
                     {
-                        RasterizedVertex outsideVertex = new RasterizedVertex();
+                        float x = triangle.Vertex[i].x, y = triangle.Vertex[i].y, z = triangle.Vertex[i].z;
 
-                        outsideVertex.U = triangle.U[i];
-                        outsideVertex.V = triangle.V[i];
-                        outsideVertex.Normal = triangle.Normal[i];
-                        outsideVertex.Material = triangle.Materials[i];
-                        outsideVertex.Position = triangle.Vertex[i];
-                        outside.Add(outsideVertex);
+                        float planeDistance = Vector.Dot3(planeNormals[current_plane], triangle.Vertex[i]) + D;
+                        //Console.WriteLine("Vertex: " + triangle.Vertex[i]);
+                        Console.WriteLine("Distance: " + planeDistance);
+                        if (planeDistance < 0)
+                        {
+                            RasterizedVertex outsideVertex = new RasterizedVertex();
+
+                            outsideVertex.U = triangle.U[i];
+                            outsideVertex.V = triangle.V[i];
+                            outsideVertex.Normal = triangle.Normal[i];
+                            outsideVertex.Material = triangle.Materials[i];
+                            outsideVertex.Position = triangle.Vertex[i];
+                            outside.Add(outsideVertex);
+                        }
+                        else
+                        {
+                            RasterizedVertex insideVertex = new RasterizedVertex();
+
+                            insideVertex.U = triangle.U[i];
+                            insideVertex.Position = triangle.Vertex[i];
+                            insideVertex.V = triangle.V[i];
+                            insideVertex.Normal = triangle.Normal[i];
+                            insideVertex.Material = triangle.Materials[i];
+
+                            inside.Add(insideVertex);
+                        }
+                    }
+                    if (outside.Count == 3)
+                    {
+                        Console.WriteLine("All vertex outside");
+                        continue;
+                    }
+                    else if (outside.Count == 2)
+                    {
+                        Console.WriteLine("Two vertices outside, adding new triangle");
+
+                        float t1 = (Vector.Dot3(planeNormals[current_plane], outside[0].Position) + D) / (Vector.Dot3(planeNormals[current_plane], outside[0].Position - inside[0].Position));
+                        RasterizedVertex inter1 = new RasterizedVertex(outside[0], inside[0], t1);
+                        Console.WriteLine("t1 = " + t1);
+                        float t2 = (Vector.Dot3(planeNormals[current_plane], outside[1].Position) + D) / (Vector.Dot3(planeNormals[current_plane], outside[1].Position - inside[0].Position));
+                        RasterizedVertex inter2 = new RasterizedVertex(outside[1], inside[0], t2);
+                        Console.WriteLine("t2 = " + t2);
+                      
+                        SceneTriangle clipped = new SceneTriangle();
+                        clipped.Vertex = new List<Vector>();
+                        clipped.Vertex.Add(inter1.Position);
+                        clipped.Vertex.Add(inter2.Position);
+                        clipped.Vertex.Add(inside[0].Position);
+
+                        clipped.U = new List<float>();
+                        clipped.U.Add(inter1.U);
+                        clipped.U.Add(inter2.U);
+                        clipped.U.Add(inside[0].U);
+
+                        clipped.V = new List<float>();
+                        clipped.V.Add(inter1.V);
+                        clipped.V.Add(inter2.V);
+                        clipped.V.Add(inside[0].V);
+
+                        clipped.Normal = new List<Vector>();
+                        clipped.Normal.Add(inter1.Normal);
+                        clipped.Normal.Add(inter2.Normal);
+                        clipped.Normal.Add(inside[0].Normal);
+
+                        clipped.Materials = triangle.Materials;
+                        clipped.Position = triangle.Position;
+                        clipped.Rotation = triangle.Rotation;
+                        clipped.Scale = triangle.Scale;
+                        newTriangles.Add(clipped);
+
+                        Console.WriteLine("New positions: ");
+                        Console.WriteLine(clipped.Vertex[0]);
+                        Console.WriteLine(clipped.Vertex[1]);
+                        Console.WriteLine(clipped.Vertex[2]);
+                    }
+                    else if (outside.Count == 1)
+                    {
+                        Console.WriteLine("One vertex outside");
+                        float t1 = (Vector.Dot3(planeNormals[current_plane], outside[0].Position) + D) / (Vector.Dot3(planeNormals[current_plane], outside[0].Position - inside[0].Position));
+                        RasterizedVertex inter1 = new RasterizedVertex(outside[0], inside[0], t1);
+                        Console.WriteLine("t1 = " + t1);
+                        float t2 = (Vector.Dot3(planeNormals[current_plane], outside[0].Position) + D) / (Vector.Dot3(planeNormals[current_plane], outside[0].Position - inside[1].Position));
+                        RasterizedVertex inter2 = new RasterizedVertex(outside[0], inside[1], t2);
+                        Console.WriteLine("t2 = " + t2);
+
+                        SceneTriangle clipped1 = new SceneTriangle();
+                        clipped1.Vertex = new List<Vector>();
+                        clipped1.Vertex.Add(inter1.Position);
+                        clipped1.Vertex.Add(inter2.Position);
+                        clipped1.Vertex.Add(inside[0].Position);
+
+                        clipped1.U = new List<float>();
+                        clipped1.U.Add(inter1.U);
+                        clipped1.U.Add(inter2.U);
+                        clipped1.U.Add(inside[0].U);
+
+                        clipped1.V = new List<float>();
+                        clipped1.V.Add(inter1.V);
+                        clipped1.V.Add(inter2.V);
+                        clipped1.V.Add(inside[0].V);
+
+                        clipped1.Normal = new List<Vector>();
+                        clipped1.Normal.Add(inter1.Normal);
+                        clipped1.Normal.Add(inter2.Normal);
+                        clipped1.Normal.Add(inside[0].Normal);
+
+                        clipped1.Materials = triangle.Materials;
+                        clipped1.Position = triangle.Position;
+                        clipped1.Rotation = triangle.Rotation;
+                        clipped1.Scale = triangle.Scale;
+                        newTriangles.Add(clipped1);
+
+                        SceneTriangle clipped2 = new SceneTriangle();
+                        clipped2.Vertex = new List<Vector>();
+                        clipped2.Vertex.Add(inter2.Position);
+                        clipped2.Vertex.Add(inside[0].Position);
+                        clipped2.Vertex.Add(inside[1].Position);
+
+                        clipped2.U = new List<float>();
+                        clipped2.U.Add(inter2.U);
+                        clipped2.U.Add(inside[0].U);
+                        clipped2.U.Add(inside[1].U);
+
+                        clipped2.V = new List<float>();
+                        clipped2.V.Add(inter2.V);
+                        clipped2.V.Add(inside[0].V);
+                        clipped2.V.Add(inside[1].V);
+
+                        clipped2.Normal = new List<Vector>();
+                        clipped2.Normal.Add(inter2.Normal);
+                        clipped2.Normal.Add(inside[0].Normal);
+                        clipped2.Normal.Add(inside[1].Normal);
+
+                        SceneMaterial otherMat = scene.GetMaterial("Red");
+                        clipped2.Materials.Add(otherMat);
+                        clipped2.Materials.Add(otherMat);
+                        clipped2.Materials.Add(otherMat);
+                        clipped2.Materials = triangle.Materials;
+                        clipped2.Position = triangle.Position;
+                        clipped2.Rotation = triangle.Rotation;
+                        clipped2.Scale = triangle.Scale;
+                        newTriangles.Add(clipped2);
+
+                        Console.WriteLine("New positions: ");
+                        Console.WriteLine(clipped1.Vertex[0]);
+                        Console.WriteLine(clipped1.Vertex[1]);
+                        Console.WriteLine(clipped1.Vertex[2]);
+                        Console.WriteLine(clipped2.Vertex[0]);
+                        Console.WriteLine(clipped2.Vertex[1]);
+                        Console.WriteLine(clipped2.Vertex[2]);
                     }
                     else
                     {
-                        RasterizedVertex insideVertex = new RasterizedVertex();
-
-                        insideVertex.U = triangle.U[i];
-                        insideVertex.Position = triangle.Vertex[i];
-                        insideVertex.V = triangle.V[i];
-                        insideVertex.Normal = triangle.Normal[i];
-                        insideVertex.Material = triangle.Materials[i];
-
-                        inside.Add(insideVertex);
+                        newTriangles.Add(triangle);
                     }
                 }
-                if (outside.Count == 3)
-                {
-                    Console.WriteLine("All vertex outside");
-                    continue;
-                }
-                else if (outside.Count == 2)
-                {
-                    Console.WriteLine("Two vertices outside, adding new triangle");
 
-                    float t1 = (Vector.Dot3(w, inside[0].Position) + D) / (Vector.Dot3(w, inside[0].Position - outside[0].Position));
-                    RasterizedVertex inter1 = new RasterizedVertex(inside[0], outside[0], t1);
-
-                    float t2 = (Vector.Dot3(w, inside[0].Position) + D) / (Vector.Dot3(w, inside[0].Position - outside[1].Position));
-                    RasterizedVertex inter2 = new RasterizedVertex(inside[0], outside[1], t2);
-
-                    SceneTriangle clipped = new SceneTriangle();
-                    clipped.Vertex = new List<Vector>();
-                    clipped.Vertex.Add(inter1.Position);
-                    clipped.Vertex.Add(inter2.Position);
-                    clipped.Vertex.Add(inside[0].Position);
-
-                    clipped.U = new List<float>();
-                    clipped.U.Add(inter1.U);
-                    clipped.U.Add(inter2.U);
-                    clipped.U.Add(inside[0].U);
-
-                    clipped.V = new List<float>();
-                    clipped.V.Add(inter1.V);
-                    clipped.V.Add(inter2.V);
-                    clipped.V.Add(inside[0].V);
-
-                    clipped.Normal = new List<Vector>();
-                    clipped.Normal.Add(inter1.Normal);
-                    clipped.Normal.Add(inter2.Normal);
-                    clipped.Normal.Add(inside[0].Normal);
-
-                    clipped.Materials = triangle.Materials;
-                    clipped.Position = triangle.Position;
-                    clipped.Rotation = triangle.Rotation;
-                    clipped.Scale = triangle.Scale;
-                    clippedTriangles.Add(clipped);
-
-                    Console.WriteLine("New positions: ");
-                    Console.WriteLine(clipped.Vertex[0]);
-                    Console.WriteLine(clipped.Vertex[1]);
-                    Console.WriteLine(clipped.Vertex[2]);
-                }
-                else if (outside.Count == 1)
-                {
-                    Console.WriteLine("One vertex outside");
-                    float t1 = (Vector.Dot3(w, inside[0].Position) + D) / (Vector.Dot3(w, inside[0].Position - outside[0].Position));
-                    Vector inter1 = inside[0].Position + t1 * (outside[0].Position - inside[0].Position);
-                    float t2 = (Vector.Dot3(w, inside[1].Position) + D) / (Vector.Dot3(w, inside[1].Position - outside[0].Position));
-                    Vector inter2 = inside[1].Position + t2 * (outside[0].Position - inside[1].Position);
-
-                    SceneTriangle triangle1 = new SceneTriangle();
-                    SceneTriangle triangle2 = new SceneTriangle();
-                    Vector bar1 = GetBaricentricCoords(triangle.Vertex, inter1, true);
-                    Vector bar2 = GetBaricentricCoords(triangle.Vertex, inter2, true);
-                }
-                else
-                {
-                    clippedTriangles.Add(triangle);
-                }
-
+                clippedTriangles = newTriangles;
             }
+            Console.WriteLine("After clipping: " + clippedTriangles.Count + " triangles");
             return clippedTriangles;
         }
 
@@ -341,7 +401,7 @@ namespace Renderer
 
                 //Console.WriteLine(orthogonalProjection);
                 List<List<RasterizedVertex>> allRasterized = new List<List<RasterizedVertex>>();
-                List<SceneTriangle> triangles = ClipNear();
+                List<SceneTriangle> triangles = ClipFrustrum();
 
                 foreach (SceneTriangle triangle in triangles)
                 {                    
@@ -364,6 +424,7 @@ namespace Renderer
                      
 
                         rasterizedVertex.Add(new RasterizedVertex());
+                        Console.WriteLine("Screen space coords:" + screenSpace / screenSpace.w);
                         rasterizedVertex[i].U = triangle.U[i];
                         rasterizedVertex[i].V = triangle.V[i];
                         rasterizedVertex[i].Position = screenSpace;
@@ -422,7 +483,7 @@ namespace Renderer
                         }
                         
                         colors.Add(vertexColor);
-                        Console.WriteLine("Vertex: " + rasterizedVertex[i].Position/rasterizedVertex[i].Position.w);
+                        //Console.WriteLine("Vertex: " + rasterizedVertex[i].Position/rasterizedVertex[i].Position.w);
                         rasterizedVertex[i].BlinnPhongColor = vertexColor;
                     }
 
@@ -635,12 +696,8 @@ namespace Renderer
             for (int pixels = 0; pixels <= numpixels; pixels++)
             {
                 
-                if (renderingParameters.Interactive)
-                {
-                    pointsToDraw.Enqueue(new Vector(x, y));
-                    colorsToDraw.Enqueue(c);
-                }
-                else this.buffer[x, y] = c;
+  
+                this.buffer[x, y] = c;
 
                 //this.buffer[x + 1,y] = new Vector(0, 0, 1);
                 num += numadd;

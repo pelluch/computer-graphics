@@ -24,7 +24,7 @@ namespace Renderer
         private Vector[,] normals;
         private SceneMaterial[,] materials;
         public RenderingParameters renderingParameters;
-        private Vector[,] buffer;
+        //private Vector[,] buffer;
         private int y = 0, x = 0;
         //private bool updateRows = false;
         private Stopwatch watch;

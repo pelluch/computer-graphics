@@ -61,8 +61,6 @@ namespace SceneLib
         public int PixelSize { get; set; }
         public float MaxTime { get; set; }
         public Vector BackgroundColor { get; set; }
-        public bool Interactive { get; set; }
-        public bool FinishedInteracting { get; set; }
 
         public RenderingParameters()
         {
@@ -74,7 +72,7 @@ namespace SceneLib
             MagTextureMode = SceneTextureMode.Nearest;
             RenderMode = SceneRenderMode.Normal;
             ShadeMode = ShadingMode.Phong;
-            BackgroundColor = new Vector(0,0,0,1);
+            BackgroundColor = new Vector(1,1,1);
             EnablePersepctiveCorrected = true;
             EnableShading = true;
             EnableReflections = true;
@@ -90,8 +88,6 @@ namespace SceneLib
             EnableSoftShadows = false;
             EnableMotionBlur = true;
             EnableTextureMapping = true;
-            Interactive = false;
-            FinishedInteracting = false;
             PixelSize = 1;
         }
     }

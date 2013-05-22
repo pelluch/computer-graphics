@@ -45,6 +45,7 @@ namespace Renderer
 
         private static Scene scene;
         private static RenderingParameters rendParams = new RenderingParameters();
+        private static Renderer currentRenderer;
 
          static void Main(string[] args)
          {
@@ -73,9 +74,11 @@ namespace Renderer
              {
 
                  Console.WriteLine("x: " + x);
-                 Console.WriteLine("y: " + y);
-                 raytraceRenderer.ShowMouse(x+10, 785-y);
-                 raytraceRenderer.CalculatePixel(x+10, 785-y);
+                 Console.WriteLine("y: " + (483-y));
+                 currentRenderer.ShowColor(new Vector(x, (483 - y))); 
+                 
+                 //raytraceRenderer.ShowMouse(x+10, 785-y);
+                 //raytraceRenderer.CalculatePixel(x+10, 785-y);
                  
              }             
          }
@@ -185,6 +188,7 @@ namespace Renderer
                  mode = RendererType.Raytracer;
                  raytraceRenderer.ResetTracer();
                  transformationRenderer.ResetRenderer();
+                 currentRenderer = raytraceRenderer;
                  Glut.glutPostRedisplay();
              }
              else if (key == (int)NumberKeys.Three)
@@ -192,6 +196,7 @@ namespace Renderer
                  mode = RendererType.RasterizerWireframe;
                  rendParams.WireFrame = true;
                  transformationRenderer.ResetRenderer();
+                 currentRenderer = transformationRenderer;
                  Glut.glutPostRedisplay();
              }
              else if (key == (int)NumberKeys.Four)
@@ -199,6 +204,7 @@ namespace Renderer
                  mode = RendererType.Rasterizer;
                  rendParams.WireFrame = false;
                  transformationRenderer.ResetRenderer();
+                 currentRenderer = transformationRenderer;
                  Glut.glutPostRedisplay();
              }
              else if (key == (byte)'w')
@@ -303,22 +309,6 @@ namespace Renderer
                  Glut.glutPostRedisplay();
                  
              }
-             else if (key == (byte)'b')
-             {
-                 raytraceRenderer.ResetTracer();
-                 transformationRenderer.ResetRenderer();
-                 rendParams.Interactive = true;
-                 rendParams.FinishedInteracting = true;
-                 //raytraceRenderer.ResetTracer();                 
-                 Glut.glutPostRedisplay();
-             }
-             else if (key == (byte)'n')
-             {
-                 transformationRenderer.StepOnce();             
-                 Glut.glutPostRedisplay();
-             }
-
-
          }
 
        

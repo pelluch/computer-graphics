@@ -4,11 +4,15 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using SceneLib;
+using Tao.FreeGlut;
 
 namespace Renderer
 {
     public class Renderer
     {
+
+        protected Vector[,] buffer;
+
         protected Vector CalculateU(Vector up, Vector w)
         {
             Vector u = Vector.Cross3(up, w);
@@ -28,6 +32,16 @@ namespace Renderer
             Vector gazeDirection = eye - target;
             gazeDirection.Normalize3();
             return gazeDirection;
+        }
+
+        public Vector ShowColor(Vector position)
+        {
+            Vector color = buffer[(int)position.x, (int)position.y];
+            Console.WriteLine(color);
+            //buffer[(int)position.x, (int)position.y] = new Vector(0, 0, 0);
+            Glut.glutPostRedisplay();
+            return color;
+
         }
     }
 }

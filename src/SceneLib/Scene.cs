@@ -26,6 +26,8 @@ namespace SceneLib
         private List<SceneCamera> cameras; //list of cameras
         private int currentCamera = 0;
 
+
+
         public List<SceneObject> Objects { get { return objects; } }
         public int Width { get { return width; } }
         public int Height { get { return height; } }
