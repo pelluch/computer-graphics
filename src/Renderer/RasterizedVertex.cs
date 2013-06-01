@@ -7,9 +7,10 @@ using SceneLib;
 
 namespace Renderer
 {
-    public class RasterizedVertex
+    public class Fragment
     {
-        public Vector Position;
+        public Vector RasterizedPosition;
+        public Vector WorldPosition;
         public Vector Normal;
         public SceneMaterial Material;
         public float U;
@@ -18,13 +19,13 @@ namespace Renderer
         public bool HasTexture = false;
 
 
-        public RasterizedVertex()
+        public Fragment()
         {
         }
 
-        public RasterizedVertex(RasterizedVertex v1, RasterizedVertex v2, float t)
+        public Fragment(Fragment v1, Fragment v2, float t)
         {
-            this.Position = v1.Position + t * (v2.Position - v1.Position);
+            this.RasterizedPosition = v1.RasterizedPosition + t * (v2.RasterizedPosition - v1.RasterizedPosition);
             this.Normal = v1.Normal + t * (v2.Normal - v1.Normal);
             this.U = v1.U + t * (v2.U - v1.U);
             this.V = v1.V + t * (v2.V - v1.V);

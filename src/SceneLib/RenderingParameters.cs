@@ -26,7 +26,8 @@ namespace SceneLib
     public enum ShadingMode
     {
         Gouraud,
-        Phong
+        VertexPhong,
+        PixelPhong
     }
 
     /// <summary>
@@ -71,7 +72,7 @@ namespace SceneLib
             MinTextureMode = SceneTextureMode.Nearest;
             MagTextureMode = SceneTextureMode.Nearest;
             RenderMode = SceneRenderMode.Normal;
-            ShadeMode = ShadingMode.Phong;
+            ShadeMode = ShadingMode.VertexPhong;
             BackgroundColor = new Vector(1,1,1);
             EnablePersepctiveCorrected = true;
             EnableShading = true;

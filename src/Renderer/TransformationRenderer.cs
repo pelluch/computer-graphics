@@ -21,7 +21,6 @@ namespace Renderer
         //private Vector[,] buffer;
         private float[,] zBuffer;
         private Stopwatch watch;
-        public RenderingParameters renderingParameters;
         private List<Vector> planeNormals = new List<Vector>();
         private List<Vector> planePoints = new List<Vector>();
         private List<string> planeNames = new List<string>();
@@ -29,7 +28,7 @@ namespace Renderer
         public TransformationRenderer(Scene scene, RenderingParameters rendParams)
         {
             this.scene = scene;
-            this.renderingParameters = rendParams;
+            this.rendParams = rendParams;
             this.width = rendParams.Width;
             this.height = rendParams.Height;
             this.buffer = new Vector[width, height];
@@ -54,7 +53,7 @@ namespace Renderer
             {
                 for (int j = 0; j < zBuffer.GetLength(1); ++j)
                 {
-                    buffer[i, j] = renderingParameters.BackgroundColor;
+                    buffer[i, j] = rendParams.BackgroundColor;
                     zBuffer[i, j] = float.MinValue;
                 }
             }
@@ -105,8 +104,8 @@ namespace Renderer
 
         private Matrix ViewPortMatrix()
         {
-            float nx = renderingParameters.Width;
-            float ny = renderingParameters.Height;
+            float nx = rendParams.Width;
+            float ny = rendParams.Height;
 
             float[] viewData = new float[]{ nx/2.0f, 0, 0, (nx-1)/2.0f,
                 0, ny/2.0f, 0, (ny-1)/2.0f,
@@ -140,29 +139,29 @@ namespace Renderer
                 Vector center = new Vector(200, 150);
                 Vector pos = center + new Vector((float)(150 * Math.Cos(Math.PI / 16.0 + Math.PI * 2 * i / 16)), (float)(150 * Math.Sin(Math.PI / 16.0 + Math.PI * 2 * i / 16)));
                 //Console.WriteLine(pos);
-                DrawLine(new Vector(200, 150), pos, new Vector(1, 0, 0), new Vector(0, 1, 0), renderingParameters.EnableAntialias);
+                DrawLine(new Vector(200, 150), pos, new Vector(1, 0, 0), new Vector(0, 1, 0), rendParams.EnableAntialias);
 
                 Vector pos2 = center + new Vector((float)(150 * Math.Cos(Math.PI * 2 * i / 16)), (float)(150 * Math.Sin(Math.PI * 2 * i / 16)));
                 //Console.WriteLine(pos);
-                DrawLine(new Vector(200, 150), pos2, new Vector(1, 0, 0), new Vector(0, 0, 1), renderingParameters.EnableAntialias);
+                DrawLine(new Vector(200, 150), pos2, new Vector(1, 0, 0), new Vector(0, 0, 1), rendParams.EnableAntialias);
                 //Glut.glutPostRedisplay();
             }
 
-            List<RasterizedVertex> rasterized = new List<RasterizedVertex>();
+            List<Fragment> rasterized = new List<Fragment>();
 
-            RasterizedVertex v1 = new RasterizedVertex();
+            Fragment v1 = new Fragment();
             v1.BlinnPhongColor = new Vector(1, 0, 0);
-            v1.Position = new Vector(80, 80);
+            v1.RasterizedPosition = new Vector(80, 80);
             rasterized.Add(v1);
 
-            RasterizedVertex v2 = new RasterizedVertex();
+            Fragment v2 = new Fragment();
             v2.BlinnPhongColor = new Vector(0, 1, 0);
-            v2.Position = new Vector(250, 270);
+            v2.RasterizedPosition = new Vector(250, 270);
             rasterized.Add(v2);
 
-            RasterizedVertex v3 = new RasterizedVertex();
+            Fragment v3 = new Fragment();
             v3.BlinnPhongColor = new Vector(0, 0, 1);
-            v3.Position = new Vector(260, 40);
+            v3.RasterizedPosition = new Vector(260, 40);
             rasterized.Add(v3);
 
 
@@ -206,8 +205,8 @@ namespace Renderer
                 List<SceneTriangle> newTriangles = new List<SceneTriangle>();
                 foreach (SceneTriangle triangle in clippedTriangles)
                 {
-                    List<RasterizedVertex> outside = new List<RasterizedVertex>();
-                    List<RasterizedVertex> inside = new List<RasterizedVertex>();
+                    List<Fragment> outside = new List<Fragment>();
+                    List<Fragment> inside = new List<Fragment>();
                     
                     for (int i = 0; i < 3; ++i)
                     {
@@ -218,21 +217,21 @@ namespace Renderer
                         Console.WriteLine("Distance: " + planeDistance);
                         if (planeDistance < 0)
                         {
-                            RasterizedVertex outsideVertex = new RasterizedVertex();
+                            Fragment outsideVertex = new Fragment();
 
                             outsideVertex.U = triangle.U[i];
                             outsideVertex.V = triangle.V[i];
                             outsideVertex.Normal = triangle.Normal[i];
                             outsideVertex.Material = triangle.Materials[i];
-                            outsideVertex.Position = triangle.Vertex[i];
+                            outsideVertex.RasterizedPosition = triangle.Vertex[i];
                             outside.Add(outsideVertex);
                         }
                         else
                         {
-                            RasterizedVertex insideVertex = new RasterizedVertex();
+                            Fragment insideVertex = new Fragment();
 
                             insideVertex.U = triangle.U[i];
-                            insideVertex.Position = triangle.Vertex[i];
+                            insideVertex.RasterizedPosition = triangle.Vertex[i];
                             insideVertex.V = triangle.V[i];
                             insideVertex.Normal = triangle.Normal[i];
                             insideVertex.Material = triangle.Materials[i];
@@ -249,18 +248,18 @@ namespace Renderer
                     {
                         Console.WriteLine("Two vertices outside, adding new triangle");
 
-                        float t1 = (Vector.Dot3(planeNormals[current_plane], outside[0].Position) + D) / (Vector.Dot3(planeNormals[current_plane], outside[0].Position - inside[0].Position));
-                        RasterizedVertex inter1 = new RasterizedVertex(outside[0], inside[0], t1);
+                        float t1 = (Vector.Dot3(planeNormals[current_plane], outside[0].RasterizedPosition) + D) / (Vector.Dot3(planeNormals[current_plane], outside[0].RasterizedPosition - inside[0].RasterizedPosition));
+                        Fragment inter1 = new Fragment(outside[0], inside[0], t1);
                         Console.WriteLine("t1 = " + t1);
-                        float t2 = (Vector.Dot3(planeNormals[current_plane], outside[1].Position) + D) / (Vector.Dot3(planeNormals[current_plane], outside[1].Position - inside[0].Position));
-                        RasterizedVertex inter2 = new RasterizedVertex(outside[1], inside[0], t2);
+                        float t2 = (Vector.Dot3(planeNormals[current_plane], outside[1].RasterizedPosition) + D) / (Vector.Dot3(planeNormals[current_plane], outside[1].RasterizedPosition - inside[0].RasterizedPosition));
+                        Fragment inter2 = new Fragment(outside[1], inside[0], t2);
                         Console.WriteLine("t2 = " + t2);
                       
                         SceneTriangle clipped = new SceneTriangle();
                         clipped.Vertex = new List<Vector>();
-                        clipped.Vertex.Add(inter1.Position);
-                        clipped.Vertex.Add(inter2.Position);
-                        clipped.Vertex.Add(inside[0].Position);
+                        clipped.Vertex.Add(inter1.RasterizedPosition);
+                        clipped.Vertex.Add(inter2.RasterizedPosition);
+                        clipped.Vertex.Add(inside[0].RasterizedPosition);
 
                         clipped.U = new List<float>();
                         clipped.U.Add(inter1.U);
@@ -291,18 +290,18 @@ namespace Renderer
                     else if (outside.Count == 1)
                     {
                         Console.WriteLine("One vertex outside");
-                        float t1 = (Vector.Dot3(planeNormals[current_plane], outside[0].Position) + D) / (Vector.Dot3(planeNormals[current_plane], outside[0].Position - inside[0].Position));
-                        RasterizedVertex inter1 = new RasterizedVertex(outside[0], inside[0], t1);
+                        float t1 = (Vector.Dot3(planeNormals[current_plane], outside[0].RasterizedPosition) + D) / (Vector.Dot3(planeNormals[current_plane], outside[0].RasterizedPosition - inside[0].RasterizedPosition));
+                        Fragment inter1 = new Fragment(outside[0], inside[0], t1);
                         Console.WriteLine("t1 = " + t1);
-                        float t2 = (Vector.Dot3(planeNormals[current_plane], outside[0].Position) + D) / (Vector.Dot3(planeNormals[current_plane], outside[0].Position - inside[1].Position));
-                        RasterizedVertex inter2 = new RasterizedVertex(outside[0], inside[1], t2);
+                        float t2 = (Vector.Dot3(planeNormals[current_plane], outside[0].RasterizedPosition) + D) / (Vector.Dot3(planeNormals[current_plane], outside[0].RasterizedPosition - inside[1].RasterizedPosition));
+                        Fragment inter2 = new Fragment(outside[0], inside[1], t2);
                         Console.WriteLine("t2 = " + t2);
 
                         SceneTriangle clipped1 = new SceneTriangle();
                         clipped1.Vertex = new List<Vector>();
-                        clipped1.Vertex.Add(inter1.Position);
-                        clipped1.Vertex.Add(inter2.Position);
-                        clipped1.Vertex.Add(inside[0].Position);
+                        clipped1.Vertex.Add(inter1.RasterizedPosition);
+                        clipped1.Vertex.Add(inter2.RasterizedPosition);
+                        clipped1.Vertex.Add(inside[0].RasterizedPosition);
 
                         clipped1.U = new List<float>();
                         clipped1.U.Add(inter1.U);
@@ -327,9 +326,9 @@ namespace Renderer
 
                         SceneTriangle clipped2 = new SceneTriangle();
                         clipped2.Vertex = new List<Vector>();
-                        clipped2.Vertex.Add(inter2.Position);
-                        clipped2.Vertex.Add(inside[0].Position);
-                        clipped2.Vertex.Add(inside[1].Position);
+                        clipped2.Vertex.Add(inter2.RasterizedPosition);
+                        clipped2.Vertex.Add(inside[0].RasterizedPosition);
+                        clipped2.Vertex.Add(inside[1].RasterizedPosition);
 
                         clipped2.U = new List<float>();
                         clipped2.U.Add(inter2.U);
@@ -376,6 +375,79 @@ namespace Renderer
             return clippedTriangles;
         }
 
+        private List<Vector> CalculateTangentCoords(Vector uCoords, Vector vCoords, List<Vector> vertex)
+        {
+            List<Vector> system = new List<Vector>();
+            //(u2-u0)(v1-v0) - (u1-u0)(v2-v0)
+            float denominator = (uCoords.z - uCoords.x) * (vCoords.y - vCoords.x) - (uCoords.y - uCoords.x) * (vCoords.z - vCoords.x);
+
+            Vector t = ((uCoords.z - uCoords.x) * (vertex[1] - vertex[0]) - (uCoords.y - uCoords.x) * (vertex[2] - vertex[0])) / denominator;
+            t.Normalize3();
+            Vector b = ((uCoords.y - uCoords.x) * (vertex[2] - vertex[0]) - (uCoords.z - uCoords.x) * (vertex[1] - vertex[0])) / denominator;
+            b.Normalize3();
+            Vector n = Vector.Cross3(t, b);
+
+            system.Add(t);
+            system.Add(b);
+            system.Add(n);
+
+            return system;
+        }
+        private void SetVertexColor(Fragment vertex)
+        {
+            Vector surfaceNormal = vertex.Normal;
+            Vector lightDirection;
+            Vector vertexColor = new Vector();
+
+            Vector diffuse = new Vector();
+            if (vertex.HasTexture)
+            {
+                diffuse = new Vector(1, 1, 1, 1);
+            }
+            else
+            {
+                diffuse = vertex.Material.Diffuse;
+            }
+
+            foreach (SceneLight light in scene.Lights)
+            {
+                Vector currentLightColor = new Vector();
+                lightDirection = light.Position - vertex.WorldPosition;
+                lightDirection.Normalize3();
+
+                //Get cosine of angle between vectors
+                float similarity = Vector.Dot3(surfaceNormal, lightDirection);
+                Vector lambertColor = new Vector();
+                lambertColor = Vector.ColorMultiplication(light.Color, diffuse) * Math.Max(0, similarity);
+
+
+                //Get half vector between camera direction and light direction
+                Vector eyeDirection = scene.Camera.Position - vertex.WorldPosition;
+                eyeDirection.Normalize3();
+                Vector halfVector = eyeDirection + lightDirection;
+                halfVector.Normalize3();
+
+                //Phong shading calculations
+                float normalHalfSimilarity = Vector.Dot3(surfaceNormal, halfVector);
+                Vector phongLightCoefficient = Vector.ColorMultiplication(light.Color, vertex.Material.Specular);
+                float shininessComponent = (float)Math.Pow(Math.Max(0, normalHalfSimilarity), vertex.Material.Shininess);
+                Vector phongColor = phongLightCoefficient * shininessComponent;
+
+                //Add colors and ambient light
+                //Assume no transparency
+
+                currentLightColor = Vector.LightAdd(lambertColor, phongColor);
+                vertexColor = Vector.LightAdd(vertexColor, currentLightColor);
+
+                //currentLightColor = Vector.LightAdd(lambertColor, phongColor);
+                //record.ShadedColors.Add(currentLightColor);
+            }
+
+            //colors.Add(vertexColor);
+            //Console.WriteLine("Vertex: " + rasterizedVertex[i].Position/rasterizedVertex[i].Position.w);
+            vertex.BlinnPhongColor = vertexColor;
+        }
+
         /// <summary>
         /// Método de prueba
         /// </summary>
@@ -400,14 +472,14 @@ namespace Renderer
                 Matrix viewMatrix = ViewPortMatrix();
 
                 //Console.WriteLine(orthogonalProjection);
-                List<List<RasterizedVertex>> allRasterized = new List<List<RasterizedVertex>>();
+                List<List<Fragment>> allRasterized = new List<List<Fragment>>();
                 List<SceneTriangle> triangles = ClipFrustrum();
 
                 foreach (SceneTriangle triangle in triangles)
                 {                    
                     List<Vector> points = new List<Vector>();
-                    List<Vector> colors = new List<Vector>();
-                    List<RasterizedVertex> rasterizedVertex = new List<RasterizedVertex>();
+
+                    List<Fragment> rasterizedVertex = new List<Fragment>();
                     
                     for(int i = 0; i < 3; ++i)
                     {
@@ -420,71 +492,26 @@ namespace Renderer
                         Vector portSpace = orthogonalProjection * perspectiveSpace;
                         //Vector portSpaceDivided = portSpace / portSpace.w;
                         Vector screenSpace = viewMatrix * portSpace;
+
                         //screenSpace = screenSpace / screenSpace.w;
                      
 
-                        rasterizedVertex.Add(new RasterizedVertex());
-                        Console.WriteLine("Screen space coords:" + screenSpace / screenSpace.w);
+                        rasterizedVertex.Add(new Fragment());
+                        //Console.WriteLine("Screen space coords:" + screenSpace / screenSpace.w);
+                        rasterizedVertex[i].WorldPosition = vertex;
                         rasterizedVertex[i].U = triangle.U[i];
                         rasterizedVertex[i].V = triangle.V[i];
-                        rasterizedVertex[i].Position = screenSpace;
+                        rasterizedVertex[i].RasterizedPosition = screenSpace;
                         rasterizedVertex[i].Material = triangle.Materials[i];
                         rasterizedVertex[i].Normal = triangle.Normal[i];
 
                         if (triangle.Materials[i] != null && triangle.Materials[i].TextureFile != null && triangle.Materials[i].TextureFile != "")
                             rasterizedVertex[i].HasTexture = true;
 
-                        Vector surfaceNormal = triangle.Normal[i];
-                        Vector lightDirection;
-                        Vector vertexColor = new Vector();
-
-                        Vector diffuse = new Vector();
-                        if (rasterizedVertex[i].HasTexture)
+                        if (this.rendParams.ShadeMode == ShadingMode.VertexPhong)
                         {
-                            diffuse = new Vector(1, 1, 1, 1);
+                            SetVertexColor(rasterizedVertex[i]);
                         }
-                        else
-                        {
-                            diffuse = triangle.Materials[i].Diffuse;
-                        }
-
-                        foreach (SceneLight light in scene.Lights)
-                        {
-                            Vector currentLightColor = new Vector();
-                            lightDirection = light.Position - vertex;
-                            lightDirection.Normalize3();
-
-                            //Get cosine of angle between vectors
-                            float similarity = Vector.Dot3(surfaceNormal, lightDirection);
-                            Vector lambertColor = new Vector();
-                            lambertColor = Vector.ColorMultiplication(light.Color, diffuse) * Math.Max(0, similarity);
-
-
-                            //Get half vector between camera direction and light direction
-                            Vector eyeDirection = scene.Camera.Position - vertex;
-                            eyeDirection.Normalize3();
-                            Vector halfVector = eyeDirection + lightDirection;
-                            halfVector.Normalize3();
-
-                            //Phong shading calculations
-                            float normalHalfSimilarity = Vector.Dot3(surfaceNormal, halfVector);
-                            Vector phongLightCoefficient = Vector.ColorMultiplication(light.Color, triangle.Materials[i].Specular);
-                            float shininessComponent = (float)Math.Pow(Math.Max(0, normalHalfSimilarity), triangle.Materials[i].Shininess);
-                            Vector phongColor = phongLightCoefficient * shininessComponent;
-
-                            //Add colors and ambient light
-                            //Assume no transparency
-
-                            currentLightColor = Vector.LightAdd(lambertColor, phongColor);
-                            vertexColor = Vector.LightAdd(vertexColor, currentLightColor);
-
-                            //currentLightColor = Vector.LightAdd(lambertColor, phongColor);
-                            //record.ShadedColors.Add(currentLightColor);
-                        }
-                        
-                        colors.Add(vertexColor);
-                        //Console.WriteLine("Vertex: " + rasterizedVertex[i].Position/rasterizedVertex[i].Position.w);
-                        rasterizedVertex[i].BlinnPhongColor = vertexColor;
                     }
 
 
@@ -497,15 +524,19 @@ namespace Renderer
                     //    }
                 
                     //}
-                    if (renderingParameters.WireFrame) DrawTriangleWire(rasterizedVertex);
+                    if (rendParams.WireFrame) DrawTriangleWire(rasterizedVertex);
                     else DrawTriangle(rasterizedVertex);
 
                     
                     allRasterized.Add(rasterizedVertex);
                 }
-                foreach (List<RasterizedVertex> triangle in allRasterized)
+                foreach (List<Fragment> triangle in allRasterized)
                 {
                     DrawTriangleWire(triangle);
+                    foreach (Fragment vertex in triangle)
+                    {
+                        DrawSquare(vertex.RasterizedPosition/vertex.RasterizedPosition.w, new Vector(1, 0, 0), 5);
+                    }
                 }
                 //for (int i = 0; i < 16; i++)
                 //{
@@ -807,7 +838,7 @@ namespace Renderer
             //para el primer y último punto de la recta pues estos serán enteros.
             for (int pixels = 0; pixels <= numpixels; pixels++)
             {
-                if (x >= 0 && x < renderingParameters.Width && y >= 0 && y < renderingParameters.Height)
+                if (x >= 0 && x < rendParams.Width && y >= 0 && y < rendParams.Height)
                 {
                     float fractional, invFractional;
                     if (deltax >= deltay) invFractional = y - (int)y;
@@ -826,7 +857,7 @@ namespace Renderer
                         this.buffer[(int)x, (int)y] = fractionalColor;
                     }
 
-                    if (x >= -1 && x < renderingParameters.Width - 1 && y >= -1 && y < renderingParameters.Height - 1)
+                    if (x >= -1 && x < rendParams.Width - 1 && y >= -1 && y < rendParams.Height - 1)
                     {
                         minZ = this.zBuffer[(int)(x + xinc1), (int)(y + yinc1)];
                         if (z > minZ)
@@ -861,15 +892,15 @@ namespace Renderer
         /// <param name="c2">Color asociado al vertice 2</param>
         /// <param name="c3">Color asociado al vertice 3</param>
         /// <param name="antialias">Define con o sin antialias.</param>
-        private void DrawTriangleWire(List<RasterizedVertex> vertices)
+        private void DrawTriangleWire(List<Fragment> vertices)
         {
-            float h0 = vertices[0].Position.w;
-            float h1 = vertices[1].Position.w;
-            float h2 = vertices[2].Position.w;
+            float h0 = vertices[0].RasterizedPosition.w;
+            float h1 = vertices[1].RasterizedPosition.w;
+            float h2 = vertices[2].RasterizedPosition.w;
 
-            DrawLine(vertices[0].Position/h0, vertices[1].Position/h1, vertices[0].BlinnPhongColor, vertices[0].BlinnPhongColor, renderingParameters.EnableAntialias);
-            DrawLine(vertices[0].Position/h0, vertices[2].Position/h2, vertices[0].BlinnPhongColor, vertices[2].BlinnPhongColor, renderingParameters.EnableAntialias);
-            DrawLine(vertices[1].Position/h1, vertices[2].Position/h2, vertices[1].BlinnPhongColor, vertices[2].BlinnPhongColor, renderingParameters.EnableAntialias);
+            DrawLine(vertices[0].RasterizedPosition/h0, vertices[1].RasterizedPosition/h1, vertices[0].BlinnPhongColor, vertices[0].BlinnPhongColor, rendParams.EnableAntialias);
+            DrawLine(vertices[0].RasterizedPosition/h0, vertices[2].RasterizedPosition/h2, vertices[0].BlinnPhongColor, vertices[2].BlinnPhongColor, rendParams.EnableAntialias);
+            DrawLine(vertices[1].RasterizedPosition/h1, vertices[2].RasterizedPosition/h2, vertices[1].BlinnPhongColor, vertices[2].BlinnPhongColor, rendParams.EnableAntialias);
         }
 
         private Vector GetBaricentricCoords(List<Vector> vertices, Vector trianglePoint, bool homogeneize)
@@ -911,7 +942,7 @@ namespace Renderer
         /// <param name="c2">Color asociado al vertice 2</param>
         /// <param name="c3">Color asociado al vertice 3</param>
         /// <param name="antialias">Define con o sin antialias.</param>
-        private void DrawTriangle(List<RasterizedVertex> rasterized)
+        private void DrawTriangle(List<Fragment> rasterized)
         {
             //bool antiAlias = renderingParameters.EnableAntialias;
             //if (renderingParameters.WireFrame)
@@ -928,12 +959,12 @@ namespace Renderer
             //}
    
 
-            float h0 = rasterized[0].Position.w;
-            float h1 = rasterized[1].Position.w;
-            float h2 = rasterized[2].Position.w;
+            float h0 = rasterized[0].RasterizedPosition.w;
+            float h1 = rasterized[1].RasterizedPosition.w;
+            float h2 = rasterized[2].RasterizedPosition.w;
 
-            float x1 = rasterized[0].Position.x / rasterized[0].Position.w, x2 = rasterized[1].Position.x / rasterized[1].Position.w, x3 = rasterized[2].Position.x / rasterized[2].Position.w;
-            float y1 = rasterized[0].Position.y / rasterized[0].Position.w, y2 = rasterized[1].Position.y / rasterized[1].Position.w, y3 = rasterized[2].Position.y / rasterized[2].Position.w;
+            float x1 = rasterized[0].RasterizedPosition.x / rasterized[0].RasterizedPosition.w, x2 = rasterized[1].RasterizedPosition.x / rasterized[1].RasterizedPosition.w, x3 = rasterized[2].RasterizedPosition.x / rasterized[2].RasterizedPosition.w;
+            float y1 = rasterized[0].RasterizedPosition.y / rasterized[0].RasterizedPosition.w, y2 = rasterized[1].RasterizedPosition.y / rasterized[1].RasterizedPosition.w, y3 = rasterized[2].RasterizedPosition.y / rasterized[2].RasterizedPosition.w;
 
             float y1y3 = y1 - y3, y1y2 = y1 - y2, y2y3 = y2 - y3;
             float x1x3 = x1 - x3, x1x2 = x1 - x2, x2x3 = x2 - x3;
@@ -958,12 +989,12 @@ namespace Renderer
             float den2 = (-y1y3 * x2x3 + x1x3 * y2y3);
             
         
-                for (float x = leftmost; x <= rightmost && x < renderingParameters.Width; x++)
+                for (float x = leftmost; x <= rightmost && x < rendParams.Width; x++)
                 {
                     if (x < 0)
                         continue;
 
-                    for (float y = bottommost; y <= renderingParameters.Height; y++)
+                    for (float y = bottommost; y <= rendParams.Height; y++)
                     {
                         if (y < 0)
                             continue;
@@ -978,7 +1009,7 @@ namespace Renderer
                         float gamma = 1 - alpha - betta;
                         if (gamma < 0 || gamma > 1) continue;
 
-                        float z = alpha * rasterized[0].Position.z / rasterized[0].Position.w + betta * rasterized[1].Position.z / rasterized[1].Position.w + gamma * rasterized[2].Position.z / rasterized[2].Position.w;
+                        float z = alpha * rasterized[0].RasterizedPosition.z / rasterized[0].RasterizedPosition.w + betta * rasterized[1].RasterizedPosition.z / rasterized[1].RasterizedPosition.w + gamma * rasterized[2].RasterizedPosition.z / rasterized[2].RasterizedPosition.w;
                         float minZ = this.zBuffer[(int)x, (int)y];
                         //z es negativo, por eso el >
                         if (z > minZ)
@@ -987,6 +1018,14 @@ namespace Renderer
                             {                            
                                 minZ = z;
                                 this.zBuffer[(int)x, (int)y] = z;
+                                if (rendParams.ShadeMode == ShadingMode.PixelPhong)
+                                {
+                                    Fragment pixel = new Fragment();
+                                    pixel.Material = rasterized[0].Material;
+                                    pixel.Normal = alpha * rasterized[0].Normal + betta * rasterized[1].Normal + gamma * rasterized[2].Normal;
+                                    pixel.RasterizedPosition = alpha * rasterized[0].RasterizedPosition + betta * rasterized[1].RasterizedPosition + gamma * rasterized[2].RasterizedPosition;
+                                    SetVertexColor(pixel);
+                                }
                                 float d = h1 * h2 + h2 * betta * (h0 - h1) + h1 * gamma * (h0 - h2);
                                 betta = h0 * h2 * betta / d;
                                 gamma = h0 * h1 * gamma / d;

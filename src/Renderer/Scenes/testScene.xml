@@ -106,6 +106,14 @@
     </material>
   </material_list>
 
+  <material name="Stones">
+    <texture filename=""/>
+    <normalmap filename="Images/stonesNormalMap2.jpg"/>
+    <diffuse red="0.656" green="0.626" blue="0.107"/>
+    <specular red="1.0" green="1.0" blue="1.0" shininess="100.0"/>
+    <!--<reflective red="0.5" green="0.5" blue="0.5"/>-->
+  </material>
+
   <!-- List of Scene Objects -->
   <object_list>
 

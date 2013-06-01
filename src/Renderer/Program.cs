@@ -86,7 +86,7 @@ namespace Renderer
          static void Init()
          {
              scene = new Scene(rendParams.Width, rendParams.Height);
-             scene.Load(@"Scenes/viewTest.xml");
+             scene.Load(@"Scenes/testScene.xml");
              openGLrenderer = new OpenGLRenderer(scene, rendParams.Width, rendParams.Height);
              raytraceRenderer = new RaytraceRenderer(scene, rendParams);
              transformationRenderer = new TransformationRenderer(scene, rendParams);
