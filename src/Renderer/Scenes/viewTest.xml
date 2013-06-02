@@ -119,14 +119,14 @@
 
 
       <vertex index="0" material="Blue">
-        <position x="356" y="270" z="0"/>
+        <position x="298" y="270" z="0"/>
         <normal x="0.0" y="0.0" z="-1.0"/>
         <texture u="0.0" v="0.0"/>
       </vertex>
 
 
       <vertex index="1" material="Blue">
-        <position x="200.0" y="270" z="0"/>
+        <position x="258.0" y="270" z="0"/>
         <normal x="0.0" y="0.0" z="-1.0"/>
         <texture u="0.0" v="0.0"/>
       </vertex>

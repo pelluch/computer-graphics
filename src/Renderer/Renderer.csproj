@@ -72,9 +72,9 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Fragment.cs" />
     <Compile Include="OpenGLRenderer.cs" />
     <Compile Include="Paralell.cs" />
-    <Compile Include="RasterizedVertex.cs" />
     <Compile Include="RaytraceRenderer.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

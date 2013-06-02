@@ -434,17 +434,10 @@ namespace Renderer
                 Vector phongColor = phongLightCoefficient * shininessComponent;
 
                 //Add colors and ambient light
-                //Assume no transparency
-
                 currentLightColor = Vector.LightAdd(lambertColor, phongColor);
                 vertexColor = Vector.LightAdd(vertexColor, currentLightColor);
-
-                //currentLightColor = Vector.LightAdd(lambertColor, phongColor);
-                //record.ShadedColors.Add(currentLightColor);
             }
 
-            //colors.Add(vertexColor);
-            //Console.WriteLine("Vertex: " + rasterizedVertex[i].Position/rasterizedVertex[i].Position.w);
             vertex.BlinnPhongColor = vertexColor;
         }
 
@@ -478,7 +471,6 @@ namespace Renderer
                 foreach (SceneTriangle triangle in triangles)
                 {                    
                     List<Vector> points = new List<Vector>();
-
                     List<Fragment> rasterizedVertex = new List<Fragment>();
                     
                     for(int i = 0; i < 3; ++i)
@@ -508,22 +500,9 @@ namespace Renderer
                         if (triangle.Materials[i] != null && triangle.Materials[i].TextureFile != null && triangle.Materials[i].TextureFile != "")
                             rasterizedVertex[i].HasTexture = true;
 
-                        if (this.rendParams.ShadeMode == ShadingMode.VertexPhong)
-                        {
                             SetVertexColor(rasterizedVertex[i]);
-                        }
                     }
 
-
-                    //for (int i = 0; i < 3; ++i)
-                    //{
-                    //    float planeDistance = rasterizedVertex[i].Position.z + scene.Camera.NearClip * rasterizedVertex[i].Position.w;
-                    //    if (planeDistance < 0)
-                    //    {
-                    //        Console.WriteLine("On other side!");
-                    //    }
-                
-                    //}
                     if (rendParams.WireFrame) DrawTriangleWire(rasterizedVertex);
                     else DrawTriangle(rasterizedVertex);
 
@@ -538,18 +517,6 @@ namespace Renderer
                         DrawSquare(vertex.RasterizedPosition/vertex.RasterizedPosition.w, new Vector(1, 0, 0), 5);
                     }
                 }
-                //for (int i = 0; i < 16; i++)
-                //{
-                //    Vector center = new Vector(200, 150);
-                //    Vector pos = center + new Vector((float)(150 * Math.Cos(Math.PI / 16.0 + Math.PI * 2 * i / 16)), (float)(150 * Math.Sin(Math.PI / 16.0 + Math.PI * 2 * i / 16)));
-                //    DrawLine(new Vector(200, 150), pos, new Vector(1, 0, 0), new Vector(0, 1, 0), true);
-
-                //    Vector pos2 = center + new Vector((float)(150 * Math.Cos(Math.PI * 2 * i / 16)), (float)(150 * Math.Sin(Math.PI * 2 * i / 16)));
-                //    DrawLine(new Vector(200, 150), pos2, new Vector(1, 0, 0), new Vector(0, 0, 1), true);
-                //}
-
-                //DrawTriangle(new Vector(80, 80), new Vector(250, 270), new Vector(260, 40), new Vector(1, 0, 0), new Vector(0, 1, 0),
-                //    new Vector(0, 0, 1), true);
 
                 Console.WriteLine();
                 Glut.glutPostRedisplay();
@@ -903,35 +870,6 @@ namespace Renderer
             DrawLine(vertices[1].RasterizedPosition/h1, vertices[2].RasterizedPosition/h2, vertices[1].BlinnPhongColor, vertices[2].BlinnPhongColor, rendParams.EnableAntialias);
         }
 
-        private Vector GetBaricentricCoords(List<Vector> vertices, Vector trianglePoint, bool homogeneize)
-        {
-            Vector h = new Vector(1, 1, 1);
-            if (homogeneize)
-                h = new Vector(vertices[0].w, vertices[1].w, vertices[2].w);
-
-            float x1 = vertices[0].x / h.x, x2 = vertices[1].x / h.y, x3 = vertices[2].x / h.z;
-            float y1 = vertices[0].y / h.x, y2 = vertices[1].y / h.y, y3 = vertices[2].y / h.z;
-            float x = trianglePoint.x, y = trianglePoint.y;
-
-            float y1y3 = y1 - y3, y1y2 = y1 - y2, y2y3 = y2 - y3;
-            float x1x3 = x1 - x3, x1x2 = x1 - x2, x2x3 = x2 - x3;
-
-            float den1 = (y2y3 * x1x3 - x2x3 * y1y3);
-            float den2 = (-y1y3 * x2x3 + x1x3 * y2y3);
-
-            float alpha = (y2y3 * (x - x3) - x2x3 * (y - y3)) / den1;
-            if (alpha < 0 || alpha > 1) return null;
-
-            float betta = (-y1y3 * (x - x3) + x1x3 * (y - y3)) / den2;
-            if (betta < 0 || betta > 1) return null;
-
-            float gamma = 1 - alpha - betta;
-            if (gamma < 0 || gamma > 1) return null;
-
-            Vector bar = new Vector(alpha, betta, gamma);
-            return bar;
-        }
-
         /// <summary>
         /// Método que dibuja un triángulo 2D, pintando su superficie interpolando los colores de sus vértices.
         /// </summary>
@@ -1014,36 +952,56 @@ namespace Renderer
                         //z es negativo, por eso el >
                         if (z > minZ)
                         {
+                            minZ = z;
+                            this.zBuffer[(int)x, (int)y] = z;
+                            Fragment pixel = new Fragment();
+
+                            float d = h1 * h2 + h2 * betta * (h0 - h1) + h1 * gamma * (h0 - h2);
+                            betta = h0 * h2 * betta / d;
+                            gamma = h0 * h1 * gamma / d;
+                            alpha = (1 - betta - gamma);
+
+                            float uCoord = 0, vCoord = 0;
+                            Vector textureColor = new Vector();
+
                             if (rasterized[0].HasTexture)
-                            {                            
-                                minZ = z;
-                                this.zBuffer[(int)x, (int)y] = z;
-                                if (rendParams.ShadeMode == ShadingMode.PixelPhong)
-                                {
-                                    Fragment pixel = new Fragment();
-                                    pixel.Material = rasterized[0].Material;
-                                    pixel.Normal = alpha * rasterized[0].Normal + betta * rasterized[1].Normal + gamma * rasterized[2].Normal;
-                                    pixel.RasterizedPosition = alpha * rasterized[0].RasterizedPosition + betta * rasterized[1].RasterizedPosition + gamma * rasterized[2].RasterizedPosition;
-                                    SetVertexColor(pixel);
-                                }
-                                float d = h1 * h2 + h2 * betta * (h0 - h1) + h1 * gamma * (h0 - h2);
-                                betta = h0 * h2 * betta / d;
-                                gamma = h0 * h1 * gamma / d;
-                                alpha = (1 - betta - gamma);
-
-                                float uCoord = alpha * rasterized[0].U + betta * rasterized[1].U + gamma * rasterized[2].U;
-                                float vCoord = alpha * rasterized[0].V + betta * rasterized[1].V + gamma * rasterized[2].V;
-                                Vector textureColor = rasterized[0].Material.GetTexturePixelColor(uCoord, vCoord);
-
-                                this.buffer[(int)x, (int)y] = alpha * Vector.ColorMultiplication(rasterized[0].BlinnPhongColor, textureColor) +
-                                    betta * Vector.ColorMultiplication(rasterized[1].BlinnPhongColor, textureColor) +
-                                    gamma * Vector.ColorMultiplication(rasterized[2].BlinnPhongColor, textureColor);
+                            {
+                                uCoord = alpha * rasterized[0].U + betta * rasterized[1].U + gamma * rasterized[2].U;
+                                vCoord = alpha * rasterized[0].V + betta * rasterized[1].V + gamma * rasterized[2].V;
+                                textureColor = rasterized[0].Material.GetTexturePixelColor(uCoord, vCoord);
                             }
+
+                            //Per pixel shading
+                            if (rendParams.ShadeMode == ShadingMode.PixelPhong) 
+                            {
+                                pixel.Material = rasterized[0].Material;
+                                pixel.Normal = alpha * rasterized[0].Normal + betta * rasterized[1].Normal + gamma * rasterized[2].Normal;
+                                pixel.RasterizedPosition = alpha * rasterized[0].RasterizedPosition + betta * rasterized[1].RasterizedPosition + gamma * rasterized[2].RasterizedPosition;
+                                pixel.WorldPosition = alpha * rasterized[0].WorldPosition + betta * rasterized[1].WorldPosition + gamma * rasterized[2].WorldPosition;
+                                SetVertexColor(pixel);
+
+                                if (rasterized[0].HasTexture)
+                                {    
+                                    this.buffer[(int)x, (int)y] = textureColor * pixel.BlinnPhongColor;
+                                }
+                                else
+                                {                                   
+                                    this.buffer[(int)x, (int)y] = pixel.BlinnPhongColor;
+                                }
+                            }
+                            //Per vertex shading
                             else
                             {
-                                minZ = z;
-                                this.zBuffer[(int)x, (int)y] = z;
-                                this.buffer[(int)x, (int)y] = alpha * rasterized[0].BlinnPhongColor + betta * rasterized[1].BlinnPhongColor + gamma * rasterized[2].BlinnPhongColor;
+                                if (rasterized[0].HasTexture) 
+                                {
+                                    this.buffer[(int)x, (int)y] = alpha * Vector.ColorMultiplication(rasterized[0].BlinnPhongColor, textureColor) +
+                                        betta * Vector.ColorMultiplication(rasterized[1].BlinnPhongColor, textureColor) +
+                                        gamma * Vector.ColorMultiplication(rasterized[2].BlinnPhongColor, textureColor);
+                                }
+                                else
+                                {
+                                    this.buffer[(int)x, (int)y] = alpha * rasterized[0].BlinnPhongColor + betta * rasterized[1].BlinnPhongColor + gamma * rasterized[2].BlinnPhongColor;
+                                }
                             }
                         }
 

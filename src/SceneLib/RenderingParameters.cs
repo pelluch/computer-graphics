@@ -72,8 +72,8 @@ namespace SceneLib
             MinTextureMode = SceneTextureMode.Nearest;
             MagTextureMode = SceneTextureMode.Nearest;
             RenderMode = SceneRenderMode.Normal;
-            ShadeMode = ShadingMode.VertexPhong;
-            BackgroundColor = new Vector(1,1,1);
+            ShadeMode = ShadingMode.PixelPhong;
+            BackgroundColor = new Vector(0,0,0);
             EnablePersepctiveCorrected = true;
             EnableShading = true;
             EnableReflections = true;
