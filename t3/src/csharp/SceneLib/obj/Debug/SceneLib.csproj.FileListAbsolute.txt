@@ -1,0 +1,10 @@
+C:\Ale\Cursos\Grafica\2013-1\code\OpenGL\SceneLib\bin\Debug\SceneLib.dll
+C:\Ale\Cursos\Grafica\2013-1\code\OpenGL\SceneLib\bin\Debug\SceneLib.pdb
+C:\Ale\Cursos\Grafica\2013-1\code\OpenGL\SceneLib\obj\Debug\ResolveAssemblyReference.cache
+C:\Ale\Cursos\Grafica\2013-1\code\OpenGL\SceneLib\obj\Debug\SceneLib.dll
+C:\Ale\Cursos\Grafica\2013-1\code\OpenGL\SceneLib\obj\Debug\SceneLib.pdb
+C:\Ale\Cursos\Grafica\2013-1\code\OpenGL\repo\SceneLib\bin\Debug\SceneLib.dll
+C:\Ale\Cursos\Grafica\2013-1\code\OpenGL\repo\SceneLib\bin\Debug\SceneLib.pdb
+C:\Ale\Cursos\Grafica\2013-1\code\OpenGL\repo\SceneLib\obj\Debug\ResolveAssemblyReference.cache
+C:\Ale\Cursos\Grafica\2013-1\code\OpenGL\repo\SceneLib\obj\Debug\SceneLib.dll
+C:\Ale\Cursos\Grafica\2013-1\code\OpenGL\repo\SceneLib\obj\Debug\SceneLib.pdb
