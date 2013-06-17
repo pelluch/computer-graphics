@@ -1,7 +1,10 @@
 cmake_minimum_required (VERSION 2.6) 
 project (opengl_game)
 
+include(ExternalProject)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_SOURCE_DIR}/cmake )
+
+
 find_package(GLEW REQUIRED)
 find_package(GLFW3 REQUIRED)
 

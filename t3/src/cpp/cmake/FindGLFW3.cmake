@@ -20,23 +20,39 @@
 # Allow the user to select to link to a shared library or to a static library.
 
 #Search for the include file...
-FIND_PATH(GLFW3_INCLUDE_DIR GLFW/glfw3.h DOC "Path to GLFW3 include directory."
-  PATHS
-  /usr/include/
-  /usr/local/include/
-  # By default headers are under GLFW subfolder
-  /usr/include/GLFW
-  /usr/local/include/GLFW
-)
+IF(WIN_32)
+  FIND_PATH(GLFW3_INCLUDE_DIR GLFW/glfw3.h DOC "Path to GLFW3 include directory."
+    PATHS
+    ${CMAKE_CURRENT_BINARY_DIR}/glfw/include
+    ${CMAKE_CURRENT_BINARY_DIR}/glfw/include/GLFW
+  )
+  FIND_LIBRARY(GLFW3_LIBRARY DOC "Absolute path to GLFW3 library."
+    NAMES glfw GLFW
+    PATHS
+    /usr/lib64
+    /usr/lib
+    /usr/local/lib64
+    /usr/local/lib
+  )
+ELSE(WIN_32)
+  FIND_PATH(GLFW3_INCLUDE_DIR GLFW/glfw3.h DOC "Path to GLFW3 include directory."
+    PATHS
+    /usr/include/
+    /usr/local/include/
+    # By default headers are under GLFW subfolder
+    /usr/include/GLFW
+    /usr/local/include/GLFW
+  )
 
-FIND_LIBRARY(GLFW3_LIBRARY DOC "Absolute path to GLFW3 library."
-  NAMES glfw GLFW
-  PATHS
-  /usr/lib64
-  /usr/lib
-  /usr/local/lib64
-  /usr/local/lib
-)
+  FIND_LIBRARY(GLFW3_LIBRARY DOC "Absolute path to GLFW3 library."
+    NAMES glfw GLFW
+    PATHS
+    /usr/lib64
+    /usr/lib
+    /usr/local/lib64
+    /usr/local/lib
+  )
+ENDIF(WIN_32)
 
 IF (GLFW3_INCLUDE_DIR)
   SET( GLFW3_FOUND 1 CACHE STRING "Set to 1 if GLEW is found, 0 otherwise")
