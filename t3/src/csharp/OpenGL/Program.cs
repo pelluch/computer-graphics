@@ -270,7 +270,7 @@ namespace OpenGL
       //Inicialización y seteo de buffers de display a utilizar
       Glut.glutInit();
       Glut.glutInitDisplayMode(Glut.GLUT_RGBA | Glut.GLUT_DEPTH | Glut.GLUT_DOUBLE);
-
+		
       //Creación de ventana para desplegar rendering
       Glut.glutInitWindowSize(WIDTH, HEIGHT);
       Glut.glutInitWindowPosition(100, 100);
