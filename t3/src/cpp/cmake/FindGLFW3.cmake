@@ -8,7 +8,6 @@
 # GLFW3_ROOT which points to the root of the glfw library installation. This is pretty useful
 # on a Windows platform.
 #
-#
 # Usage example to compile an "executable" target to the glfw library:
 #
 # FIND_PACKAGE (glfw REQUIRED)
