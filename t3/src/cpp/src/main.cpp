@@ -2,10 +2,11 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
-#include "event_handlers.h"
-#include "general_utils.h"
 #include <iostream>
 #include <string>
+
+#include "event_handlers.h"
+#include "general_utils.h"
 #include "shader.h"
 
 using namespace std;
