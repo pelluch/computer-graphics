@@ -5,6 +5,7 @@
 #include <iostream>
 #include <string>
 
+#include "scene.h"
 #include "event_handlers.h"
 #include "general_utils.h"
 #include "shader.h"
@@ -13,11 +14,18 @@ using namespace std;
 static int HEIGHT;
 static int WIDTH;
 
-static const GLfloat g_vertex_buffer_data[] = { 
+Scene scene;
+
+static const GLfloat vertexBuffer[] = { 
+		//Vertices
 		-1.0f, -1.0f, 0.1f,
 		 1.0f, -1.0f, 0.2f,
 		 0.0f,  1.0f, 0.3f,
-
+		 //Colors
+		 1.0f, 0.0f, 0.0f,
+		 0.0f, 1.0f, 0.0f,
+		 0.0f, 0.0f, 1.0f,
+		 //Normals
 		 1.0f, 0.0f, 0.0f,
 		 0.0f, 1.0f, 0.0f,
 		 0.0f, 0.0f, 1.0f
@@ -37,7 +45,7 @@ static void initBuffers()
 	glBindBuffer(GL_ARRAY_BUFFER, vertexBufferId);
 
 	//Assign the data
-	glBufferData(GL_ARRAY_BUFFER, sizeof(g_vertex_buffer_data), g_vertex_buffer_data, GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(vertexBuffer), vertexBuffer, GL_STATIC_DRAW);
 }
 
 static void setRenderingParameters()
@@ -73,9 +81,12 @@ static void draw()
 	//Use the shader
 	glUseProgram(shaderProgramId);
 
+	glm::mat4 modelTransform = glm::mat4(1.0f);
+	
 	//First attribute buffer: vertices
 	glEnableVertexAttribArray(0);
 	glEnableVertexAttribArray(1);
+	glEnableVertexAttribArray(2);
 
 	glBindBuffer(GL_ARRAY_BUFFER, vertexBufferId);
 	glVertexAttribPointer(
@@ -94,11 +105,21 @@ static void draw()
 		0,	//stride
 		(void*)(9*sizeof(float))	//Array buffer offset
 	);
+	glVertexAttribPointer(
+		2,	//Attrib 0 (must much layout in shader)
+		3,	//size
+		GL_FLOAT,	//type
+		GL_FALSE,	//normalized?
+		0,	//stride
+		(void*)(18*sizeof(float))	//Array buffer offset
+	);
+
 	//Draw triangle
 	glDrawArrays(GL_TRIANGLES, 0, 3); //Starting from 0, 3 vertices
 
 	glDisableVertexAttribArray(0);
 	glDisableVertexAttribArray(1);
+	glEnableVertexAttribArray(2);
 }
 
 int main(int argc, char ** argv)
