@@ -82,7 +82,9 @@ static void loadScene()
 	eyePosition = cam._eye;
 	scene = Scene(cam);
 	Light l1(glm::vec3(-1, -1, -0.2), glm::vec3(1,1,1));
+	Light l2(glm::vec3(0, 0, -0.2), glm::vec3(1,1,1));
 	scene.addLight(l1);
+	scene.addLight(l2);
 	scene.setShaderId(shaderProgramId);
 	scene.generateIds();
 }
