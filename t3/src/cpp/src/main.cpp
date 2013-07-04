@@ -9,6 +9,7 @@
 #include "event_handlers.h"
 #include "general_utils.h"
 #include "shader.h"
+#include "camera.h"
 
 using namespace std;
 static int HEIGHT;
@@ -17,24 +18,28 @@ static int WIDTH;
 Scene scene;
 
 static const GLfloat vertexBuffer[] = { 
-		//Vertices
-		-1.0f, -1.0f, 0.1f,
-		 1.0f, -1.0f, 0.2f,
-		 0.0f,  1.0f, 0.3f,
+
+		 //Vertices
+		 -1.0f, -1.0f, 0.0f,
+		 1.0f, -1.0f, 0.0f,
+		 0.0f,  1.0f, 0.0f,
 		 //Colors
 		 1.0f, 0.0f, 0.0f,
-		 0.0f, 1.0f, 0.0f,
-		 0.0f, 0.0f, 1.0f,
-		 //Normals
 		 1.0f, 0.0f, 0.0f,
-		 0.0f, 1.0f, 0.0f,
-		 0.0f, 0.0f, 1.0f
+		 1.0f, 0.0f, 0.0f,
+		 //Normals
+		 0.0f, 0.0f, -1.0f,
+		 0.0f, 0.0f, -1.0f,
+		 0.0f, 0.0f, -1.0f
+
 	};
 
 static GLuint shaderProgramId;
 static GLuint vertexBufferId;
-
-
+static GLuint matrixId;
+static GLuint lightId;
+static GLuint eyeId;
+static glm::vec3 lightPosition;
 
 static void initBuffers()
 {
@@ -53,27 +58,55 @@ static void setRenderingParameters()
 	// Enable depth test
 	glEnable(GL_DEPTH_TEST);
 	// Accept fragment if it closer to the camera than the former one
-	glDepthFunc(GL_LESS);
 
 }
 
 static void loadShaders()
 {
 	shaderProgramId = LoadShaders( "basic.vert", "basic.frag" );
+	matrixId = glGetUniformLocation(shaderProgramId, "MVP");
+	lightId = glGetUniformLocation(shaderProgramId, "lightPosition");
+	eyeId = glGetUniformLocation(shaderProgramId, "eyePosition");
+}
+
+static glm::vec3 eyePosition;
+
+static void loadScene()
+{
+	Camera cam;
+	cam._eye = glm::vec3(1.2, 1.2,-1);
+	cam._target = glm::vec3(-1,-1, -0.2);
+	cam._up = glm::vec3(0, 1, 0);
+	cam._fov = 45;
+	cam._near = 0.035;
+	cam._far = 1500;
+	eyePosition = cam._eye;
+	scene = Scene(cam);
+	lightPosition = glm::vec3(0, 0, -0.1);
 }
 
 static void init()
 {
+
 	initBuffers();
 	//setRenderingParameters();
 	loadShaders();
+	loadScene();
 
+}
+
+static void printVector(glm::vec4 vector)
+{
+	for(int i = 0; i < 4; ++i)
+	{
+		std::cout << vector[i] << std::endl;
+	}
 }
 
 static void draw()
 {
 	// Dark blue background
-	glClearColor(0.0f, 0.0f, 0.4f, 0.0f);
+	glClearColor(0.0f, 0.0f, 0.3f, 0.0f);
 
 	// Clear the screen
 	glClear( GL_COLOR_BUFFER_BIT );
@@ -81,8 +114,18 @@ static void draw()
 	//Use the shader
 	glUseProgram(shaderProgramId);
 
-	glm::mat4 modelTransform = glm::mat4(1.0f);
 	
+	float aspectRatio = (float)WIDTH/(float)HEIGHT;
+
+	glm::mat4 modelTransform = glm::mat4(1.0f);
+	glm::mat4 perspectiveTransform = scene.projectionTransform(aspectRatio);
+	glm::mat4 viewTransform = scene.viewTransform();
+	glm::mat4 MVP = perspectiveTransform*viewTransform*modelTransform;
+
+	glUniformMatrix4fv(matrixId, 1, GL_FALSE, &MVP[0][0]);
+	glUniform3fv(lightId, 1, &lightPosition[0]);
+	glUniform3fv(eyeId, 1, &eyePosition[0]);
+
 	//First attribute buffer: vertices
 	glEnableVertexAttribArray(0);
 	glEnableVertexAttribArray(1);
@@ -124,6 +167,7 @@ static void draw()
 
 int main(int argc, char ** argv)
 {
+	std::cout << "Initializing GLFW, GLEW" << std::endl;
 	std::string caption = "Options";
 	utils::CmdLine cmdLine;
 
@@ -169,6 +213,8 @@ int main(int argc, char ** argv)
 
 	glfwSetInputMode(window, GLFW_STICKY_KEYS, GLFW_KEY_ESCAPE);
 	glfwSetWindowSizeCallback(window, windowResized);
+
+	std::cout << "Initializing" << std::endl;
 	init();
 
 	// For speed computation
