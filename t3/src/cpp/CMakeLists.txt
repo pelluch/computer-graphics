@@ -10,12 +10,12 @@ find_package(GLFW3 REQUIRED)
 find_package(Boost COMPONENTS system program_options)
 
 include_directories(${GLEW_INCLUDE_DIR} ${GLFW3_INCLUDE_DIR})
+include_directories(src)
+include_directories(/home/pablo/src/utils/include)
 
 file(GLOB_RECURSE ICLS ${CMAKE_CURRENT_SOURCE_DIR}/src/*.h)
 file(GLOB_RECURSE SRCS ${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp)
-include_directories(src)
 
-include_directories(/home/pablo/src/utils/include)
 link_directories(/home/pablo/src/utils/lib)
 
 add_executable(main src/main.cpp ${ICLS} ${SRCS})

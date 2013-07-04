@@ -1,4 +1,4 @@
-#include "event_handlers.h"
+#include "control.h"
 
 void windowResized(GLFWwindow* window, int width, int height)
 {

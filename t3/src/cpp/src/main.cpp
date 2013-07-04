@@ -5,11 +5,11 @@
 #include <iostream>
 #include <string>
 
-#include "scene.h"
-#include "event_handlers.h"
+#include "scene/scene.h"
+#include "handlers/control.h"
 #include "general_utils.h"
-#include "shader.h"
-#include "camera.h"
+#include "shader/shader.h"
+#include "scene/camera.h"
 
 using namespace std;
 static int HEIGHT;
@@ -40,6 +40,7 @@ static GLuint matrixId;
 static GLuint lightId;
 static GLuint eyeId;
 static glm::vec3 lightPosition;
+static Shader shader;
 
 static void initBuffers()
 {
@@ -63,7 +64,9 @@ static void setRenderingParameters()
 
 static void loadShaders()
 {
-	shaderProgramId = LoadShaders( "basic.vert", "basic.frag" );
+	ShaderParams params;
+	params.mode = PER_VERTEX;
+	shaderProgramId = shader.LoadShaders( params );
 	matrixId = glGetUniformLocation(shaderProgramId, "MVP");
 	lightId = glGetUniformLocation(shaderProgramId, "lightPosition");
 	eyeId = glGetUniformLocation(shaderProgramId, "eyePosition");
@@ -175,6 +178,7 @@ int main(int argc, char ** argv)
 	cmdLine.add_option("width,w", utils::ARG_INT, "Window width", true);
 	cmdLine.add_option("height,h", utils::ARG_INT, "Window height", true);
 
+	
 	int result = cmdLine.parse(argc, argv);
 	if(result != 0)
 		return -1;

@@ -1,5 +1,5 @@
-#ifndef EVENT_HANDLERS_H_
-#define EVENT_HANDLERS_H
+#ifndef CONTROL_H_
+#define CONTROL_H_
 
 #include <GLFW/glfw3.h>
 

@@ -12,9 +12,24 @@ using namespace std;
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
-#include "utils/shader.h"
+#include "shader/shader.h"
 
-GLuint LoadShaders(const char * vertex_file_path,const char * fragment_file_path){
+GLuint Shader::LoadShaders(const ShaderParams & params)
+{
+	GLuint shaderId;
+	if(params.mode == PER_VERTEX)
+	{
+		 shaderId = LoadShaders("shaders/per_vertex.vert", "shaders/per_vertex.frag");
+	}
+	else
+	{
+		 shaderId = LoadShaders("shaders/per_pixel.vert", "shaders/per_pixel.frag");
+	}
+
+	return shaderId;
+}
+
+GLuint Shader::LoadShaders(const char * vertex_file_path,const char * fragment_file_path){
 
 	// Create the shaders
 	GLuint VertexShaderID = glCreateShader(GL_VERTEX_SHADER);

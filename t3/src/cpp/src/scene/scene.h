@@ -2,7 +2,7 @@
 #define SCENE_H_
 
 #include <vector>
-#include "camera.h"
+#include "scene/camera.h"
 
 class Scene {
 	private:
