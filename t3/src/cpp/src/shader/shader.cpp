@@ -19,7 +19,8 @@ GLuint Shader::LoadShaders(const ShaderParams & params)
 	GLuint shaderId;
 	if(params.mode == PER_VERTEX)
 	{
-		 shaderId = LoadShaders("shaders/per_vertex.vert", "shaders/per_vertex.frag");
+		std::cout << "Compiling per vertex" << std::endl;
+		shaderId = LoadShaders("shaders/per_vertex.vert", "shaders/per_vertex.frag");
 	}
 	else
 	{

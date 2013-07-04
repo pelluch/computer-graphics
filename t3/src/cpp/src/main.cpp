@@ -37,10 +37,9 @@ static const GLfloat vertexBuffer[] = {
 static GLuint shaderProgramId;
 static GLuint vertexBufferId;
 static GLuint matrixId;
-static GLuint lightId;
 static GLuint eyeId;
-static glm::vec3 lightPosition;
 static Shader shader;
+ShaderParams params;
 
 static void initBuffers()
 {
@@ -64,11 +63,8 @@ static void setRenderingParameters()
 
 static void loadShaders()
 {
-	ShaderParams params;
-	params.mode = PER_VERTEX;
 	shaderProgramId = shader.LoadShaders( params );
 	matrixId = glGetUniformLocation(shaderProgramId, "MVP");
-	lightId = glGetUniformLocation(shaderProgramId, "lightPosition");
 	eyeId = glGetUniformLocation(shaderProgramId, "eyePosition");
 }
 
@@ -77,15 +73,18 @@ static glm::vec3 eyePosition;
 static void loadScene()
 {
 	Camera cam;
-	cam._eye = glm::vec3(1.2, 1.2,-1);
-	cam._target = glm::vec3(-1,-1, -0.2);
+	cam._eye = glm::vec3(0, 0, -3);
+	cam._target = glm::vec3(0, 0, 0);
 	cam._up = glm::vec3(0, 1, 0);
 	cam._fov = 45;
 	cam._near = 0.035;
 	cam._far = 1500;
 	eyePosition = cam._eye;
 	scene = Scene(cam);
-	lightPosition = glm::vec3(0, 0, -0.1);
+	Light l1(glm::vec3(-1, -1, -0.2), glm::vec3(1,1,1));
+	scene.addLight(l1);
+	scene.setShaderId(shaderProgramId);
+	scene.generateIds();
 }
 
 static void init()
@@ -126,7 +125,7 @@ static void draw()
 	glm::mat4 MVP = perspectiveTransform*viewTransform*modelTransform;
 
 	glUniformMatrix4fv(matrixId, 1, GL_FALSE, &MVP[0][0]);
-	glUniform3fv(lightId, 1, &lightPosition[0]);
+	scene.bindUniforms();
 	glUniform3fv(eyeId, 1, &eyePosition[0]);
 
 	//First attribute buffer: vertices
@@ -177,14 +176,30 @@ int main(int argc, char ** argv)
 	cmdLine.init(caption);
 	cmdLine.add_option("width,w", utils::ARG_INT, "Window width", true);
 	cmdLine.add_option("height,h", utils::ARG_INT, "Window height", true);
+	cmdLine.add_option("pixel,p", "Use per pixel shading");
+	cmdLine.add_option("vertex,v", "Use per vertex shading");
 
-	
 	int result = cmdLine.parse(argc, argv);
 	if(result != 0)
 		return -1;
 
 	WIDTH = cmdLine.get_value<int>("width");
 	HEIGHT = cmdLine.get_value<int>("height");
+	if(cmdLine.exists_value("pixel"))
+	{
+		std::cout << "Using per pixel mode" << std::endl;
+		params.mode = PER_PIXEL;
+	}
+	else if(cmdLine.exists_value("vertex"))
+	{
+		std::cout << "Using per vertex mode" << std::endl;
+		params.mode = PER_VERTEX;
+	}
+	else
+	{
+		std::cerr << "Error: Must choose between vertex and pixel shading" << std::endl;
+		return -1;
+	}
 
 	//Init GLFW
 	if(!glfwInit())

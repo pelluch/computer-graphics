@@ -3,6 +3,11 @@
 in vec3 fragmentColor;
 out vec3 color;
 
+uniform mat4 MVP;
+uniform vec3 eyePosition;
+
+
+
 void main()
 {
 
