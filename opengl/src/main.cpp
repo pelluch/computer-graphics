@@ -168,7 +168,7 @@ int main(int argc, char ** argv)
 	std::cout << "Initializing GLFW, GLEW" << std::endl;
 	std::string caption = "Options";
 	utils::CmdLine cmdLine;
-
+	
 	cmdLine.init(caption);
 	cmdLine.add_option("width,w", utils::ARG_INT, "Window width", true);
 	cmdLine.add_option("height,h", utils::ARG_INT, "Window height", true);
