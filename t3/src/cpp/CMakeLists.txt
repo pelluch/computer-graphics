@@ -20,3 +20,4 @@ link_directories(/home/pablo/src/utils/lib)
 
 add_executable(main src/main.cpp ${ICLS} ${SRCS})
 target_link_libraries(main /usr/lib/nvidia/libGL.so -lutils_cmdline ${Boost_LIBRARIES} ${GLEW_LIBRARY} ${GLFW3_LIBRARY})
+add_subdirectory(tests)

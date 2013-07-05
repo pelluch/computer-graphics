@@ -10,6 +10,7 @@
 #include "general_utils.h"
 #include "shader/shader.h"
 #include "scene/camera.h"
+#include "model/model.h"
 
 using namespace std;
 static int HEIGHT;
@@ -17,40 +18,45 @@ static int WIDTH;
 
 Scene scene;
 
-static const GLfloat vertexBuffer[] = { 
-
-		 //Vertices
-		 -1.0f, -1.0f, 0.0f,
-		 1.0f, -1.0f, 0.0f,
-		 0.0f,  1.0f, 0.0f,
-		 //Colors
-		 1.0f, 0.0f, 0.0f,
-		 1.0f, 0.0f, 0.0f,
-		 1.0f, 0.0f, 0.0f,
-		 //Normals
-		 0.0f, 0.0f, -1.0f,
-		 0.0f, 0.0f, -1.0f,
-		 0.0f, 0.0f, -1.0f
-
-	};
 
 static GLuint shaderProgramId;
 static GLuint vertexBufferId;
 static GLuint matrixId;
 static GLuint eyeId;
 static Shader shader;
+
 ShaderParams params;
+Model model;
 
 static void initBuffers()
 {
+	//std::vector<glm::vec3> vertices 
+	model._vertex.push_back(glm::vec3(-1, -1, 1));
+	model._vertex.push_back(glm::vec3(1, -1, 0));
+	model._vertex.push_back(glm::vec3(0, 1, 0));
+
+	model._diffuseColors.push_back(glm::vec3(1, 0, 0));
+	model._diffuseColors.push_back(glm::vec3(1, 0, 0));
+	model._diffuseColors.push_back(glm::vec3(1, 0, 0));
+
+	model._normals.push_back(glm::vec3(0, 0, -1));
+	model._normals.push_back(glm::vec3(0, 0, -1));
+	model._normals.push_back(glm::vec3(0, 0, -1));
+
+	model._worldPosition = glm::vec3(0, 0, 0);
+	model._worldRotation = glm::vec3(0, 0, 0);
+	model._scale = glm::vec3(1, 1, 1);
+	
+	model.initData();
+
 	//Create the buffer to be used in the GPU
-	glGenBuffers(1, &vertexBufferId);
+	//glGenBuffers(1, &vertexBufferId);
 
 	//Bind the buffer
-	glBindBuffer(GL_ARRAY_BUFFER, vertexBufferId);
+	//glBindBuffer(GL_ARRAY_BUFFER, vertexBufferId);
 
 	//Assign the data
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vertexBuffer), vertexBuffer, GL_STATIC_DRAW);
+	//glBufferData(GL_ARRAY_BUFFER, sizeof(vertexBuffer), vertexBuffer, GL_STATIC_DRAW);
 }
 
 static void setRenderingParameters()
@@ -64,7 +70,7 @@ static void setRenderingParameters()
 static void loadShaders()
 {
 	shaderProgramId = shader.LoadShaders( params );
-	matrixId = glGetUniformLocation(shaderProgramId, "MVP");
+	matrixId = glGetUniformLocation(shaderProgramId, "viewProjectionMatrix");
 	eyeId = glGetUniformLocation(shaderProgramId, "eyePosition");
 }
 
@@ -73,7 +79,7 @@ static glm::vec3 eyePosition;
 static void loadScene()
 {
 	Camera cam;
-	cam._eye = glm::vec3(0, 0, -3);
+	cam._eye = glm::vec3(0, 0, -4);
 	cam._target = glm::vec3(0, 0, 0);
 	cam._up = glm::vec3(0, 1, 0);
 	cam._fov = 45;
@@ -121,52 +127,16 @@ static void draw()
 	
 	float aspectRatio = (float)WIDTH/(float)HEIGHT;
 
-	glm::mat4 modelTransform = glm::mat4(1.0f);
 	glm::mat4 perspectiveTransform = scene.projectionTransform(aspectRatio);
 	glm::mat4 viewTransform = scene.viewTransform();
-	glm::mat4 MVP = perspectiveTransform*viewTransform*modelTransform;
+	glm::mat4 viewProjectionMatrix = perspectiveTransform*viewTransform;
 
-	glUniformMatrix4fv(matrixId, 1, GL_FALSE, &MVP[0][0]);
+	glUniformMatrix4fv(matrixId, 1, GL_FALSE, &viewProjectionMatrix[0][0]);
 	scene.bindUniforms();
 	glUniform3fv(eyeId, 1, &eyePosition[0]);
+	model.draw(shaderProgramId);
 
-	//First attribute buffer: vertices
-	glEnableVertexAttribArray(0);
-	glEnableVertexAttribArray(1);
-	glEnableVertexAttribArray(2);
-
-	glBindBuffer(GL_ARRAY_BUFFER, vertexBufferId);
-	glVertexAttribPointer(
-		0,	//Attrib 0 (must much layout in shader)
-		3,	//size
-		GL_FLOAT,	//type
-		GL_FALSE,	//normalized?
-		0,	//stride
-		(void*)0	//Array buffer offset
-	);
-	glVertexAttribPointer(
-		1,	//Attrib 0 (must much layout in shader)
-		3,	//size
-		GL_FLOAT,	//type
-		GL_FALSE,	//normalized?
-		0,	//stride
-		(void*)(9*sizeof(float))	//Array buffer offset
-	);
-	glVertexAttribPointer(
-		2,	//Attrib 0 (must much layout in shader)
-		3,	//size
-		GL_FLOAT,	//type
-		GL_FALSE,	//normalized?
-		0,	//stride
-		(void*)(18*sizeof(float))	//Array buffer offset
-	);
-
-	//Draw triangle
-	glDrawArrays(GL_TRIANGLES, 0, 3); //Starting from 0, 3 vertices
-
-	glDisableVertexAttribArray(0);
-	glDisableVertexAttribArray(1);
-	glEnableVertexAttribArray(2);
+	
 }
 
 int main(int argc, char ** argv)
