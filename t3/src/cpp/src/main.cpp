@@ -26,10 +26,11 @@ static GLuint eyeId;
 static Shader shader;
 
 ShaderParams params;
-Model model;
 
+std::vector<Model> models;
 static void initBuffers()
 {
+	Model model;
 	//std::vector<glm::vec3> vertices 
 	model._vertex.push_back(glm::vec3(-1, -1, 1));
 	model._vertex.push_back(glm::vec3(1, -1, 0));
@@ -46,8 +47,29 @@ static void initBuffers()
 	model._worldPosition = glm::vec3(0, 0, 0);
 	model._worldRotation = glm::vec3(0, 0, 0);
 	model._scale = glm::vec3(1, 1, 1);
-	
+
 	model.initData();
+	models.push_back(model);
+
+	model = Model();
+	model._vertex.push_back(glm::vec3(-1, -1, 1));
+	model._vertex.push_back(glm::vec3(1, -1, 0));
+	model._vertex.push_back(glm::vec3(0, 1, 0));
+
+	model._diffuseColors.push_back(glm::vec3(1, 0, 0));
+	model._diffuseColors.push_back(glm::vec3(0, 1, 0));
+	model._diffuseColors.push_back(glm::vec3(0, 0, 1));
+
+	model._normals.push_back(glm::vec3(0, 0, 1));
+	model._normals.push_back(glm::vec3(0, 0, 1));
+	model._normals.push_back(glm::vec3(0, 0, 1));
+
+	model._worldPosition = glm::vec3(-1, 0, 0);
+	model._worldRotation = glm::vec3(45, 60, 0);
+	model._scale = glm::vec3(0.8, 0.8, 0.8);
+
+	model.initData();
+	models.push_back(model);
 
 	//Create the buffer to be used in the GPU
 	//glGenBuffers(1, &vertexBufferId);
@@ -87,10 +109,10 @@ static void loadScene()
 	cam._far = 1500;
 	eyePosition = cam._eye;
 	scene = Scene(cam);
-	Light l1(glm::vec3(-1, -1, -0.2), glm::vec3(1,1,1));
+	Light l1(glm::vec3(1, -1, -0.2), glm::vec3(1,1,1));
 	Light l2(glm::vec3(0, 0, -0.2), glm::vec3(1,1,1));
 	scene.addLight(l1);
-	scene.addLight(l2);
+	//scene.addLight(l2);
 	scene.setShaderId(shaderProgramId);
 	scene.generateIds();
 }
@@ -134,8 +156,10 @@ static void draw()
 	glUniformMatrix4fv(matrixId, 1, GL_FALSE, &viewProjectionMatrix[0][0]);
 	scene.bindUniforms();
 	glUniform3fv(eyeId, 1, &eyePosition[0]);
-	model.draw(shaderProgramId);
-
+	for(int i = 0; i < models.size(); ++i)
+	{
+		models[i].draw(shaderProgramId);
+	}
 	
 }
 

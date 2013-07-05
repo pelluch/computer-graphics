@@ -19,8 +19,8 @@ out vec3 fragmentPosition;
 void main(){
 
 	gl_Position = viewProjectionMatrix * modelMatrix * vec4(vertexPosition, 1);
-	fragmentPosition = vertexPosition;
-	fragmentNormal = vertexNormal;
+	fragmentPosition = (modelMatrix * vec4(vertexPosition, 1)).xyz;
+	fragmentNormal = normalize(modelMatrix * vec4(vertexNormal, 0)).xyz;	
 	fragmentColor = vertexColor;
 }
 
