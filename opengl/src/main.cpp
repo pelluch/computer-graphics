@@ -11,6 +11,8 @@
 #include "shader/shader.h"
 #include "scene/camera.h"
 #include "model/model.h"
+#include "utils/xml_loader.h"
+#include "utils/debug_utils.h"
 
 using namespace std;
 static int HEIGHT;
@@ -27,10 +29,9 @@ static Shader shader;
 
 ShaderParams params;
 
-std::vector<Model> models;
 static void initBuffers()
 {
-	Model model;
+	/*Model model;
 	//std::vector<glm::vec3> vertices 
 	model._vertex.push_back(glm::vec3(-1, -1, 1));
 	model._vertex.push_back(glm::vec3(1, -1, 0));
@@ -48,6 +49,7 @@ static void initBuffers()
 	model._worldRotation = glm::vec3(0, 0, 0);
 	model._scale = glm::vec3(1, 1, 1);
 
+	
 	model.initData();
 	models.push_back(model);
 
@@ -70,7 +72,8 @@ static void initBuffers()
 
 	model.initData();
 	models.push_back(model);
-
+	*/
+	scene.initModelData();
 	//Create the buffer to be used in the GPU
 	//glGenBuffers(1, &vertexBufferId);
 
@@ -85,6 +88,7 @@ static void setRenderingParameters()
 {
 	// Enable depth test
 	glEnable(GL_DEPTH_TEST);
+	glEnable(GL_MULTISAMPLE);
 	// Accept fragment if it closer to the camera than the former one
 
 }
@@ -93,7 +97,6 @@ static void loadShaders()
 {
 	shaderProgramId = shader.LoadShaders( params );
 	matrixId = glGetUniformLocation(shaderProgramId, "viewProjectionMatrix");
-	eyeId = glGetUniformLocation(shaderProgramId, "eyePosition");
 }
 
 static glm::vec3 eyePosition;
@@ -120,10 +123,19 @@ static void loadScene()
 static void init()
 {
 
+	//loadScene();
+	std::cout << "Loading scene..." << std::endl;
+	scene = XmlLoader::loadScene("scenes/cornellBoxTarea2c.xml");
+
 	initBuffers();
-	//setRenderingParameters();
+	setRenderingParameters();
 	loadShaders();
-	loadScene();
+	
+	std::cout << "Scene loaded, setting shader id" << std::endl;
+	scene.setShaderId(shaderProgramId);
+	std::cout << "Generating scene ids" << std::endl;
+	scene.generateIds();
+	scene.setMaterials();
 
 }
 
@@ -141,7 +153,7 @@ static void draw()
 	glClearColor(0.0f, 0.0f, 0.3f, 0.0f);
 
 	// Clear the screen
-	glClear( GL_COLOR_BUFFER_BIT );
+	glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 
 	//Use the shader
 	glUseProgram(shaderProgramId);
@@ -155,12 +167,15 @@ static void draw()
 
 	glUniformMatrix4fv(matrixId, 1, GL_FALSE, &viewProjectionMatrix[0][0]);
 	scene.bindUniforms();
-	glUniform3fv(eyeId, 1, &eyePosition[0]);
-	for(int i = 0; i < models.size(); ++i)
-	{
-		models[i].draw(shaderProgramId);
-	}
+	scene.draw(shaderProgramId);
 	
+}
+
+void windowResized(GLFWwindow* window, int width, int height)
+{
+	HEIGHT = height;
+	WIDTH = width;
+	glViewport(0, 0, width, height);
 }
 
 int main(int argc, char ** argv)
@@ -174,6 +189,8 @@ int main(int argc, char ** argv)
 	cmdLine.add_option("height,h", utils::ARG_INT, "Window height", true);
 	cmdLine.add_option("pixel,p", "Use per pixel shading");
 	cmdLine.add_option("vertex,v", "Use per vertex shading");
+
+	
 
 	int result = cmdLine.parse(argc, argv);
 	if(result != 0)
@@ -206,6 +223,7 @@ int main(int argc, char ** argv)
 
 	//Window creation
 	GLFWwindow * window;
+	glfwWindowHint(GLFW_SAMPLES, 4);
 	window = glfwCreateWindow(WIDTH, HEIGHT, "Game", NULL, NULL);
 	if(!window)
 	{
@@ -244,8 +262,8 @@ int main(int argc, char ** argv)
 		nbFrames++;
 		if ( currentTime - lastTime >= 1.0 ){ // If last prinf() was more than 1sec ago
 			// printf and reset
-			printf("%f ms/frame\n", 1000.0/double(nbFrames));
-			//printf("%d frame/s\n", nbFrames);
+			//printf("%f ms/frame\n", 1000.0/double(nbFrames));
+			printf("%d frame/s\n", nbFrames);
 			nbFrames = 0;
 			lastTime += 1.0;
 		}

@@ -1,7 +1,7 @@
 cmake_minimum_required (VERSION 2.6) 
 project (opengl_game)
 
-include(ExternalProject)
+
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_SOURCE_DIR}/cmake )
 
 
@@ -19,5 +19,5 @@ file(GLOB_RECURSE SRCS ${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp)
 link_directories(/home/pablo/src/utils/lib)
 
 add_executable(main src/main.cpp ${ICLS} ${SRCS})
-target_link_libraries(main /usr/lib/nvidia/libGL.so -lutils_cmdline ${Boost_LIBRARIES} ${GLEW_LIBRARY} ${GLFW3_LIBRARY})
+target_link_libraries(main /usr/lib/nvidia/libGL.so -lutils_cmdline -ltinyxml2 ${Boost_LIBRARIES} ${GLEW_LIBRARY} ${GLFW3_LIBRARY})
 add_subdirectory(tests)

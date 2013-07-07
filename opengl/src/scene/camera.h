@@ -2,7 +2,7 @@
 #define CAMERA_H_
 
 #include <glm/glm.hpp>
-
+#include <GL/glew.h>
 
 class Camera
 {
@@ -15,6 +15,7 @@ public:
 	glm::vec3 _eye;
 	glm::vec3 _target;
 	glm::vec3 _up;
+	GLuint _id;
 };
 
 #endif

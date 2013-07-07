@@ -1,6 +1,7 @@
 #include "scene/camera.h"
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#include <iostream>
 
 Camera::Camera()
 {
@@ -15,3 +16,4 @@ glm::mat4 Camera::viewTransform()
 	glm::mat4 transformMatrix = glm::lookAt(_eye, _target, _up);
 	return transformMatrix;
 }
+
