@@ -1,8 +1,8 @@
-#include "utils/xml_loader.h"
+#include "utils/xmlloader.h"
 #include <map>
 #include <iostream>
 #include <glm/glm.hpp>
-#include "utils/debug_utils.h"
+#include "utils/debugutils.h"
 
 using namespace tinyxml2;
 

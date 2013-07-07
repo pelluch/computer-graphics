@@ -1,4 +1,4 @@
-#include "utils/debug_utils.h"
+#include "utils/debugutils.h"
 #include <iostream>
 #include <glm/gtc/matrix_access.hpp>
 
@@ -59,13 +59,13 @@ void Debugger::printInfo(glm::vec3 vec)
 }
 void Debugger::printInfo(glm::mat4 mat)
 { 
-	cout << " [ ";
+	
 	for(int i = 0; i < 4; ++ i)
 	{
 		glm::vec4 col = glm::row(mat, i);
 		printInfo(col);
 	}
-	cout << " ] " << endl;
+	
 }
 void Debugger::printInfo(glm::vec4 vec)
 { 

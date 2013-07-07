@@ -1,5 +1,5 @@
-#ifndef DEBUG_UTILS_H_
-#define DEBUG_UTILS_H_
+#ifndef debugutils_H_
+#define debugutils_H_
 
 #include <glm/glm.hpp>
 #include "scene/camera.h"

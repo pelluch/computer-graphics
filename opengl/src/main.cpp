@@ -11,8 +11,8 @@
 #include "shader/shader.h"
 #include "scene/camera.h"
 #include "model/model.h"
-#include "utils/xml_loader.h"
-#include "utils/debug_utils.h"
+#include "utils/xmlloader.h"
+#include "utils/debugutils.h"
 
 using namespace std;
 static int HEIGHT;
@@ -178,6 +178,7 @@ void windowResized(GLFWwindow* window, int width, int height)
 	glViewport(0, 0, width, height);
 }
 
+
 void keyCallBack(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
 	if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
@@ -212,7 +213,18 @@ void keyCallBack(GLFWwindow* window, int key, int scancode, int action, int mods
 		scene._cameras[0]._eye -= glm::vec3(0,0, 2);
 		scene._cameras[0]._target -= glm::vec3(0,0, 2);
 	}
-
+	else if(key == GLFW_KEY_1)
+	{
+		glfwSwapInterval(0);
+	}
+	else if(key == GLFW_KEY_2)
+	{
+		glDisable(GL_MULTISAMPLE);
+	}
+	else if(key == GLFW_KEY_3)
+	{
+		glEnable(GL_MULTISAMPLE);
+	}
 }
 
 int main(int argc, char ** argv)

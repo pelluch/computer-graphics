@@ -2,7 +2,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <iostream>
-#include "utils/debug_utils.h"
+#include "utils/debugutils.h"
 
 Scene::Scene(float fov, float near, float far, glm::vec3 eye, glm::vec3 target, glm::vec3 up)
 {
@@ -72,6 +72,10 @@ void Scene::addLight(Light & light)
 void Scene::setShaderId(GLuint id)
 {
 	this->_shaderProgramId = id;
+	for(int i = 0; i < _models.size(); ++i)
+	{
+		_models[i].generateUniforms(id);
+	}
 }
 
 glm::mat4 Scene::projectionTransform(float aspectRatio, int camIndex)

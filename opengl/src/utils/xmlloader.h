@@ -1,5 +1,5 @@
-#ifndef XML_LOADER_H_
-#define XML_LOADER_H_
+#ifndef xmlloader_H_
+#define xmlloader_H_
 
 #include <tinyxml2.h>
 #include "scene/scene.h"
