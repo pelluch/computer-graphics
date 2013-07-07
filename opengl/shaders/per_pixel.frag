@@ -8,6 +8,7 @@ out vec3 color;
 uniform int numLights;
 uniform vec3 lights[10];
 uniform vec3 eyePosition;
+uniform vec3 ambientLight;
 uniform vec3 materialDiffuse;
 uniform vec4 materialSpecular;
 
@@ -28,6 +29,6 @@ void main()
 
 	// Output color = red 
 	//gl_FragColor = gl_Color;
-	color = diffuseColor + specularColor;
+	color = diffuseColor + specularColor + ambientLight * materialDiffuse;
 
 }

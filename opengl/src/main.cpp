@@ -178,6 +178,43 @@ void windowResized(GLFWwindow* window, int width, int height)
 	glViewport(0, 0, width, height);
 }
 
+void keyCallBack(GLFWwindow* window, int key, int scancode, int action, int mods)
+{
+	if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
+		glfwSetWindowShouldClose(window, GL_TRUE);
+	else if(key == GLFW_KEY_A)
+	{
+		scene._cameras[0]._eye += glm::vec3(2, 0, 0);
+		scene._cameras[0]._target += glm::vec3(2, 0, 0);
+	}
+	else if(key == GLFW_KEY_D)
+	{
+		scene._cameras[0]._eye -= glm::vec3(2, 0, 0);
+		scene._cameras[0]._target -= glm::vec3(2, 0, 0);
+	}
+	else if(key == GLFW_KEY_W)
+	{
+		scene._cameras[0]._eye += glm::vec3(0,2, 0);
+		scene._cameras[0]._target += glm::vec3(0,2, 0);
+	}
+	else if(key == GLFW_KEY_S)
+	{
+		scene._cameras[0]._eye -= glm::vec3(0,2, 0);
+		scene._cameras[0]._target -= glm::vec3(0,2, 0);
+	}
+	else if(key == GLFW_KEY_Z)
+	{
+		scene._cameras[0]._eye -= glm::vec3(0,0, -2);
+		scene._cameras[0]._target -= glm::vec3(0,0, -2);
+	}
+	else if(key == GLFW_KEY_X)
+	{
+		scene._cameras[0]._eye -= glm::vec3(0,0, 2);
+		scene._cameras[0]._target -= glm::vec3(0,0, 2);
+	}
+
+}
+
 int main(int argc, char ** argv)
 {
 	std::cout << "Initializing GLFW, GLEW" << std::endl;
@@ -246,6 +283,7 @@ int main(int argc, char ** argv)
 
 	glfwSetInputMode(window, GLFW_STICKY_KEYS, GLFW_KEY_ESCAPE);
 	glfwSetWindowSizeCallback(window, windowResized);
+	glfwSetKeyCallback(window, keyCallBack);
 
 	std::cout << "Initializing" << std::endl;
 	init();
@@ -276,8 +314,7 @@ int main(int argc, char ** argv)
 
         /* Poll for and process events */
         glfwPollEvents();
-	} while( glfwGetKey(window, GLFW_KEY_ESCAPE) != GLFW_PRESS && 
-		   !glfwWindowShouldClose(window));
+	} while( !glfwWindowShouldClose(window));
 
 	glDeleteBuffers(1, &vertexBufferId);
 	glfwTerminate();

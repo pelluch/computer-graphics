@@ -11,6 +11,7 @@ Camera::Camera()
 	_eye = glm::vec3(0, 0, 0);
 }
 
+
 glm::mat4 Camera::viewTransform()
 {
 	glm::mat4 transformMatrix = glm::lookAt(_eye, _target, _up);

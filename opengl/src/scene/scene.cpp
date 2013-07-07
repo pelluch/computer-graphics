@@ -27,6 +27,7 @@ void Scene::generateIds()
 	_lightsId = glGetUniformLocation(_shaderProgramId, "lights");
 	_numLightsId = glGetUniformLocation(_shaderProgramId, "numLights");
 	_cameras[0]._id = glGetUniformLocation(_shaderProgramId, "eyePosition");
+	_ambientLightId = glGetUniformLocation(_shaderProgramId, "ambientLight");
 }
 
 void Scene::bindUniforms()
@@ -45,6 +46,7 @@ void Scene::bindUniforms()
 	glUniform1i(_numLightsId, numLights);
 	glUniform3fv(_lightsId, numLights, lightPositionData);
 	glUniform3fv(_cameras[0]._id, 1, &_cameras[0]._eye[0]);
+	glUniform3fv(_ambientLightId, 1, &_ambientLight[0]);
 }
 
 void Scene::setMaterials()

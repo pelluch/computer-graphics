@@ -12,7 +12,7 @@
 
 class Scene {
 	private:
-		std::vector<Camera> _cameras;
+		
 		std::vector<Light> _lights;
 		std::vector<Model> _models;
 		std::map<std::string, Material> _materials;
@@ -21,7 +21,9 @@ class Scene {
 		GLuint _shaderProgramId;
 		GLuint _lightsId;
 		GLuint _numLightsId;
+		GLuint _ambientLightId;
 	public:
+		std::vector<Camera> _cameras;
 		Scene();
 		Scene(float fov, float near, float far, glm::vec3 eye, glm::vec3 target, glm::vec3 up);
 		Scene(Camera & cam);
