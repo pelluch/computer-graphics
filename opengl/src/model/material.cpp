@@ -17,10 +17,11 @@ void Material::generateUniformIds(GLuint shaderProgramId)
 	{
 		this->_diffuseColorId = glGetUniformLocation(shaderProgramId, "materialDiffuse");
 		this->_specularColorId = glGetUniformLocation(shaderProgramId, "materialSpecular");
-		
+		this->_hasTextureId = glGetUniformLocation(shaderProgramId, "hasTexture");
 
 		if(_texturePath != "")
 		{
+			_hasTexture = true;
 			std::cout << "Loading texture " << _texturePath << std::endl;
 			gli::texture2D Texture(gli::loadStorageDDS(_texturePath));
 			this->_textureUniformId = glGetUniformLocation(shaderProgramId, "textureSampler");
@@ -75,14 +76,24 @@ void Material::generateUniformIds(GLuint shaderProgramId)
 		_generatedUniform = true;
 	}
 	else 
+	{
+		_hasTexture = false;
 		return;
+	}
 }
 
 void Material::setActiveTexture()
 {
-	// Bind our texture in Texture Unit 0
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, _textureId);
-	// Set our "myTextureSampler" sampler to user Texture Unit 0
-	glUniform1i(_textureUniformId, 0);
+	if(_hasTexture)
+	{
+		// Bind our texture in Texture Unit 0
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, _textureId);
+		// Set our "myTextureSampler" sampler to user Texture Unit 0
+		glUniform1i(_textureUniformId, 0);
+	}
+	else
+	{
+		glUniform1i(_hasTextureId, _hasTexture);
+	}
 }

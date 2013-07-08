@@ -72,6 +72,12 @@
     </material>
 
     <material name="Ice">
+      <texture filename=""/>
+      <diffuse red="0.639" green="0.6" blue="0.762"/>
+      <specular red="1" green="1" blue="1" shininess="100.0"/>
+    </material>
+
+    <material name="Monkey">
       <texture filename="textures/uvmap.DDS"/>
       <diffuse red="0.639" green="0.6" blue="0.762"/>
       <specular red="1" green="1" blue="1" shininess="100.0"/>
@@ -357,9 +363,9 @@
       <position x="370.0" y="120.0" z="370.0" />
     </model>
     
-    <model name="sphere_2" path="models/sphere.xml" material="Stones">
+    <model name="sphere_2" path="models/suzanne.obj" material="Monkey">
       <scale x="100" y="100" z="100" />
-      <rotation x="0" y="0" z="0" />
+      <rotation x="0" y="180" z="0" />
       <position x="130.0" y="100.0" z="130.0" />
     </model>
 

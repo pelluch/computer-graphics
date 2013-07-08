@@ -23,11 +23,12 @@ class Material
 		GLuint _textureUniformId;
 		GLuint _diffuseColorId;
 		GLuint _specularColorId;
-
+		GLuint _hasTextureId;
 		void generateUniformIds(GLuint shaderProgramId);
 		void setActiveTexture();
 		
 	private:
+		bool _hasTexture;
 		bool _generatedUniform;
 };
 

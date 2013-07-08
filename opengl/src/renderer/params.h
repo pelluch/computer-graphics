@@ -7,6 +7,9 @@
 enum SHADER_MODE { PER_VERTEX, PER_PIXEL };
 class RenderingParams
 {
+	private:
+		static int _width;
+		static int _height;
 	public:
 		static std::string vertexShaderPath;
 		static std::string fragmentShaderPath;
@@ -14,6 +17,8 @@ class RenderingParams
 		static bool antiAlias;
 		static int verticalInterval;
 		static bool paused;
+		static void setWindowSize(int width, int height);	
+		static float getAspectRatio();	
 };
 
 #endif

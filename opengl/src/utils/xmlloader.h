@@ -18,7 +18,7 @@ public:
 	static glm::vec2 loadTextureCoords(const tinyxml2::XMLElement * vecElement);
 	static glm::vec3 loadColor(const tinyxml2::XMLElement * vecElement);
 	static glm::vec3 loadPosition(const tinyxml2::XMLElement * vecElement);
-	static Scene loadScene(const std::string & xmlPath);
+	static Scene * loadScene(const std::string & xmlPath);
 	static Camera loadCamera(const tinyxml2::XMLElement * element);
 	static std::vector<Model> loadModels(const tinyxml2::XMLElement * element);
 	static std::vector<Light> loadLights(const tinyxml2::XMLElement * element);

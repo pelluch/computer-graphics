@@ -237,7 +237,7 @@ std::vector<Light> XmlLoader::loadLights(const tinyxml2::XMLElement * lightListE
       <refraction_index red="1.03" green="1.03" blue="1.03"/>
    </material>
 */
-Scene XmlLoader::loadScene(const std::string &xmlPath)
+Scene * XmlLoader::loadScene(const std::string &xmlPath)
 {
 	Camera cam;
 
@@ -277,6 +277,6 @@ Scene XmlLoader::loadScene(const std::string &xmlPath)
 	std::cout << "Parsing lights information" << std::endl;
 	lights = loadLights(lightListElement);
 
-	Scene scene(cam, models, materials, lights, backgroundColor, ambientLight);
+	Scene * scene = new Scene(cam, models, materials, lights, backgroundColor, ambientLight);
 	return scene;
 }

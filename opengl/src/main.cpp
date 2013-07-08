@@ -17,13 +17,10 @@
 #include "utils/settings.h"
 
 using namespace std;
-static int HEIGHT;
-static int WIDTH;
 
-Scene scene;
+Scene * scene;
 
 static GLuint shaderProgramId;
-static GLuint vertexBufferId;
 static GLuint matrixId;
 static Shader shader;
 
@@ -72,7 +69,7 @@ static void initBuffers()
 	model.initData();
 	models.push_back(model);
 	*/
-	scene.initModelData();
+	scene->initModelData();
 	//Create the buffer to be used in the GPU
 	//glGenBuffers(1, &vertexBufferId);
 
@@ -102,31 +99,31 @@ static void loadShaders()
 static void loadScene()
 {
 	Camera cam(45, 0.035, 1500, glm::vec3(0,0,-4), glm::vec3(0,0,0), glm::vec3(0,1,0));
-	scene = Scene(cam);
+	scene = new Scene(cam);
 	Light l1(glm::vec3(1, -1, -0.2), glm::vec3(1,1,1));
 	Light l2(glm::vec3(0, 0, -0.2), glm::vec3(1,1,1));
-	scene.addLight(l1);
-	//scene.addLight(l2);
-	scene.setShaderId(shaderProgramId);
-	scene.generateIds();
+	scene->addLight(l1);
+	//scene->addLight(l2);
+	scene->setShaderId(shaderProgramId);
+	scene->generateIds();
 }
 
 static void init()
 {
 
 	//loadScene();
-	std::cout << "Loading scene..." << std::endl;
+	std::cout << "Loading scene->.." << std::endl;
 	scene = XmlLoader::loadScene("scenes/cornellBoxTarea2c.xml");
-
+	Control::setScene(scene);
 	initBuffers();
 	setRenderingParameters();
 	loadShaders();
 	
 	std::cout << "Scene loaded, setting shader id" << std::endl;
-	scene.setShaderId(shaderProgramId);
+	scene->setShaderId(shaderProgramId);
 	std::cout << "Generating scene ids" << std::endl;
-	scene.generateIds();
-	scene.setMaterials();
+	scene->generateIds();
+	scene->setMaterials();
 
 }
 
@@ -150,55 +147,18 @@ static void draw()
 	glUseProgram(shaderProgramId);
 
 	
-	float aspectRatio = (float)WIDTH/(float)HEIGHT;
-
-	glm::mat4 perspectiveTransform = scene.projectionTransform(aspectRatio);
-	glm::mat4 viewTransform = scene.viewTransform();
+	float aspectRatio = RenderingParams::getAspectRatio();
+	glm::mat4 perspectiveTransform = scene->projectionTransform(aspectRatio);
+	glm::mat4 viewTransform = scene->viewTransform();
 	glm::mat4 viewProjectionMatrix = perspectiveTransform*viewTransform;
 
 	glUniformMatrix4fv(matrixId, 1, GL_FALSE, &viewProjectionMatrix[0][0]);
-	scene.bindUniforms();
-	scene.draw(shaderProgramId);
+	scene->bindUniforms();
+	scene->draw(shaderProgramId);
 	
 }
 
-void windowResized(GLFWwindow* window, int width, int height)
-{
-	HEIGHT = height;
-	WIDTH = width;
-	glViewport(0, 0, width, height);
-}
 
-
-
-
-void keyCallBack(GLFWwindow* window, int key, int scancode, int action, int mods)
-{
-
-	glm::vec3 rotation, translation;
-	if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
-		Settings::settingsMenu();
-	else if(key == GLFW_KEY_A)
-		translation += glm::vec3(-10, 0, 0);
-	else if(key == GLFW_KEY_D)
-		translation -= glm::vec3(-10, 0, 0);
-	else if(key == GLFW_KEY_W)
-		translation += glm::vec3(0, 0, -10);
-	else if(key == GLFW_KEY_S)
-		translation -= glm::vec3(0, 0, -10);
-	else if(key == GLFW_KEY_J)
-		rotation += glm::vec3(0, 1, 0);
-	else if(key == GLFW_KEY_L)
-		rotation -= glm::vec3(0, 1, 0);
-	else if(key == GLFW_KEY_I)
-		rotation -= glm::vec3(1, 0, 0);
-	else if(key == GLFW_KEY_K)
-		rotation += glm::vec3(1, 0, 0);
-	else if(key == GLFW_KEY_P && action == GLFW_PRESS)
-		RenderingParams::paused = !RenderingParams::paused;
-
-	scene.moveCamera(translation, rotation);	
-}
 
 void menu(std::string & sceneFile, std::string & vertexShader, std::string & fragmentShader)
 {
@@ -253,8 +213,10 @@ int main(int argc, char ** argv)
 	if(result != 0)
 		return -1;
 
-	WIDTH = cmdLine.get_value<int>("width");
-	HEIGHT = cmdLine.get_value<int>("height");
+	int width = cmdLine.get_value<int>("width");
+	int height = cmdLine.get_value<int>("height");
+	RenderingParams::setWindowSize(width, height);
+
 	if(cmdLine.exists_value("pixel"))
 	{
 		std::cout << "Using per pixel mode" << std::endl;
@@ -281,7 +243,7 @@ int main(int argc, char ** argv)
 	//Window creation
 	GLFWwindow * window;
 	glfwWindowHint(GLFW_SAMPLES, 4);
-	window = glfwCreateWindow(WIDTH, HEIGHT, "Game", NULL, NULL);
+	window = glfwCreateWindow(width, height, "Game", NULL, NULL);
 	if(!window)
 	{
 		std::cerr << "Failed to open GLFW window. If you have an Intel GPU, they are not 3.3 compatible. Try the 2.1 version of the tutorials." << std::endl;
@@ -302,9 +264,11 @@ int main(int argc, char ** argv)
 	}
 
 	glfwSetInputMode(window, GLFW_STICKY_KEYS, GLFW_KEY_ESCAPE);
-	glfwSetWindowSizeCallback(window, windowResized);
-	glfwSetKeyCallback(window, keyCallBack);
-
+	glfwSetWindowSizeCallback(window, Control::windowResized);
+	glfwSetKeyCallback(window, Control::keyCallBack);
+	glfwSetCursorPosCallback(window, Control::mousePosCallback);
+	glfwSetScrollCallback(window, Control::mouseScrollCallback);
+	glfwSetCursorPos(window, width/2, height/2);
 	std::cout << "Initializing" << std::endl;
 	init();
 
@@ -338,8 +302,9 @@ int main(int argc, char ** argv)
         glfwPollEvents();
 	} while( !glfwWindowShouldClose(window));
 
-	glDeleteBuffers(1, &vertexBufferId);
+
 	glfwTerminate();
 
+	delete scene;
 	return 0;
 }
