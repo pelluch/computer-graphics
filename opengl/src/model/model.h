@@ -20,9 +20,9 @@ class Model
 		Material _mat;
 		std::string _materialName;
 		//Maybe all of this is unnecessary?
-		std::vector<glm::vec3> _vertex;
+		std::vector<glm::vec3> _vertices;
 		std::vector<glm::vec3> _normals;
-		std::vector<glm::vec2> _textureCoords;
+		std::vector<glm::vec2> _uvs;
 		//std::vector<glm::vec3> _specularColors;
 		//std::vector<float> _shininess;
 	private:
@@ -30,6 +30,13 @@ class Model
 		GLuint _modelMatrixId;
 		int _numBuffers;
 		std::vector<GLuint> _bufferIds;
+		void computeTangentBasis(std::vector<glm::vec3> & tangents,	std::vector<glm::vec3> & bitangents);
+		std::vector<unsigned short> indices;
+		std::vector<glm::vec3> _indexedVertices;
+		std::vector<glm::vec2> _indexedUvs;
+		std::vector<glm::vec3> _indexedNormals;
+		std::vector<glm::vec3> _indexedTangents;
+		std::vector<glm::vec3> _indexedBitangents;
 };
 
 #endif

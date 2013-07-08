@@ -8,7 +8,9 @@ Material::Material()
 {
 	_generatedUniform = false;
 	_texture = NULL;
+	_normalTexture = NULL;
 	_hasTexture = false;
+	_hasNormalTexture = false;
 }
 
 void Material::generateUniformIds(GLuint shaderProgramId)
@@ -25,6 +27,14 @@ void Material::generateUniformIds(GLuint shaderProgramId)
 			_hasTexture = true;
 			this->_texture = new Texture(_texturePath);
 			_texture->initTexture(shaderProgramId);
+		}
+		if(_normalTexturePath != "")
+		{
+			std::cout << "Loading normal tex" << std::endl;
+			_hasNormalTexture = true;
+			this->_normalTexture = new Texture(_normalTexturePath, TEX_NORMAL);
+			_normalTexture->initTexture(shaderProgramId);
+
 		}
 		_generatedUniform = true;
 	}
@@ -44,7 +54,7 @@ void Material::setActiveTexture()
 Material::~Material()
 {
 	if(_texture)
-	{
 		delete _texture;
-	}
+	if(_normalTexture)
+		delete _normalTexture;
 }

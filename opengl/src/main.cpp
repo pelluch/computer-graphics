@@ -91,7 +91,7 @@ static void setRenderingParameters()
 
 static void loadShaders()
 {
-	shaderProgramId = shader.LoadShaders();
+	shaderProgramId = shader.LoadShaders("shaders/per_pixel/shader.vert", "shaders/per_pixel/shader.frag");
 	matrixId = glGetUniformLocation(shaderProgramId, "viewProjectionMatrix");
 }
 

@@ -85,7 +85,7 @@
 
     <material name="Stones">
       <texture filename="textures/diffuse.dds"/>
-      <normalmap filename=""/>
+      <normalmap filename="textures/normal_stones.dds"/>
       <diffuse red="0.656" green="0.626" blue="0.107"/>
       <specular red="1.0" green="1.0" blue="1.0" shininess="100.0"/>
       <!--<reflective red="0.5" green="0.5" blue="0.5"/>-->

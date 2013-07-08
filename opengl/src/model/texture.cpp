@@ -1,9 +1,10 @@
 #include "model/texture.h"
 #include <gli/gli.hpp>
 
-Texture::Texture(const std::string & name)
+Texture::Texture(const std::string & name, TEXTURE_TYPE type)
 {
 	_texturePath = name;
+	_type = type;
 }
 
 void Texture::initTexture(GLuint shaderProgramId)

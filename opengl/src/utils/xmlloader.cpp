@@ -74,7 +74,7 @@ std::map<std::string, Material> XmlLoader::loadMaterials(const tinyxml2::XMLElem
 			
 		}
 		materials[materialName] = mat;
-		Debugger::printInfo(mat);
+		//Debugger::printInfo(mat);
 	}
 
 	return materials;
@@ -110,8 +110,8 @@ Model XmlLoader::loadModel(const std::string & modelPath)
 				glm::vec3 vertexNormal = loadPosition(vertexElement->FirstChildElement("normal"));
 				glm::vec2 textureUv = loadTextureCoords(vertexElement->FirstChildElement("texture"));
 				model._normals.push_back(vertexNormal);
-				model._vertex.push_back(vertexPosition);
-				model._textureCoords.push_back(textureUv);
+				model._vertices.push_back(vertexPosition);
+				model._uvs.push_back(textureUv);
 			}
 		}
 		//model._materialName = materialName;
@@ -125,9 +125,9 @@ Model XmlLoader::loadModel(const std::string & modelPath)
 		if(!success) std::cerr << "Error loading model" << modelPath << std::endl;
 
 		model._normals = normals;
-		model._vertex = vertices;
-		model._textureCoords = uvs;
-		Debugger::printInfo(model);
+		model._vertices = vertices;
+		model._uvs = uvs;
+		//Debugger::printInfo(model);
 	}
 	else
 	{
@@ -152,8 +152,8 @@ Model XmlLoader::loadTriangle(const tinyxml2::XMLElement * triangleElement)
 		glm::vec3 vertexNormal = loadPosition(vertexElement->FirstChildElement("normal"));
 		glm::vec2 textureUv = loadTextureCoords(vertexElement->FirstChildElement("texture"));
 		model._normals.push_back(vertexNormal);
-		model._vertex.push_back(vertexPosition);
-		model._textureCoords.push_back(textureUv);
+		model._vertices.push_back(vertexPosition);
+		model._uvs.push_back(textureUv);
 	}
 
 	return model;
@@ -183,13 +183,12 @@ std::vector<Model> XmlLoader::loadModels(const tinyxml2::XMLElement * objectList
 			model._materialName = matName;
 
 			models.push_back(model);
-			Debugger::printInfo(model);
+			//Debugger::printInfo(model);
 		}
 		else if(elementName == "triangle")
 		{
-			std::cout << "Loading triangle" << std::endl;
 			Model model = loadTriangle(objectElement);
-			Debugger::printInfo(model);
+			//Debugger::printInfo(model);
 			models.push_back(model);
 		}
 	}
@@ -218,7 +217,7 @@ std::vector<Light> XmlLoader::loadLights(const tinyxml2::XMLElement * lightListE
 		light._worldPosition = position;
 
 		lights.push_back(light);
-		Debugger::printInfo(light);
+		//Debugger::printInfo(light);
 	}
 	return lights;
 }
@@ -262,13 +261,13 @@ Scene * XmlLoader::loadScene(const std::string &xmlPath)
 	std::cout << "Loading background information" << std::endl;
 	//Parse background information
 	ambientLight = loadColor(backgroundElement->FirstChildElement("ambientLight"));
-	Debugger::printInfo(ambientLight);
+	//Debugger::printInfo(ambientLight);
 	backgroundColor = loadColor(backgroundElement->FirstChildElement("color"));
-	Debugger::printInfo(backgroundColor);
+	//Debugger::printInfo(backgroundColor);
 	//Parse camera information
 	std::cout << "Parsing camera information" << std::endl;
 	cam = loadCamera(cameraElement);
-	Debugger::printInfo(cam);
+	//Debugger::printInfo(cam);
 	std::cout << "Parsing materials information" << std::endl;
 	materials = loadMaterials(materialListElement);
 	std::cout << "Parsing object list" << std::endl;

@@ -15,11 +15,11 @@ void Model::initData()
 {
 	glGenBuffers(_numBuffers, _bufferIds.data());
 	glBindBuffer(GL_ARRAY_BUFFER, _bufferIds[0]);
-	glBufferData(GL_ARRAY_BUFFER, this->_vertex.size()*sizeof(glm::vec3), _vertex.data(), GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, this->_vertices.size()*sizeof(glm::vec3), _vertices.data(), GL_STATIC_DRAW);
 	glBindBuffer(GL_ARRAY_BUFFER, _bufferIds[1]);
 	glBufferData(GL_ARRAY_BUFFER, this->_normals.size()*sizeof(glm::vec3), _normals.data(), GL_STATIC_DRAW);
 	glBindBuffer(GL_ARRAY_BUFFER, _bufferIds[2]);
-	glBufferData(GL_ARRAY_BUFFER, this->_textureCoords.size()*sizeof(glm::vec2), _textureCoords.data(), GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, this->_uvs.size()*sizeof(glm::vec2), _uvs.data(), GL_STATIC_DRAW);
 }
 
 
@@ -67,7 +67,7 @@ void Model::draw(GLuint shaderProgramId)
 	//std::cout << "Inversed: " << std::endl;
 	//Debugger::printInfo(invModelMatrix);
 
-	glDrawArrays( GL_TRIANGLES, 0, this->_vertex.size());
+	glDrawArrays( GL_TRIANGLES, 0, this->_vertices.size());
 	
 	glDisableVertexAttribArray(0);
 	glDisableVertexAttribArray(1);
@@ -77,4 +77,44 @@ void Model::draw(GLuint shaderProgramId)
 Model::~Model()
 {
 	
+}
+
+void Model::computeTangentBasis(std::vector<glm::vec3> & tangents,	std::vector<glm::vec3> & bitangents)
+{
+	for ( int i=0; i<_vertices.size(); i+=3){
+
+    // Shortcuts for vertices
+		glm::vec3 & v0 = _vertices[i+0];
+		glm::vec3 & v1 = _vertices[i+1];
+		glm::vec3 & v2 = _vertices[i+2];
+
+    // Shortcuts for UVs
+		glm::vec2 & uv0 = _uvs[i+0];
+		glm::vec2 & uv1 = _uvs[i+1];
+		glm::vec2 & uv2 = _uvs[i+2];
+
+    // Edges of the triangle : postion delta
+		glm::vec3 deltaPos1 = v1-v0;
+		glm::vec3 deltaPos2 = v2-v0;
+
+    // UV delta
+		glm::vec2 deltaUV1 = uv1-uv0;
+		glm::vec2 deltaUV2 = uv2-uv0;
+
+		float r = 1.0f / (deltaUV1.x * deltaUV2.y - deltaUV1.y * deltaUV2.x);
+		glm::vec3 tangent = (deltaPos1 * deltaUV2.y   - deltaPos2 * deltaUV1.y)*r;
+		glm::vec3 bitangent = (deltaPos2 * deltaUV1.x   - deltaPos1 * deltaUV2.x)*r;
+
+		  // Set the same tangent for all three vertices of the triangle.
+         // They will be merged later, in vboindexer.cpp
+		tangents.push_back(tangent);
+		tangents.push_back(tangent);
+		tangents.push_back(tangent);
+
+  	    // Same thing for binormals
+		bitangents.push_back(bitangent);
+		bitangents.push_back(bitangent);
+		bitangents.push_back(bitangent);
+
+	}
 }

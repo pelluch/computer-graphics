@@ -37,9 +37,9 @@ void Debugger::printInfo(Light & light)
 }
 void Debugger::printInfo(Model & model)
 { 
-	cout << "Model has " << model._vertex.size() << " vertices" << endl;
+	cout << "Model has " << model._vertices.size() << " vertices" << endl;
 	cout << "Model has " << model._normals.size() << " normals" << endl;
-	cout << "Model has " << model._textureCoords.size() << " texture coords" << endl;
+	cout << "Model has " << model._uvs.size() << " texture coords" << endl;
 	printInfo(model._worldPosition);
 	printInfo(model._worldRotation);
 	printInfo(model._scale);

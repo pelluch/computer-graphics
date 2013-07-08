@@ -14,20 +14,15 @@ using namespace std;
 
 #include "shader/shader.h"
 
-GLuint Shader::LoadShaders()
-{
-	GLuint shaderId;
-	if(RenderingParams::mode == PER_VERTEX)
-	{
-		std::cout << "Compiling per vertex" << std::endl;
-		shaderId = LoadShaders("shaders/per_vertex.vert", "shaders/per_vertex.frag");
-	}
-	else
-	{
-		 shaderId = LoadShaders("shaders/per_pixel.vert", "shaders/per_pixel.frag");
-	}
 
-	return shaderId;
+std::vector<GLuint> Shader::LoadAllShaders()
+{
+	std::vector<GLuint> shaders;
+	shaders.push_back(LoadShaders("shaders/per_pixel/no_tex.vert","shaders/per_pixel/no_tex.frag"));
+	shaders.push_back(LoadShaders("shaders/per_pixel/tex.vert","shaders/per_pixel/tex.frag"));
+	shaders.push_back(LoadShaders("shaders/per_pixel/tex_normal.vert","shaders/per_pixel/tex_normal.frag"));
+
+	return shaders;
 }
 
 GLuint Shader::LoadShaders(const char * vertex_file_path,const char * fragment_file_path){

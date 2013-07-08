@@ -50,7 +50,7 @@ void Scene::setMaterials()
 	for(int i = 0; i < _models.size(); ++i)
 	{
 		_models[i]._mat = _materials[_models[i]._materialName];
-		std::cout << "Material is " << _models[i]._materialName << std::endl;
+		//std::cout << "Material is " << _models[i]._materialName << std::endl;
 
 	}
 }
