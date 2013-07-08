@@ -10,7 +10,10 @@ Texture::Texture(const std::string & name, TEXTURE_TYPE type)
 void Texture::initTexture(GLuint shaderProgramId)
 {
 	gli::texture2D Texture(gli::loadStorageDDS(_texturePath));
-	this->_textureUniformId = glGetUniformLocation(shaderProgramId, "textureSampler");
+	if(_type == TEX_DIFFUSE)
+		this->_textureUniformId = glGetUniformLocation(shaderProgramId, "diffuseTextureSampler");
+	else
+		this->_textureUniformId = glGetUniformLocation(shaderProgramId, "normalTextureSampler");
 
 	assert(!Texture.empty());
 
@@ -68,8 +71,17 @@ Texture::~Texture()
 void Texture::bindUniform()
 {
 	// Bind our texture in Texture Unit 0
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, _textureId);
-	// Set our "myTextureSampler" sampler to user Texture Unit 0
-	glUniform1i(_textureUniformId, 0);
+	if(_type == TEX_DIFFUSE) 
+	{
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, _textureId);
+		glUniform1i(_textureUniformId, 0);
+	}
+	else if(_type == TEX_NORMAL) 
+	{
+		glActiveTexture(GL_TEXTURE1);
+		glBindTexture(GL_TEXTURE_2D, _textureId);
+		glUniform1i(_textureUniformId, 1);
+	}
+
 }

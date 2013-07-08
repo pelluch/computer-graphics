@@ -12,7 +12,9 @@ uniform vec3 eyePosition;
 uniform vec3 ambientLight;
 uniform vec3 materialDiffuse;
 uniform vec4 materialSpecular;
-uniform sampler2D textureSampler;
+uniform sampler2D diffuseTextureSampler;
+uniform sampler2D normalTextureSampler;
+
 uniform bool hasTexture;
 
 void main()
@@ -20,7 +22,7 @@ void main()
 	vec3 diffuseColor = vec3(0, 0, 0);
 	vec3 specularColor = vec3(0, 0, 0);
 	vec3 eyeDirection = normalize(eyePosition - fragmentWorldPosition);
-	vec3 colorMultiplier = hasTexture ? texture2D(textureSampler, fragmentUV).rgb : materialDiffuse;
+	vec3 colorMultiplier = hasTexture ? texture2D(diffuseTextureSampler, fragmentUV).rgb : materialDiffuse;
 	for(int i = 0; i < numLights; i++)
 	{
 		vec3 lightDirection = normalize(lights[i] - fragmentWorldPosition);
@@ -32,6 +34,6 @@ void main()
 
 	// Output color = red 
 	//gl_FragColor = gl_Color;
-	color = diffuseColor + specularColor + ambientLight * texture2D(textureSampler, fragmentUV).rgb;
+	color = diffuseColor + specularColor + ambientLight * texture2D(diffuseTextureSampler, fragmentUV).rgb;
 
 }
