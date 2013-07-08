@@ -22,6 +22,7 @@ class Scene {
 		GLuint _lightsId;
 		GLuint _numLightsId;
 		GLuint _ambientLightId;
+		int currentCam;
 	public:
 		std::vector<Camera> _cameras;
 		Scene();
@@ -38,6 +39,7 @@ class Scene {
 		void initModelData();
 		void draw(GLuint shaderProgramId);
 		void setMaterials();
+		void moveCamera(glm::vec3 translation, glm::vec3 rotation);
 };
 
 #endif

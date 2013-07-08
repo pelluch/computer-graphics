@@ -22,11 +22,9 @@ static int WIDTH;
 
 Scene scene;
 
-
 static GLuint shaderProgramId;
 static GLuint vertexBufferId;
 static GLuint matrixId;
-static GLuint eyeId;
 static Shader shader;
 
 
@@ -100,18 +98,10 @@ static void loadShaders()
 	matrixId = glGetUniformLocation(shaderProgramId, "viewProjectionMatrix");
 }
 
-static glm::vec3 eyePosition;
 
 static void loadScene()
 {
-	Camera cam;
-	cam._eye = glm::vec3(0, 0, -4);
-	cam._target = glm::vec3(0, 0, 0);
-	cam._up = glm::vec3(0, 1, 0);
-	cam._fov = 45;
-	cam._near = 0.035;
-	cam._far = 1500;
-	eyePosition = cam._eye;
+	Camera cam(45, 0.035, 1500, glm::vec3(0,0,-4), glm::vec3(0,0,0), glm::vec3(0,1,0));
 	scene = Scene(cam);
 	Light l1(glm::vec3(1, -1, -0.2), glm::vec3(1,1,1));
 	Light l2(glm::vec3(0, 0, -0.2), glm::vec3(1,1,1));
@@ -184,45 +174,30 @@ void windowResized(GLFWwindow* window, int width, int height)
 
 void keyCallBack(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
-	
+
+	glm::vec3 rotation, translation;
 	if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
-	{
 		Settings::settingsMenu();
-	}
-	else if(key == GLFW_KEY_A && action == GLFW_PRESS)
-	{
-		scene._cameras[0]._eye += glm::vec3(2, 0, 0);
-		scene._cameras[0]._target += glm::vec3(2, 0, 0);
-	}
-	else if(key == GLFW_KEY_D && action == GLFW_PRESS)
-	{
-		scene._cameras[0]._eye -= glm::vec3(2, 0, 0);
-		scene._cameras[0]._target -= glm::vec3(2, 0, 0);
-	}
-	else if(key == GLFW_KEY_W && action == GLFW_PRESS)
-	{
-		scene._cameras[0]._eye += glm::vec3(0,2, 0);
-		scene._cameras[0]._target += glm::vec3(0,2, 0);
-	}
-	else if(key == GLFW_KEY_S && action == GLFW_PRESS)
-	{
-		scene._cameras[0]._eye -= glm::vec3(0,2, 0);
-		scene._cameras[0]._target -= glm::vec3(0,2, 0);
-	}
-	else if(key == GLFW_KEY_Z && action == GLFW_PRESS)
-	{
-		scene._cameras[0]._eye -= glm::vec3(0,0, -2);
-		scene._cameras[0]._target -= glm::vec3(0,0, -2);
-	}
-	else if(key == GLFW_KEY_X && action == GLFW_PRESS)
-	{
-		scene._cameras[0]._eye -= glm::vec3(0,0, 2);
-		scene._cameras[0]._target -= glm::vec3(0,0, 2);
-	}
+	else if(key == GLFW_KEY_A)
+		translation += glm::vec3(10, 0, 0);
+	else if(key == GLFW_KEY_D)
+		translation -= glm::vec3(10, 0, 0);
+	else if(key == GLFW_KEY_W)
+		translation += glm::vec3(0, 0, 10);
+	else if(key == GLFW_KEY_S)
+		translation -= glm::vec3(0, 0, 10);
+	else if(key == GLFW_KEY_J)
+		rotation += glm::vec3(0, 0, 1);
+	else if(key == GLFW_KEY_L)
+		rotation -= glm::vec3(0, 0, 1);
+	else if(key == GLFW_KEY_I)
+		rotation += glm::vec3(1, 0, 0);
+	else if(key == GLFW_KEY_K)
+		rotation -= glm::vec3(1, 0, 0);
 	else if(key == GLFW_KEY_P && action == GLFW_PRESS)
-	{
 		RenderingParams::paused = !RenderingParams::paused;
-	}
+
+	scene.moveCamera(translation, rotation);	
 }
 
 void menu(std::string & sceneFile, std::string & vertexShader, std::string & fragmentShader)

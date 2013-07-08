@@ -33,6 +33,7 @@ bool loadOBJ(
 
 	FILE * file = fopen(path, "r");
 	if( file == NULL ){
+		perror("fopen");
 		printf("Impossible to open the file ! Are you in the right path ? See Tutorial 1 for details\n");
 		return false;
 	}

@@ -6,27 +6,23 @@
 
 Scene::Scene(float fov, float near, float far, glm::vec3 eye, glm::vec3 target, glm::vec3 up)
 {
-	Camera cam;
-	cam._eye = eye;
-	cam._far = far;
-	cam._fov = fov;
-	cam._near = near;
-	cam._target = target;
-	cam._up = up;
+	currentCam = 0;
+	Camera cam(fov, near, far, eye, target, up);	
 	_cameras.push_back(cam);
 
 }
 
 Scene::Scene()
 {
-	
+	currentCam = 0;
 }
 
 void Scene::generateIds()
 {
 	_lightsId = glGetUniformLocation(_shaderProgramId, "lights");
 	_numLightsId = glGetUniformLocation(_shaderProgramId, "numLights");
-	_cameras[0]._id = glGetUniformLocation(_shaderProgramId, "eyePosition");
+	std::cout << "Current cam: " << currentCam << std::endl;
+	_cameras[currentCam].generateId(_shaderProgramId);
 	_ambientLightId = glGetUniformLocation(_shaderProgramId, "ambientLight");
 }
 
@@ -45,7 +41,7 @@ void Scene::bindUniforms()
 	}
 	glUniform1i(_numLightsId, numLights);
 	glUniform3fv(_lightsId, numLights, lightPositionData);
-	glUniform3fv(_cameras[0]._id, 1, &_cameras[0]._eye[0]);
+	_cameras[currentCam].assignUniformData();
 	glUniform3fv(_ambientLightId, 1, &_ambientLight[0]);
 }
 
@@ -61,12 +57,18 @@ void Scene::setMaterials()
 
 Scene::Scene(Camera & cam)
 {
+	currentCam = 0;
 	_cameras.push_back(cam);
 }
 
 void Scene::addLight(Light & light)
 {
 	_lights.push_back(light);
+}
+
+void Scene::moveCamera(glm::vec3 translation, glm::vec3 rotation)
+{
+	_cameras[currentCam].moveCamera(translation, rotation);
 }
 
 void Scene::setShaderId(GLuint id)
@@ -80,8 +82,7 @@ void Scene::setShaderId(GLuint id)
 
 glm::mat4 Scene::projectionTransform(float aspectRatio, int camIndex)
 {
-	glm::mat4 projectionMatrix = glm::perspective(_cameras[camIndex]._fov, aspectRatio,
-	 _cameras[camIndex]._near, _cameras[camIndex]._far);
+	glm::mat4 projectionMatrix = _cameras[camIndex].perspectiveTransform(aspectRatio);
 	return projectionMatrix;
 }
 
@@ -93,6 +94,7 @@ glm::mat4 Scene::viewTransform(int camIndex)
 
 Scene::Scene(Camera & cam, std::vector<Model> & models, std::map<std::string, Material> & materials, std::vector<Light> & lights, glm::vec3 backgroundColor, glm::vec3 ambientLight)
 {
+	currentCam = 0;
 	this->_cameras.push_back(cam);
 	this->_models = models;
 	this->_lights = lights;

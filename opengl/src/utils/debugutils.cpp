@@ -7,11 +7,7 @@ using namespace std;
 void Debugger::printInfo(Camera & cam)
 {
 	cout << "Printing camera information" << endl; 
-	printInfo(cam._eye);
-	printInfo(cam._target);
-	printInfo(cam._up);
-	cout << "near: " << cam._near << endl;
-	cout << "far: " << cam._far << endl;
+	cam.printInfo();
 }
 
 void Debugger::printInfo(Scene & scene)

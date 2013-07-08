@@ -33,7 +33,7 @@ glm::vec3 XmlLoader::loadColor(const tinyxml2::XMLElement * vecElement)
 
 Camera XmlLoader::loadCamera(const tinyxml2::XMLElement *camElement)
 {
-	Camera cam;
+
 	glm::vec3 eye = loadPosition(camElement->FirstChildElement("position"));
 	glm::vec3 target = loadPosition(camElement->FirstChildElement("target"));
 	glm::vec3 up = loadPosition(camElement->FirstChildElement("up"));
@@ -42,13 +42,7 @@ Camera XmlLoader::loadCamera(const tinyxml2::XMLElement *camElement)
 	float near = camElement->FloatAttribute("nearClip");
 	float far = camElement->FloatAttribute("farClip");
 
-	cam._eye = eye;
-	cam._target = target;
-	cam._up = up;
-	cam._fov = fov;
-	cam._near = near;
-	cam._far = far;
-
+	Camera cam(fov, near, far, eye, target, up);
 	return cam;
 }
 
