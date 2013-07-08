@@ -4,6 +4,7 @@
 #include <glm/glm.hpp>
 #include <iostream>
 #include <string>
+#include <map>
 
 #include "scene/scene.h"
 #include "handlers/control.h"
@@ -13,6 +14,7 @@
 #include "model/model.h"
 #include "utils/xmlloader.h"
 #include "utils/debugutils.h"
+#include "utils/settings.h"
 
 using namespace std;
 static int HEIGHT;
@@ -27,7 +29,6 @@ static GLuint matrixId;
 static GLuint eyeId;
 static Shader shader;
 
-ShaderParams params;
 
 static void initBuffers()
 {
@@ -95,7 +96,7 @@ static void setRenderingParameters()
 
 static void loadShaders()
 {
-	shaderProgramId = shader.LoadShaders( params );
+	shaderProgramId = shader.LoadShaders();
 	matrixId = glGetUniformLocation(shaderProgramId, "viewProjectionMatrix");
 }
 
@@ -179,52 +180,82 @@ void windowResized(GLFWwindow* window, int width, int height)
 }
 
 
+
+
 void keyCallBack(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
+	
 	if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
-		glfwSetWindowShouldClose(window, GL_TRUE);
-	else if(key == GLFW_KEY_A)
+	{
+		Settings::settingsMenu();
+	}
+	else if(key == GLFW_KEY_A && action == GLFW_PRESS)
 	{
 		scene._cameras[0]._eye += glm::vec3(2, 0, 0);
 		scene._cameras[0]._target += glm::vec3(2, 0, 0);
 	}
-	else if(key == GLFW_KEY_D)
+	else if(key == GLFW_KEY_D && action == GLFW_PRESS)
 	{
 		scene._cameras[0]._eye -= glm::vec3(2, 0, 0);
 		scene._cameras[0]._target -= glm::vec3(2, 0, 0);
 	}
-	else if(key == GLFW_KEY_W)
+	else if(key == GLFW_KEY_W && action == GLFW_PRESS)
 	{
 		scene._cameras[0]._eye += glm::vec3(0,2, 0);
 		scene._cameras[0]._target += glm::vec3(0,2, 0);
 	}
-	else if(key == GLFW_KEY_S)
+	else if(key == GLFW_KEY_S && action == GLFW_PRESS)
 	{
 		scene._cameras[0]._eye -= glm::vec3(0,2, 0);
 		scene._cameras[0]._target -= glm::vec3(0,2, 0);
 	}
-	else if(key == GLFW_KEY_Z)
+	else if(key == GLFW_KEY_Z && action == GLFW_PRESS)
 	{
 		scene._cameras[0]._eye -= glm::vec3(0,0, -2);
 		scene._cameras[0]._target -= glm::vec3(0,0, -2);
 	}
-	else if(key == GLFW_KEY_X)
+	else if(key == GLFW_KEY_X && action == GLFW_PRESS)
 	{
 		scene._cameras[0]._eye -= glm::vec3(0,0, 2);
 		scene._cameras[0]._target -= glm::vec3(0,0, 2);
 	}
-	else if(key == GLFW_KEY_1)
+	else if(key == GLFW_KEY_P && action == GLFW_PRESS)
 	{
-		glfwSwapInterval(0);
+		RenderingParams::paused = !RenderingParams::paused;
 	}
-	else if(key == GLFW_KEY_2)
+}
+
+void menu(std::string & sceneFile, std::string & vertexShader, std::string & fragmentShader)
+{
+	std::map<int, std::string> sceneMap;
+	std::map<int, std::string> shaderMap;
+
+	std::vector<std::string> sceneFiles = utils::getFileList("scenes", true);
+	std::vector<std::string> shaders = utils::getFileList("shaders", true);
+	std::cout << "Pick a scene to load: " << std::endl;
+
+	int sceneChoice;
+	for(size_t i = 0; i < sceneFiles.size(); ++i)
 	{
-		glDisable(GL_MULTISAMPLE);
+		sceneMap[i] = sceneFiles[i];
+		std::cout << i << ". " << sceneFiles[i] << std::endl;
 	}
-	else if(key == GLFW_KEY_3)
+	std::cin >> sceneChoice;
+	sceneFile = sceneMap[sceneChoice];
+
+	int vertexChoice, fragmentChoice;
+	for(size_t i = 0; i < shaders.size(); ++i)
 	{
-		glEnable(GL_MULTISAMPLE);
+		shaderMap[i] = shaders[i];
+		std::cout << i << ". " << shaders[i] << std::endl;
 	}
+	std::cout << "Choose vertex shader" << std::endl;
+	std::cin >> vertexChoice;
+	std::cout << "Choose fragment shader" << std::endl;
+	std::cin >> fragmentChoice;
+
+	vertexShader = shaderMap[vertexChoice];
+	fragmentShader = shaderMap[fragmentChoice];
 }
 
 int main(int argc, char ** argv)
@@ -239,7 +270,9 @@ int main(int argc, char ** argv)
 	cmdLine.add_option("pixel,p", "Use per pixel shading");
 	cmdLine.add_option("vertex,v", "Use per vertex shading");
 
-	
+	//std::string sceneFile, vertexShader, fragmentShader;
+	//menu(sceneFile, vertexShader, fragmentShader);
+
 
 	int result = cmdLine.parse(argc, argv);
 	if(result != 0)
@@ -250,12 +283,12 @@ int main(int argc, char ** argv)
 	if(cmdLine.exists_value("pixel"))
 	{
 		std::cout << "Using per pixel mode" << std::endl;
-		params.mode = PER_PIXEL;
+		RenderingParams::mode = PER_PIXEL;
 	}
 	else if(cmdLine.exists_value("vertex"))
 	{
 		std::cout << "Using per vertex mode" << std::endl;
-		params.mode = PER_VERTEX;
+		RenderingParams::mode = PER_VERTEX;
 	}
 	else
 	{
@@ -306,23 +339,25 @@ int main(int argc, char ** argv)
 
 	do
 	{		
+		if(!RenderingParams::paused)
+		{
+				// Measure speed
+			double currentTime = glfwGetTime();
+			nbFrames++;
+			if ( currentTime - lastTime >= 1.0 ){ // If last prinf() was more than 1sec ago
+				// printf and reset
+				//printf("%f ms/frame\n", 1000.0/double(nbFrames));
+				printf("%d frame/s\n", nbFrames);
+				nbFrames = 0;
+				lastTime += 1.0;
+			}
 
-		// Measure speed
-		double currentTime = glfwGetTime();
-		nbFrames++;
-		if ( currentTime - lastTime >= 1.0 ){ // If last prinf() was more than 1sec ago
-			// printf and reset
-			//printf("%f ms/frame\n", 1000.0/double(nbFrames));
-			printf("%d frame/s\n", nbFrames);
-			nbFrames = 0;
-			lastTime += 1.0;
-		}
+			/* Render here */
+			draw();
 
-		/* Render here */
-		draw();
-
-        /* Swap front and back buffers */
-        glfwSwapBuffers(window);
+	        /* Swap front and back buffers */
+	        glfwSwapBuffers(window);
+    	}
 
         /* Poll for and process events */
         glfwPollEvents();

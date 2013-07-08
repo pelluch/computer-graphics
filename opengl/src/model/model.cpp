@@ -55,10 +55,10 @@ void Model::draw(GLuint shaderProgramId)
 	glUniformMatrix4fv(_modelMatrixId, 1, GL_FALSE, &modelMatrix[0][0]);
 	glUniformMatrix4fv(_transposedInvModelId, 1, GL_FALSE, &invModelMatrix[0][0]);
 
-	std::cout << "Model matrix:" << std::endl;
-	Debugger::printInfo(modelMatrix);
-	std::cout << "Inversed: " << std::endl;
-	Debugger::printInfo(invModelMatrix);
+	//std::cout << "Model matrix:" << std::endl;
+	//Debugger::printInfo(modelMatrix);
+	//std::cout << "Inversed: " << std::endl;
+	//Debugger::printInfo(invModelMatrix);
 
 	glDrawArrays( GL_TRIANGLES, 0, this->_vertex.size());
 	

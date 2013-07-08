@@ -351,13 +351,14 @@
       </vertex>
     </triangle>
 
-    <model name="sphere_1" path="scenes/sphere.xml">
+    <model name="sphere_1" path="models/sphere.xml" material="Stones">
       <scale x="120" y="120" z="120" />
       <rotation x="0" y="0" z="0" />
       <position x="370.0" y="120.0" z="370.0" />
     </model>
     
-    <model name="sphere_2" path="scenes/sphere.xml">
+  
+    <model name="suzzane_1" path="models/suzzane.obj" material="Stones">
       <scale x="100" y="100" z="100" />
       <rotation x="0" y="0" z="0" />
       <position x="130.0" y="100.0" z="130.0" />

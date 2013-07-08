@@ -14,10 +14,10 @@ using namespace std;
 
 #include "shader/shader.h"
 
-GLuint Shader::LoadShaders(const ShaderParams & params)
+GLuint Shader::LoadShaders()
 {
 	GLuint shaderId;
-	if(params.mode == PER_VERTEX)
+	if(RenderingParams::mode == PER_VERTEX)
 	{
 		std::cout << "Compiling per vertex" << std::endl;
 		shaderId = LoadShaders("shaders/per_vertex.vert", "shaders/per_vertex.frag");

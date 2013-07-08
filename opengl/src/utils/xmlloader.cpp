@@ -3,6 +3,8 @@
 #include <iostream>
 #include <glm/glm.hpp>
 #include "utils/debugutils.h"
+#include <string>
+#include "utils/objloader.h"
 
 using namespace tinyxml2;
 
@@ -96,26 +98,50 @@ Model XmlLoader::loadModel(const std::string & modelPath)
 {
 	std::cout << "Attempting to load model " << modelPath << std::endl;
 	Model model;
-	XMLDocument modelDoc;
-	modelDoc.LoadFile(modelPath.c_str());
-	XMLElement * rootElement = modelDoc.RootElement();
-	const std::string materialName = rootElement->Attribute("material");
-	XMLElement * triangleListElement = rootElement->FirstChildElement("triangle_list");
-	for(XMLElement * triangleElement = triangleListElement->FirstChildElement("triangle");
-		triangleElement; triangleElement = triangleElement->NextSiblingElement())
+
+	if(modelPath.find(".xml") != std::string::npos)
 	{
-		for(XMLElement * vertexElement = triangleElement->FirstChildElement("vertex");
-			vertexElement; vertexElement = vertexElement->NextSiblingElement())
+		XMLDocument modelDoc;
+		modelDoc.LoadFile(modelPath.c_str());
+		XMLElement * rootElement = modelDoc.RootElement();
+		//const std::string materialName = rootElement->Attribute("material");
+		XMLElement * triangleListElement = rootElement->FirstChildElement("triangle_list");
+		for(XMLElement * triangleElement = triangleListElement->FirstChildElement("triangle");
+			triangleElement; triangleElement = triangleElement->NextSiblingElement())
 		{
-			glm::vec3 vertexPosition = loadPosition(vertexElement->FirstChildElement("position"));
-			glm::vec3 vertexNormal = loadPosition(vertexElement->FirstChildElement("normal"));
-			glm::vec2 textureUv = loadTextureCoords(vertexElement->FirstChildElement("texture"));
-			model._normals.push_back(vertexNormal);
-			model._vertex.push_back(vertexPosition);
-			model._textureCoords.push_back(textureUv);
+			for(XMLElement * vertexElement = triangleElement->FirstChildElement("vertex");
+				vertexElement; vertexElement = vertexElement->NextSiblingElement())
+			{
+				glm::vec3 vertexPosition = loadPosition(vertexElement->FirstChildElement("position"));
+				glm::vec3 vertexNormal = loadPosition(vertexElement->FirstChildElement("normal"));
+				glm::vec2 textureUv = loadTextureCoords(vertexElement->FirstChildElement("texture"));
+				model._normals.push_back(vertexNormal);
+				model._vertex.push_back(vertexPosition);
+				model._textureCoords.push_back(textureUv);
+			}
 		}
+		//model._materialName = materialName;
 	}
-	model._materialName = materialName;
+	else if(modelPath.find(".obj") != std::string::npos)
+	{
+		std::vector<glm::vec3> vertices;
+		std::vector<glm::vec2> uvs;
+		std::vector<glm::vec3> normals;
+		bool success = loadOBJ(modelPath.c_str(), vertices, uvs, normals);
+		if(!success) std::cerr << "Error loading model" << modelPath << std::endl;
+
+		model._normals = normals;
+		model._vertex = vertices;
+		model._textureCoords = uvs;
+		Debugger::printInfo(model);
+	}
+	else
+	{
+		std::cerr << "Model with invalid extension: " << modelPath << std::endl;
+	}
+
+	
+
 	return model;
 }
 
@@ -154,11 +180,13 @@ std::vector<Model> XmlLoader::loadModels(const tinyxml2::XMLElement * objectList
 			glm::vec3 position = XmlLoader::loadPosition(objectElement->FirstChildElement("position"));
 			glm::vec3 scale = XmlLoader::loadPosition(objectElement->FirstChildElement("scale"));
 			glm::vec3 rotation = XmlLoader::loadPosition(objectElement->FirstChildElement("rotation"));
+			std::string matName = objectElement->Attribute("material");
 
 			Model model = loadModel(modelPath);
 			model._worldPosition = position;
 			model._scale = scale;
 			model._worldRotation = rotation;
+			model._materialName = matName;
 
 			models.push_back(model);
 			Debugger::printInfo(model);
