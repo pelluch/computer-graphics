@@ -1,8 +1,9 @@
 #ifndef CAMERA_H_
 #define CAMERA_H_
 
-#include <glm/glm.hpp>
 #include <GL/glew.h>
+#include <glm/glm.hpp>
+
 
 class Camera
 {

@@ -7,7 +7,7 @@
 
 Model::Model()
 {
-	_numBuffers = 2;
+	_numBuffers = 3;
 	_bufferIds.resize(_numBuffers);
 }
 
@@ -18,6 +18,8 @@ void Model::initData()
 	glBufferData(GL_ARRAY_BUFFER, this->_vertex.size()*sizeof(glm::vec3), _vertex.data(), GL_STATIC_DRAW);
 	glBindBuffer(GL_ARRAY_BUFFER, _bufferIds[1]);
 	glBufferData(GL_ARRAY_BUFFER, this->_normals.size()*sizeof(glm::vec3), _normals.data(), GL_STATIC_DRAW);
+	glBindBuffer(GL_ARRAY_BUFFER, _bufferIds[2]);
+	glBufferData(GL_ARRAY_BUFFER, this->_textureCoords.size()*sizeof(glm::vec2), _textureCoords.data(), GL_STATIC_DRAW);
 }
 
 
@@ -31,7 +33,8 @@ void Model::draw(GLuint shaderProgramId)
 {
 	
 	_mat.generateUniformIds(shaderProgramId);
-
+	_mat.setActiveTexture();
+	
 	glEnableVertexAttribArray(0);
 	glBindBuffer(GL_ARRAY_BUFFER, _bufferIds[0]);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
@@ -39,6 +42,10 @@ void Model::draw(GLuint shaderProgramId)
 	glEnableVertexAttribArray(1);
 	glBindBuffer(GL_ARRAY_BUFFER, _bufferIds[1]);
 	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
+
+	glEnableVertexAttribArray(2);
+	glBindBuffer(GL_ARRAY_BUFFER, _bufferIds[2]);
+	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 0, (void*)0);
 
 	glm::mat4 modelMatrix = glm::translate(glm::mat4(1.0f), this->_worldPosition) *
 	glm::rotate(glm::mat4(1.0f), _worldRotation[0], glm::vec3(1.0f, 0.0f, 0.0f)) *
@@ -64,6 +71,7 @@ void Model::draw(GLuint shaderProgramId)
 	
 	glDisableVertexAttribArray(0);
 	glDisableVertexAttribArray(1);
+	glDisableVertexAttribArray(2);
 }
 
 Model::~Model()

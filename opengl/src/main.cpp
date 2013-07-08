@@ -179,21 +179,21 @@ void keyCallBack(GLFWwindow* window, int key, int scancode, int action, int mods
 	if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
 		Settings::settingsMenu();
 	else if(key == GLFW_KEY_A)
-		translation += glm::vec3(10, 0, 0);
+		translation += glm::vec3(-10, 0, 0);
 	else if(key == GLFW_KEY_D)
-		translation -= glm::vec3(10, 0, 0);
+		translation -= glm::vec3(-10, 0, 0);
 	else if(key == GLFW_KEY_W)
-		translation += glm::vec3(0, 0, 10);
+		translation += glm::vec3(0, 0, -10);
 	else if(key == GLFW_KEY_S)
-		translation -= glm::vec3(0, 0, 10);
+		translation -= glm::vec3(0, 0, -10);
 	else if(key == GLFW_KEY_J)
-		rotation += glm::vec3(0, 0, 1);
+		rotation += glm::vec3(0, 1, 0);
 	else if(key == GLFW_KEY_L)
-		rotation -= glm::vec3(0, 0, 1);
+		rotation -= glm::vec3(0, 1, 0);
 	else if(key == GLFW_KEY_I)
-		rotation += glm::vec3(1, 0, 0);
-	else if(key == GLFW_KEY_K)
 		rotation -= glm::vec3(1, 0, 0);
+	else if(key == GLFW_KEY_K)
+		rotation += glm::vec3(1, 0, 0);
 	else if(key == GLFW_KEY_P && action == GLFW_PRESS)
 		RenderingParams::paused = !RenderingParams::paused;
 
@@ -311,7 +311,7 @@ int main(int argc, char ** argv)
 	// For speed computation
 	double lastTime = glfwGetTime();
 	int nbFrames = 0;
-
+	glfwSwapInterval(1);
 	do
 	{		
 		if(!RenderingParams::paused)

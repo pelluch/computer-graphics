@@ -2,6 +2,7 @@
 
 in vec3 fragmentNormal;
 in vec3 fragmentWorldPosition;
+in vec2 fragmentUV;
 
 out vec3 color;
 
@@ -11,6 +12,7 @@ uniform vec3 eyePosition;
 uniform vec3 ambientLight;
 uniform vec3 materialDiffuse;
 uniform vec4 materialSpecular;
+uniform sampler2D textureSampler;
 
 void main()
 {

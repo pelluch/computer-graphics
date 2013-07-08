@@ -3,6 +3,7 @@
 // Input vertex data, different for all executions of this shader.
 layout(location = 0) in vec3 vertexPosition;
 layout(location = 1) in vec3 vertexNormal;
+layout(location = 2) in vec2 textureUV;
 
 uniform mat4 viewProjectionMatrix;
 uniform mat4 modelMatrix;
@@ -14,6 +15,7 @@ uniform vec3 materialDiffuse;
 
 out vec3 fragmentNormal;
 out vec3 fragmentWorldPosition;
+out vec2 fragmentUV;
 
 void main(){
 
@@ -21,5 +23,6 @@ void main(){
 	fragmentWorldPosition = (modelMatrix * vec4(vertexPosition, 1)).xyz;
 	vec3 transformedNormal = (invModelMatrix * vec4(vertexNormal, 0)).xyz;
 	fragmentNormal = normalize(transformedNormal);
+	fragmentUV = textureUV;
 }
 

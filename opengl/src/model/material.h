@@ -1,9 +1,10 @@
 #ifndef MATERIAL_H_
 #define MATERIAL_H_
 
+#include <GL/glew.h>
 #include <glm/glm.hpp>
 #include <string>
-#include <GL/glew.h>
+
 
 class Material
 {
@@ -18,11 +19,14 @@ class Material
 		std::string _normalTexturePath;
 		std::string _bumpTexturePath;
 
+		GLuint _textureId;
+		GLuint _textureUniformId;
 		GLuint _diffuseColorId;
 		GLuint _specularColorId;
 
 		void generateUniformIds(GLuint shaderProgramId);
-
+		void setActiveTexture();
+		
 	private:
 		bool _generatedUniform;
 };

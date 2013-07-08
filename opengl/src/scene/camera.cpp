@@ -58,15 +58,21 @@ void Camera::assignUniformData()
 
 void Camera::moveCamera(glm::vec3 translation, glm::vec3 rotation)
 {
-	_eye += translation;
-	_target += translation;
+	glm::mat4 inverseView = glm::inverse(viewTransform());
+	glm::vec4 worldTranslation4 = inverseView*glm::vec4(translation[0], translation[1], translation[2], 1.0f);
+	glm::vec3 worldTranslation = glm::vec3(worldTranslation4[0], worldTranslation4[1], worldTranslation4[2]);
+
+	glm::vec3 deltaPos = worldTranslation - _eye;
+	_eye = worldTranslation;
+	_target += deltaPos;
 
 	glm::mat4 rotationMatrix = glm::rotate(glm::mat4(1.0f), rotation[0], glm::vec3(1, 0, 0)) *
 		glm::rotate(glm::mat4(1.0f), rotation[1], glm::vec3(0, 1, 0)) *
 		glm::rotate(glm::mat4(1.0f), rotation[2], glm::vec3(0, 0, 1));
 
-	Debugger::printInfo(rotationMatrix);
-	glm::vec4 translatedTarget = rotationMatrix * glm::vec4(_target[0], _target[1],
-		_target[2], 1.0f);
-	_target = glm::vec3(translatedTarget[0], translatedTarget[1], translatedTarget[2]);
+	//Debugger::printInfo(rotationMatrix);
+	glm::vec3 diff = _target - _eye;
+	glm::vec4 translatedTarget = rotationMatrix * glm::vec4(diff[0], diff[1],
+		diff[2], 1.0f);
+	_target = _eye + glm::vec3(translatedTarget[0], translatedTarget[1], translatedTarget[2]);
 }
