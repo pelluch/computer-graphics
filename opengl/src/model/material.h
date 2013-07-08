@@ -4,7 +4,7 @@
 #include <GL/glew.h>
 #include <glm/glm.hpp>
 #include <string>
-
+#include "model/texture.h"
 
 class Material
 {
@@ -19,8 +19,7 @@ class Material
 		std::string _normalTexturePath;
 		std::string _bumpTexturePath;
 
-		GLuint _textureId;
-		GLuint _textureUniformId;
+		~Material();
 		GLuint _diffuseColorId;
 		GLuint _specularColorId;
 		GLuint _hasTextureId;
@@ -30,6 +29,7 @@ class Material
 	private:
 		bool _hasTexture;
 		bool _generatedUniform;
+		Texture * _texture;
 };
 
 #endif

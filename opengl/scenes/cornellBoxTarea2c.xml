@@ -84,7 +84,7 @@
     </material>
 
     <material name="Stones">
-      <texture filename=""/>
+      <texture filename="textures/diffuse.dds"/>
       <normalmap filename=""/>
       <diffuse red="0.656" green="0.626" blue="0.107"/>
       <specular red="1.0" green="1.0" blue="1.0" shininess="100.0"/>
@@ -357,7 +357,7 @@
       </vertex>
     </triangle>
 
-    <model name="sphere_1" path="models/sphere.xml" material="Ice">
+    <model name="sphere_1" path="models/sphere.xml" material="Stones">
       <scale x="120" y="120" z="120" />
       <rotation x="0" y="0" z="0" />
       <position x="370.0" y="120.0" z="370.0" />
