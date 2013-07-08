@@ -4,24 +4,42 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <iostream>
 #include "utils/debugutils.h"
+#include "utils/vboindexer.h"
 
 Model::Model()
 {
-	_numBuffers = 3;
+	_numBuffers = 6;
 	_bufferIds.resize(_numBuffers);
 }
 
 void Model::initData()
 {
-	glGenBuffers(_numBuffers, _bufferIds.data());
-	glBindBuffer(GL_ARRAY_BUFFER, _bufferIds[0]);
-	glBufferData(GL_ARRAY_BUFFER, this->_vertices.size()*sizeof(glm::vec3), _vertices.data(), GL_STATIC_DRAW);
-	glBindBuffer(GL_ARRAY_BUFFER, _bufferIds[1]);
-	glBufferData(GL_ARRAY_BUFFER, this->_normals.size()*sizeof(glm::vec3), _normals.data(), GL_STATIC_DRAW);
-	glBindBuffer(GL_ARRAY_BUFFER, _bufferIds[2]);
-	glBufferData(GL_ARRAY_BUFFER, this->_uvs.size()*sizeof(glm::vec2), _uvs.data(), GL_STATIC_DRAW);
-}
+	computeTangentBasis();
+	VBOIndexer::indexVBO_TBN(
+		_vertices, _uvs, _normals, _tangents, _bitangents, 
+		_indices, _indexedVertices, _indexedUvs, _indexedNormals, _indexedTangents, _indexedBitangents
+	);
 
+	glGenBuffers(_numBuffers, _bufferIds.data());
+	//Vertices
+	glBindBuffer(GL_ARRAY_BUFFER, _bufferIds[0]);
+	glBufferData(GL_ARRAY_BUFFER, this->_indexedVertices.size()*sizeof(glm::vec3), _indexedVertices.data(), GL_STATIC_DRAW);
+	//uvs
+	glBindBuffer(GL_ARRAY_BUFFER, _bufferIds[1]);
+	glBufferData(GL_ARRAY_BUFFER, this->_indexedUvs.size()*sizeof(glm::vec2), _indexedUvs.data(), GL_STATIC_DRAW);
+	//normals
+	glBindBuffer(GL_ARRAY_BUFFER, _bufferIds[2]);
+	glBufferData(GL_ARRAY_BUFFER, this->_indexedNormals.size()*sizeof(glm::vec3), _indexedNormals.data(), GL_STATIC_DRAW);
+	//tangents
+	glBindBuffer(GL_ARRAY_BUFFER, _bufferIds[3]);
+	glBufferData(GL_ARRAY_BUFFER, this->_indexedTangents.size()*sizeof(glm::vec3), _indexedTangents.data(), GL_STATIC_DRAW);
+	//bitangents
+	glBindBuffer(GL_ARRAY_BUFFER, _bufferIds[4]);
+	glBufferData(GL_ARRAY_BUFFER, this->_indexedBitangents.size()*sizeof(glm::vec3), _indexedBitangents.data(), GL_STATIC_DRAW);
+	//elementbuffer
+	glBindBuffer(GL_ARRAY_BUFFER, _bufferIds[5]);
+	glBufferData(GL_ARRAY_BUFFER, this->_indices.size()*sizeof(unsigned int short), _indices.data(), GL_STATIC_DRAW);
+}
 
 void Model::generateUniforms(GLuint shaderProgramId)
 {
@@ -36,16 +54,27 @@ void Model::draw(GLuint shaderProgramId)
 	_mat.setActiveTexture();
 	
 	glEnableVertexAttribArray(0);
+	glEnableVertexAttribArray(1);
+	glEnableVertexAttribArray(2);
+	glEnableVertexAttribArray(3);
+	glEnableVertexAttribArray(4);
+
+
+	//Vertices
 	glBindBuffer(GL_ARRAY_BUFFER, _bufferIds[0]);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
-
-	glEnableVertexAttribArray(1);
+	//uvs
 	glBindBuffer(GL_ARRAY_BUFFER, _bufferIds[1]);
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
-
-	glEnableVertexAttribArray(2);
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, (void*)0);
+	//normals
 	glBindBuffer(GL_ARRAY_BUFFER, _bufferIds[2]);
-	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 0, (void*)0);
+	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
+	//tangents
+	glBindBuffer(GL_ARRAY_BUFFER, _bufferIds[3]);
+	glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
+	//bitangents
+	glBindBuffer(GL_ARRAY_BUFFER, _bufferIds[4]);
+	glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
 
 	glm::mat4 modelMatrix = glm::translate(glm::mat4(1.0f), this->_worldPosition) *
 	glm::rotate(glm::mat4(1.0f), _worldRotation[0], glm::vec3(1.0f, 0.0f, 0.0f)) *
@@ -62,16 +91,19 @@ void Model::draw(GLuint shaderProgramId)
 	glUniformMatrix4fv(_modelMatrixId, 1, GL_FALSE, &modelMatrix[0][0]);
 	glUniformMatrix4fv(_transposedInvModelId, 1, GL_FALSE, &invModelMatrix[0][0]);
 
-	//std::cout << "Model matrix:" << std::endl;
-	//Debugger::printInfo(modelMatrix);
-	//std::cout << "Inversed: " << std::endl;
-	//Debugger::printInfo(invModelMatrix);
+	// Index buffer
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _bufferIds[5]);
 
-	glDrawArrays( GL_TRIANGLES, 0, this->_vertices.size());
+	// Draw the triangles !
+	glDrawElements(GL_TRIANGLES, _indices.size(), GL_UNSIGNED_SHORT, (void*)0);
+	//glDrawArrays( GL_TRIANGLES, 0, this->_vertices.size());
 	
 	glDisableVertexAttribArray(0);
 	glDisableVertexAttribArray(1);
 	glDisableVertexAttribArray(2);
+	glDisableVertexAttribArray(3);
+	glDisableVertexAttribArray(4);
+	glDisableVertexAttribArray(5);
 }
 
 Model::~Model()
@@ -79,7 +111,7 @@ Model::~Model()
 	
 }
 
-void Model::computeTangentBasis(std::vector<glm::vec3> & tangents,	std::vector<glm::vec3> & bitangents)
+void Model::computeTangentBasis()
 {
 	for ( int i=0; i<_vertices.size(); i+=3){
 
@@ -107,14 +139,14 @@ void Model::computeTangentBasis(std::vector<glm::vec3> & tangents,	std::vector<g
 
 		  // Set the same tangent for all three vertices of the triangle.
          // They will be merged later, in vboindexer.cpp
-		tangents.push_back(tangent);
-		tangents.push_back(tangent);
-		tangents.push_back(tangent);
+		_tangents.push_back(tangent);
+		_tangents.push_back(tangent);
+		_tangents.push_back(tangent);
 
   	    // Same thing for binormals
-		bitangents.push_back(bitangent);
-		bitangents.push_back(bitangent);
-		bitangents.push_back(bitangent);
+		_bitangents.push_back(bitangent);
+		_bitangents.push_back(bitangent);
+		_bitangents.push_back(bitangent);
 
 	}
 }
