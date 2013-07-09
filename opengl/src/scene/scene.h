@@ -9,6 +9,7 @@
 #include "scene/light.h"
 #include "model/model.h"
 #include "model/material.h"
+#include "renderer/renderer.h"
 
 class Scene {
 	private:
@@ -37,7 +38,7 @@ class Scene {
 		void generateIds();
 		void bindUniforms();
 		void initModelData();
-		void draw(GLuint shaderProgramId);
+		void draw(GLuint shaderProgramId, Renderer & renderer);
 		void setMaterials();
 		void moveCamera(glm::vec3 translation, glm::vec3 rotation);
 };

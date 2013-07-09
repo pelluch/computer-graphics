@@ -111,10 +111,10 @@ void Scene::initModelData()
 	}
 }
 
-void Scene::draw(GLuint shaderProgramId)
+void Scene::draw(GLuint shaderProgramId, Renderer & renderer)
 {
 	for(size_t i = 0; i < _models.size(); ++i)
 	{
-		_models[i].draw(shaderProgramId);
+		_models[i].draw(shaderProgramId, renderer);
 	}
 }

@@ -5,6 +5,7 @@
 #include <glm/glm.hpp>
 #include <vector>
 #include "model/material.h"
+#include "renderer/renderer.h"
 
 class Model
 {
@@ -12,7 +13,7 @@ class Model
 		Model();
 		~Model();
 		void initData();
-		void draw(GLuint shaderProgramId);
+		void draw(GLuint shaderProgramId, Renderer & renderer);
 		void generateUniforms(GLuint shaderProgramId);
 		glm::vec3 _worldPosition;
 		glm::vec3 _worldRotation;

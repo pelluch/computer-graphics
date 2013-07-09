@@ -5,6 +5,7 @@
 #include <iostream>
 #include "utils/debugutils.h"
 #include "utils/vboindexer.h"
+#include "renderer/renderer.h"
 
 Model::Model()
 {
@@ -47,7 +48,7 @@ void Model::generateUniforms(GLuint shaderProgramId)
 	this->_transposedInvModelId = glGetUniformLocation(shaderProgramId, "invModelMatrix");
 }
 
-void Model::draw(GLuint shaderProgramId)
+void Model::draw(GLuint shaderProgramId, Renderer & renderer)
 {
 	
 	_mat.generateUniformIds(shaderProgramId);
@@ -81,15 +82,17 @@ void Model::draw(GLuint shaderProgramId)
 	glm::rotate(glm::mat4(1.0f), _worldRotation[1], glm::vec3(0.0f, 1.0f, 0.0f)) *
 	glm::rotate(glm::mat4(1.0f), _worldRotation[2], glm::vec3(0.0f, 0.0f, 1.0f)) *	
 	glm::scale(glm::mat4(1.0f), _scale);
-	glm::mat4 invModelMatrix = glm::transpose(glm::inverse(modelMatrix));
+
+	//glm::mat4 invModelMatrix = glm::transpose(glm::inverse(modelMatrix));
 
 	//Debugger::printInfo(modelMatrix);
 	glUniform3fv(_mat._diffuseColorId, 1, &_mat._diffuseColor[0]);
 	glUniform4fv(_mat._specularColorId, 1, &_mat._specularColor[0]);
-	
+	renderer.setModelMatrix(modelMatrix);
+	renderer.setUniforms();
 	//Debugger::printInfo(_mat._specularColor);
-	glUniformMatrix4fv(_modelMatrixId, 1, GL_FALSE, &modelMatrix[0][0]);
-	glUniformMatrix4fv(_transposedInvModelId, 1, GL_FALSE, &invModelMatrix[0][0]);
+	//glUniformMatrix4fv(_modelMatrixId, 1, GL_FALSE, &modelMatrix[0][0]);
+	//glUniformMatrix4fv(_transposedInvModelId, 1, GL_FALSE, &invModelMatrix[0][0]);
 
 	// Index buffer
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _bufferIds[5]);

@@ -21,6 +21,7 @@ void Material::generateUniformIds(GLuint shaderProgramId)
 		this->_diffuseColorId = glGetUniformLocation(shaderProgramId, "materialDiffuse");
 		this->_specularColorId = glGetUniformLocation(shaderProgramId, "materialSpecular");
 		this->_hasTextureId = glGetUniformLocation(shaderProgramId, "hasTexture");
+		this->_hasNormalTextureId = glGetUniformLocation(shaderProgramId, "hasNormalTexture");
 
 		if(_texturePath != "")
 		{
@@ -47,8 +48,12 @@ void Material::setActiveTexture()
 	{
 		_texture->bindUniform();
 	}
-
+	if(_hasNormalTexture)
+	{
+		_normalTexture->bindUniform();
+	}
 	glUniform1i(_hasTextureId, _hasTexture);
+	glUniform1i(_hasNormalTextureId, _hasNormalTexture);
 }
 
 Material::~Material()

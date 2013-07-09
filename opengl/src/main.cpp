@@ -21,7 +21,9 @@ using namespace std;
 Scene * scene;
 
 static GLuint shaderProgramId;
-static GLuint matrixId;
+static GLuint viewMatrixId;
+static GLuint viewPerspectiveMatrixId;
+static Renderer renderer;
 static Shader shader;
 
 
@@ -92,7 +94,9 @@ static void setRenderingParameters()
 static void loadShaders()
 {
 	shaderProgramId = shader.LoadShaders("shaders/per_pixel/shader.vert", "shaders/per_pixel/shader.frag");
-	matrixId = glGetUniformLocation(shaderProgramId, "viewProjectionMatrix");
+	renderer.init(shaderProgramId);
+	viewPerspectiveMatrixId = glGetUniformLocation(shaderProgramId, "VP");
+	viewMatrixId = glGetUniformLocation(shaderProgramId, "V");
 }
 
 
@@ -150,11 +154,13 @@ static void draw()
 	float aspectRatio = RenderingParams::getAspectRatio();
 	glm::mat4 perspectiveTransform = scene->projectionTransform(aspectRatio);
 	glm::mat4 viewTransform = scene->viewTransform();
-	glm::mat4 viewProjectionMatrix = perspectiveTransform*viewTransform;
+	renderer.setViewMatrix(viewTransform);
+	renderer.setPerspectiveMatrix(perspectiveTransform);
+	//glm::mat4 viewProjectionMatrix = perspectiveTransform*viewTransform;
 
-	glUniformMatrix4fv(matrixId, 1, GL_FALSE, &viewProjectionMatrix[0][0]);
+	//glUniformMatrix4fv(matrixId, 1, GL_FALSE, &viewProjectionMatrix[0][0]);
 	scene->bindUniforms();
-	scene->draw(shaderProgramId);
+	scene->draw(shaderProgramId, renderer);
 	
 }
 

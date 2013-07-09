@@ -4,10 +4,13 @@
 layout(location = 0) in vec3 vertexPosition;
 layout(location = 1) in vec2 textureUV;
 layout(location = 2) in vec3 vertexNormal;
+layout(location = 3) in vec3 vertexTangent;
+layout(location = 4) in vec3 vertexBitangent;
 
-uniform mat4 viewProjectionMatrix;
-uniform mat4 modelMatrix;
-uniform mat4 invModelMatrix;
+uniform mat4 M;
+uniform mat4 V;
+uniform mat4 MV3x3;
+uniform mat4 MVP;
 uniform int numLights;
 uniform vec3 lights[10];
 uniform vec3 eyePosition;
@@ -19,10 +22,10 @@ out vec2 fragmentUV;
 
 void main(){
 
-	gl_Position = viewProjectionMatrix * modelMatrix * vec4(vertexPosition, 1);
-	fragmentWorldPosition = (modelMatrix * vec4(vertexPosition, 1)).xyz;
-	vec3 transformedNormal = (invModelMatrix * vec4(vertexNormal, 0)).xyz;
-	fragmentNormal = normalize(transformedNormal);
+	gl_Position = MVP * vec4(vertexPosition, 1);
+	fragmentWorldPosition = (M * vec4(vertexPosition, 1)).xyz;
+	vec3 transformedNormal = normalize((M * vec4(vertexNormal, 0)).xyz);
+	fragmentNormal = transformedNormal;
 	fragmentUV = textureUV;
 }
 
