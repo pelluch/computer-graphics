@@ -13,6 +13,7 @@ include_directories(${GLEW_INCLUDE_DIR} ${GLFW3_INCLUDE_DIR})
 include_directories(src)
 include_directories(/home/pablo/src/utils/include)
 include_directories(${CMAKE_SOURCE_DIR}/external/gli-0.4.1.0)
+include_directories(/usr/include/bullet)
 #include_directories(${CMAKE_SOURCE_DIR}/external/glsdk_0.5.0/glimg/include)
 #include_directories(${CMAKE_SOURCE_DIR}/external/glsdk_0.5.0/glload/include)
 
@@ -26,5 +27,6 @@ link_directories(/home/pablo/src/utils/lib)
 #link_directories(${CMAKE_SOURCE_DIR}/external/glsdk_0.5.0/glutil/lib)
 
 add_executable(main src/main.cpp ${ICLS} ${SRCS})
-target_link_libraries(main /usr/lib/nvidia/libGL.so -lutils_cmdline -lutils_filesystem -ltinyxml2 ${Boost_LIBRARIES} ${GLEW_LIBRARY} ${GLFW3_LIBRARY})
+target_link_libraries(main /usr/lib/nvidia/libGL.so -lutils_cmdline -lutils_filesystem -ltinyxml2 ${Boost_LIBRARIES} ${GLEW_LIBRARY} ${GLFW3_LIBRARY}
+	-lBulletDynamics -lBulletCollision -lLinearMath -lBulletSoftBody )
 #add_subdirectory(tests)
