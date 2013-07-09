@@ -1,6 +1,7 @@
 #ifndef PARAMS_H
 #define PARAMS_H
 
+#include <GL/glew.h>
 #include <string>
 #include <vector>
 
@@ -19,6 +20,7 @@ class RenderingParams
 		static bool antiAlias;
 		static int verticalInterval;
 		static bool paused;
+		static GLuint shaderProgramId;
 		static void setWindowSize(int width, int height);	
 		static float getAspectRatio();	
 };

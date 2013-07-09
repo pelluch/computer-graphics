@@ -20,6 +20,7 @@ class Model
 		glm::vec3 _worldRotation;
 		glm::vec3 _scale;
 		Material _mat;
+		std::string _modelName;
 		std::string _materialName;
 		//Maybe all of this is unnecessary?
 		std::vector<glm::vec3> _vertices;

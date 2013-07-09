@@ -143,6 +143,7 @@ Model XmlLoader::loadTriangle(const tinyxml2::XMLElement * triangleElement)
 {
 	Model model;
 	model._scale = glm::vec3(1, 1, 1);
+	model._modelName = triangleElement->Attribute("name");
 	for(const XMLElement * vertexElement = triangleElement->FirstChildElement("vertex");
 			vertexElement; vertexElement = vertexElement->NextSiblingElement())
 	{
@@ -177,6 +178,7 @@ std::vector<Model> XmlLoader::loadModels(const tinyxml2::XMLElement * objectList
 			std::string matName = objectElement->Attribute("material");
 
 			Model model = loadModel(modelPath);
+			model._modelName = objectElement->Attribute("name");
 			model._worldPosition = position;
 			model._scale = scale;
 			model._worldRotation = rotation;

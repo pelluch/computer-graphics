@@ -15,120 +15,9 @@
 #include "utils/xmlloader.h"
 #include "utils/debugutils.h"
 #include "utils/settings.h"
+#include "game/gameengine.h"
 
 using namespace std;
-
-Scene * scene;
-
-static GLuint shaderProgramId;
-static GLuint viewMatrixId;
-static GLuint viewPerspectiveMatrixId;
-static Renderer renderer;
-
-static void initBuffers()
-{
-	/*Model model;
-	//std::vector<glm::vec3> vertices 
-	model._vertex.push_back(glm::vec3(-1, -1, 1));
-	model._vertex.push_back(glm::vec3(1, -1, 0));
-	model._vertex.push_back(glm::vec3(0, 1, 0));
-
-	model._diffuseColors.push_back(glm::vec3(1, 0, 0));
-	model._diffuseColors.push_back(glm::vec3(1, 0, 0));
-	model._diffuseColors.push_back(glm::vec3(1, 0, 0));
-
-	model._normals.push_back(glm::vec3(0, 0, -1));
-	model._normals.push_back(glm::vec3(0, 0, -1));
-	model._normals.push_back(glm::vec3(0, 0, -1));
-
-	model._worldPosition = glm::vec3(0, 0, 0);
-	model._worldRotation = glm::vec3(0, 0, 0);
-	model._scale = glm::vec3(1, 1, 1);
-
-	
-	model.initData();
-	models.push_back(model);
-
-	model = Model();
-	model._vertex.push_back(glm::vec3(-1, -1, 1));
-	model._vertex.push_back(glm::vec3(1, -1, 0));
-	model._vertex.push_back(glm::vec3(0, 1, 0));
-
-	model._diffuseColors.push_back(glm::vec3(1, 0, 0));
-	model._diffuseColors.push_back(glm::vec3(0, 1, 0));
-	model._diffuseColors.push_back(glm::vec3(0, 0, 1));
-
-	model._normals.push_back(glm::vec3(0, 0, 1));
-	model._normals.push_back(glm::vec3(0, 0, 1));
-	model._normals.push_back(glm::vec3(0, 0, 1));
-
-	model._worldPosition = glm::vec3(-1, 0, 0);
-	model._worldRotation = glm::vec3(45, 60, 0);
-	model._scale = glm::vec3(0.8, 0.8, 0.8);
-
-	model.initData();
-	models.push_back(model);
-	*/
-	scene->initModelData();
-	//Create the buffer to be used in the GPU
-	//glGenBuffers(1, &vertexBufferId);
-
-	//Bind the buffer
-	//glBindBuffer(GL_ARRAY_BUFFER, vertexBufferId);
-
-	//Assign the data
-	//glBufferData(GL_ARRAY_BUFFER, sizeof(vertexBuffer), vertexBuffer, GL_STATIC_DRAW);
-}
-
-static void setRenderingParameters()
-{
-	// Enable depth test
-	glEnable(GL_DEPTH_TEST);
-	glEnable(GL_MULTISAMPLE);
-	// Accept fragment if it closer to the camera than the former one
-
-}
-
-static void loadShaders()
-{
-	Shader shader;
-	shaderProgramId = shader.LoadShaders("shaders/per_pixel/shader.vert", "shaders/per_pixel/shader.frag");
-	renderer.init(shaderProgramId);
-	viewPerspectiveMatrixId = glGetUniformLocation(shaderProgramId, "VP");
-	viewMatrixId = glGetUniformLocation(shaderProgramId, "V");
-}
-
-
-static void loadScene()
-{
-	Camera cam(45, 0.035, 1500, glm::vec3(0,0,-4), glm::vec3(0,0,0), glm::vec3(0,1,0));
-	scene = new Scene(cam);
-	Light l1(glm::vec3(1, -1, -0.2), glm::vec3(1,1,1));
-	Light l2(glm::vec3(0, 0, -0.2), glm::vec3(1,1,1));
-	scene->addLight(l1);
-	//scene->addLight(l2);
-	scene->setShaderId(shaderProgramId);
-	scene->generateIds();
-}
-
-static void init()
-{
-
-	//loadScene();
-	std::cout << "Loading scene->.." << std::endl;
-	scene = XmlLoader::loadScene("scenes/cornellBoxTarea2c.xml");
-	Control::setScene(scene);
-	initBuffers();
-	setRenderingParameters();
-	loadShaders();
-	
-	std::cout << "Scene loaded, setting shader id" << std::endl;
-	scene->setShaderId(shaderProgramId);
-	std::cout << "Generating scene ids" << std::endl;
-	scene->generateIds();
-	scene->setMaterials();
-
-}
 
 static void printVector(glm::vec4 vector)
 {
@@ -136,31 +25,6 @@ static void printVector(glm::vec4 vector)
 	{
 		std::cout << vector[i] << std::endl;
 	}
-}
-
-static void draw()
-{
-	// Dark blue background
-	glClearColor(0.0f, 0.0f, 0.3f, 0.0f);
-
-	// Clear the screen
-	glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
-
-	//Use the shader
-	glUseProgram(shaderProgramId);
-
-	
-	float aspectRatio = RenderingParams::getAspectRatio();
-	glm::mat4 perspectiveTransform = scene->projectionTransform(aspectRatio);
-	glm::mat4 viewTransform = scene->viewTransform();
-	renderer.setViewMatrix(viewTransform);
-	renderer.setPerspectiveMatrix(perspectiveTransform);
-	//glm::mat4 viewProjectionMatrix = perspectiveTransform*viewTransform;
-
-	//glUniformMatrix4fv(matrixId, 1, GL_FALSE, &viewProjectionMatrix[0][0]);
-	scene->bindUniforms();
-	scene->draw(shaderProgramId, renderer);
-	
 }
 
 
@@ -275,8 +139,10 @@ int main(int argc, char ** argv)
 	glfwSetScrollCallback(window, Control::mouseScrollCallback);
 	glfwSetCursorPos(window, width/2, height/2);
 	glfwSetMouseButtonCallback(window, Control::mouseClickCallback);
+	GameEngine * gameEngine = new GameEngine();
+	Control::setGameEngine(gameEngine);
+	
 	std::cout << "Initializing" << std::endl;
-	init();
 
 	// For speed computation
 	double lastTime = glfwGetTime();
@@ -298,7 +164,7 @@ int main(int argc, char ** argv)
 			}
 
 			/* Render here */
-			draw();
+			gameEngine->draw();
 
 	        /* Swap front and back buffers */
 	        glfwSwapBuffers(window);
@@ -311,6 +177,5 @@ int main(int argc, char ** argv)
 
 	glfwTerminate();
 
-	delete scene;
 	return 0;
 }

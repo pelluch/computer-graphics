@@ -16,7 +16,10 @@ private:
 	glm::mat4 _perspectiveMatrix;
 	glm::mat4 _modelMatrix;
 public:
-	void init(GLuint shaderProgramId);
+	void beginDraw();
+	void init();
+	void setRenderingParams();
+	GLuint getProgramId();
 	void setViewMatrix(glm::mat4 viewMatrix);
 	void setPerspectiveMatrix(glm::mat4 projectionMatrix);
 	void setModelMatrix(glm::mat4 modelMatrix);

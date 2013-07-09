@@ -4,7 +4,7 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 #include "scene/scene.h"
-
+#include "animation/spline.h"
 #include "game/gameengine.h"
 //#include "game/physics/physicsengine.h"
 
@@ -26,6 +26,7 @@ public:
 	static void mousePosCallback(GLFWwindow * window, double x, double y);
 	static void mouseScrollCallback(GLFWwindow * window, double x, double y);
 	static void mouseClickCallback(GLFWwindow * window, int button, int action, int mods);
+	static Spline spline;
 
 };
 

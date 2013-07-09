@@ -9,6 +9,7 @@ int RenderingParams::verticalInterval = 1;
 bool RenderingParams::paused = false;
 int RenderingParams::_width;
 int RenderingParams::_height;
+GLuint RenderingParams::shaderProgramId;
 
 float RenderingParams::getAspectRatio()
 {

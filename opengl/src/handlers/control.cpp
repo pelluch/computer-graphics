@@ -6,6 +6,8 @@
 #include <scene/scene.h>
 #include <scene/camera.h>
 #include "utils/settings.h"
+#include "animation/spline.h"
+
 
 Scene * Control::_scene;
 float Control::_zoomAcceleration = 10.0f;
@@ -13,6 +15,7 @@ float Control::_mouseAcceleration = 0.1f;
 glm::vec2 Control::_lastPosition = glm::vec2(0, 0);
 bool Control::_hasPosition = false;
 GameEngine * Control::_gameEngine = NULL;
+Spline Control::spline;
 
 void Control::windowResized(GLFWwindow* window, int width, int height)
 {	
@@ -36,9 +39,9 @@ void Control::keyCallBack(GLFWwindow* window, int key, int scancode, int action,
 	else if(key == GLFW_KEY_D)
 		translation -= glm::vec3(-10, 0, 0);
 	else if(key == GLFW_KEY_W)
-		translation += glm::vec3(0, 0, -10);
+		translation += glm::vec3(0, 10, -0);
 	else if(key == GLFW_KEY_S)
-		translation -= glm::vec3(0, 0, -10);
+		translation -= glm::vec3(0, 10, -0);
 	else if(key == GLFW_KEY_J)
 		rotation += glm::vec3(0, 1, 0);
 	else if(key == GLFW_KEY_L)
@@ -47,6 +50,8 @@ void Control::keyCallBack(GLFWwindow* window, int key, int scancode, int action,
 		rotation -= glm::vec3(1, 0, 0);
 	else if(key == GLFW_KEY_K)
 		rotation += glm::vec3(1, 0, 0);
+	else if(key == GLFW_KEY_N)
+		_scene->_cameras[0].setAll(spline.evaluate(0.2f), glm::vec3(370,120,370));
 	else if(key == GLFW_KEY_P && action == GLFW_PRESS)
 		RenderingParams::paused = !RenderingParams::paused;
 
@@ -56,6 +61,9 @@ void Control::keyCallBack(GLFWwindow* window, int key, int scancode, int action,
 void Control::setScene(Scene *scene)
 {
 	_scene = scene;
+	spline.generateSpline(glm::vec3(370, 120, 370), 500);
+	_scene->_cameras[0].setAll(spline.evaluate(0.2f), glm::vec3(370,120,370));
+
 }
 
 void Control::setGameEngine(GameEngine *engine)
@@ -76,6 +84,7 @@ void Control::mousePosCallback(GLFWwindow * window, double x, double y)
 		glm::vec2 deltaPos = glm::vec2(x, y) - _lastPosition;
 		glm::vec3 rotation = glm::vec3(-deltaPos[1], deltaPos[0], 0)*_mouseAcceleration;
 		_scene->moveCamera(glm::vec3(0, 0, 0), rotation);
+		_gameEngine->updateRenderer();
 	}
 	else
 	{
@@ -96,6 +105,7 @@ void Control::mouseClickCallback(GLFWwindow * window, int button, int action, in
 	{
 		double mouseX, mouseY;
 		glfwGetCursorPos(window, &mouseX, &mouseY);
+		std::cout << "Clicking " << mouseX << " " << mouseY << std::endl;
 		_gameEngine->pickUp((int)mouseX, (int)mouseY);
 	}
 }

@@ -17,6 +17,8 @@ public:
 	void generateId(GLuint shaderProgramId);
 	void assignUniformData();
 	void printInfo();
+	glm::vec3 getPosition();
+	void setAll(glm::vec3 position, glm::vec3 target);
 private:
 	float _fov;	//Must be in degrees
 	float _near;

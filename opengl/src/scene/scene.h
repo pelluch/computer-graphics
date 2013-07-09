@@ -15,7 +15,7 @@ class Scene {
 	private:
 		
 		std::vector<Light> _lights;
-		std::vector<Model> _models;
+		
 		std::map<std::string, Material> _materials;
 		glm::vec3 _ambientLight;
 		glm::vec3 _backgroundColor;
@@ -25,6 +25,7 @@ class Scene {
 		GLuint _ambientLightId;
 		int currentCam;
 	public:
+		std::vector<Model> _models;
 		std::vector<Camera> _cameras;
 		Scene();
 		Scene(float fov, float near, float far, glm::vec3 eye, glm::vec3 target, glm::vec3 up);

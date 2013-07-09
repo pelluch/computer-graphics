@@ -1,6 +1,11 @@
 #include "scene/camera.h"
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/quaternion.hpp>
+#include <glm/gtx/quaternion.hpp>
+#include <glm/gtx/euler_angles.hpp>
+#include <glm/gtx/norm.hpp>
+
 #include <iostream>
 #include "utils/debugutils.h"
 
@@ -23,6 +28,11 @@ Camera::Camera(float fov, float near, float far,
 	_eye = eye;
 	_target = target;
 	_up = up;
+}
+
+glm::vec3 Camera::getPosition()
+{
+	return _eye;
 }
 void Camera::printInfo()
 {
@@ -51,6 +61,11 @@ glm::mat4 Camera::viewTransform()
 	return transformMatrix;
 }
 
+void Camera::setAll(glm::vec3 position, glm::vec3 target)
+{
+	_eye = position;
+	_target = target;
+}
 void Camera::assignUniformData()
 {
 	glUniform3fv(_id, 1, &_eye[0]);
@@ -58,6 +73,9 @@ void Camera::assignUniformData()
 
 void Camera::moveCamera(glm::vec3 translation, glm::vec3 rotation)
 {
+
+	glm::vec3 focusDirection = glm::normalize(_target - _eye);
+	glm::vec3 right = glm::cross(_up, focusDirection);
 	glm::mat4 inverseView = glm::inverse(viewTransform());
 	glm::vec4 worldTranslation4 = inverseView*glm::vec4(translation[0], translation[1], translation[2], 1.0f);
 	glm::vec3 worldTranslation = glm::vec3(worldTranslation4[0], worldTranslation4[1], worldTranslation4[2]);
