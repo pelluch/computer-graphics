@@ -7,11 +7,14 @@
 #include "utils/vboindexer.h"
 #include "renderer/renderer.h"
 
+
 Model::Model()
 {
+
 	_numBuffers = 6;
 	_bufferIds.resize(_numBuffers);
 }
+
 
 void Model::initData()
 {

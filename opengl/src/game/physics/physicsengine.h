@@ -1,13 +1,16 @@
-#ifndef ENGINE_H_
-#define ENGINE_H_
+#ifndef PHYSICS_ENGINE_H_
+#define PHYSICS_ENGINE_H_
 
 #include <bullet/btBulletDynamicsCommon.h>
+#include <glm/glm.hpp>
 
-class Engine
+class PhysicsEngine
 {
 
 public:
-	Engine();
+	PhysicsEngine();
+	btCollisionWorld::ClosestRayResultCallback shootRay(glm::vec3 worldPosition, glm::vec3 worldDirection);
+	void addRigidBody(btRigidBody * body);
 private:
 	btBroadphaseInterface * _broadphase;
 	btDefaultCollisionConfiguration* _collisionConfiguration;

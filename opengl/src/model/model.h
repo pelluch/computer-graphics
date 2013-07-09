@@ -4,6 +4,7 @@
 #include <GL/glew.h>
 #include <glm/glm.hpp>
 #include <vector>
+#include "model/model.h"
 #include "model/material.h"
 #include "renderer/renderer.h"
 
@@ -25,7 +26,7 @@ class Model
 		std::vector<glm::vec3> _normals;
 		std::vector<glm::vec2> _uvs;
 		std::vector<glm::vec3> _tangents;
-		std::vector<glm::vec3> _bitangents;
+		std::vector<glm::vec3> _bitangents;		
 		//std::vector<glm::vec3> _specularColors;
 		//std::vector<float> _shininess;
 	private:
@@ -40,6 +41,7 @@ class Model
 		std::vector<glm::vec3> _indexedTangents;
 		std::vector<glm::vec3> _indexedBitangents;
 		std::vector<unsigned short> _indices;
+
 };
 
 #endif

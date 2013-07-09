@@ -21,6 +21,8 @@ public:
 	void setPerspectiveMatrix(glm::mat4 projectionMatrix);
 	void setModelMatrix(glm::mat4 modelMatrix);
 	void setUniforms();
+	void screenToWorld(int mouseX, int mouseY,
+		glm::vec3 & outOrigin, glm::vec3 & outDirection);
 };
 
 #endif

@@ -16,7 +16,7 @@ void Texture::initTexture(GLuint shaderProgramId)
 		this->_textureUniformId = glGetUniformLocation(shaderProgramId, "normalTextureSampler");
 
 	assert(!Texture.empty());
-
+	
 	glGenTextures(1, &_textureId);
 	glBindTexture(GL_TEXTURE_2D, _textureId);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL, 0);

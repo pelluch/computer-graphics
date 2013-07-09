@@ -24,8 +24,6 @@ static GLuint shaderProgramId;
 static GLuint viewMatrixId;
 static GLuint viewPerspectiveMatrixId;
 static Renderer renderer;
-static Shader shader;
-
 
 static void initBuffers()
 {
@@ -93,6 +91,7 @@ static void setRenderingParameters()
 
 static void loadShaders()
 {
+	Shader shader;
 	shaderProgramId = shader.LoadShaders("shaders/per_pixel/shader.vert", "shaders/per_pixel/shader.frag");
 	renderer.init(shaderProgramId);
 	viewPerspectiveMatrixId = glGetUniformLocation(shaderProgramId, "VP");
@@ -275,6 +274,7 @@ int main(int argc, char ** argv)
 	glfwSetCursorPosCallback(window, Control::mousePosCallback);
 	glfwSetScrollCallback(window, Control::mouseScrollCallback);
 	glfwSetCursorPos(window, width/2, height/2);
+	glfwSetMouseButtonCallback(window, Control::mouseClickCallback);
 	std::cout << "Initializing" << std::endl;
 	init();
 

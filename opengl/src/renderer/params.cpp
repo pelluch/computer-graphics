@@ -22,3 +22,13 @@ void RenderingParams::setWindowSize(int width, int height)
 	_width = width;
 	_height = height;
 }
+
+int RenderingParams::getHeight()
+{
+	return _height;
+}
+
+int RenderingParams::getWidth()
+{
+	return _width;
+}

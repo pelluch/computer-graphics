@@ -11,6 +11,8 @@ class RenderingParams
 		static int _width;
 		static int _height;
 	public:
+		static int getWidth();
+		static int getHeight();
 		static std::string vertexShaderPath;
 		static std::string fragmentShaderPath;
 		static SHADER_MODE mode;

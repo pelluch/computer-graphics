@@ -12,6 +12,7 @@ float Control::_zoomAcceleration = 10.0f;
 float Control::_mouseAcceleration = 0.1f;
 glm::vec2 Control::_lastPosition = glm::vec2(0, 0);
 bool Control::_hasPosition = false;
+GameEngine * Control::_gameEngine = NULL;
 
 void Control::windowResized(GLFWwindow* window, int width, int height)
 {	
@@ -57,6 +58,11 @@ void Control::setScene(Scene *scene)
 	_scene = scene;
 }
 
+void Control::setGameEngine(GameEngine *engine)
+{
+	_gameEngine = engine;
+}
+
 void Control::mousePosCallback(GLFWwindow * window, double x, double y)
 {
 	if(!glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_1) == GLFW_PRESS) 
@@ -82,4 +88,14 @@ void Control::mouseScrollCallback(GLFWwindow * window, double x, double y)
 {
 	glm::vec3 translation = glm::vec3(0, 0, -y)*_zoomAcceleration;
 	_scene->moveCamera(translation, glm::vec3(0,0,0));
+}
+
+void Control::mouseClickCallback(GLFWwindow * window, int button, int action, int mods)
+{
+	if(button == GLFW_MOUSE_BUTTON_1 && action == GLFW_PRESS)
+	{
+		double mouseX, mouseY;
+		glfwGetCursorPos(window, &mouseX, &mouseY);
+		_gameEngine->pickUp((int)mouseX, (int)mouseY);
+	}
 }
