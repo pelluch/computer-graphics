@@ -163,6 +163,7 @@ int main(int argc, char ** argv)
 				lastTime += 1.0;
 			}
 
+			Control::step();
 			/* Render here */
 			gameEngine->draw();
 

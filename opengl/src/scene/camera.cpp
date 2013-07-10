@@ -28,6 +28,8 @@ Camera::Camera(float fov, float near, float far,
 	_eye = eye;
 	_target = target;
 	_up = up;
+	_w = glm::normalize(_target-_eye);
+	_u = glm::cross(glm::normalize(_up), _w);
 }
 
 glm::vec3 Camera::getPosition()
@@ -65,6 +67,8 @@ void Camera::setAll(glm::vec3 position, glm::vec3 target)
 {
 	_eye = position;
 	_target = target;
+	//_w = glm::normalize(_target - _eye);
+	//_up = glm::cross(_w, _u);
 }
 void Camera::assignUniformData()
 {

@@ -4,7 +4,13 @@
 
 Spline::Spline()
 {
+	_currentT = 0;
+	_currentIndex = 0;
 
+	_basis =  glm::mat4(0, 2, 0, 0,
+		-1, 0, 1, 0,
+		2, -5, 4, -1,
+		-1, 3, -3, 1);
 }
 
 void Spline::generateSpline(glm::vec3 center, float radius)
@@ -12,35 +18,42 @@ void Spline::generateSpline(glm::vec3 center, float radius)
 	radius = 1000.0f;
 	float angle = 0;
 	float deltaAngle = 2.0f*3.14159265359f/100.0f;
-	
- 	for(int i = 0; i < 100; ++i)
+	float goal = 2000.0f;
+ 	for(int i = 0; i < 200; ++i)
  	{
- 		glm::vec3 currentPoint = glm::vec3(center[0] + radius*cos(angle), center[1], center[2] + radius*sin(angle));
- 		Debugger::printInfo(currentPoint);
+ 		glm::vec3 currentPoint = glm::vec3(center[0] + radius*cos(angle), center[1] + (float)i*goal/200.0f , center[2] + radius*sin(angle));
+ 		//Debugger::printInfo(currentPoint);
+ 		splinePoints.push_back(currentPoint);
+ 		angle += deltaAngle;
+ 	}
+ 	for(int i = 199; i >= 0; --i)
+ 	{
+ 		glm::vec3 currentPoint = glm::vec3(center[0] + radius*cos(angle), center[1] + (float)i*goal/200.0f , center[2] + radius*sin(angle));
+ 		//Debugger::printInfo(currentPoint);
  		splinePoints.push_back(currentPoint);
  		angle += deltaAngle;
  	}
 
- 	currentT = 0;
- 	currentIndex = 0;
+
 }
 
 glm::vec3 Spline::evaluate(float deltaT)
 {
-	std::cout << deltaT << std::endl;
-	if(currentT > 1.0f)
+	//std::cout << deltaT << std::endl;
+	while(_currentT > 1.0f)
 	{
-		currentT = 0;
-		currentIndex = (currentIndex + 1)%splinePoints.size();
+		_currentT -= 1.0f;
+		_currentIndex = (_currentIndex + 1)%splinePoints.size();
 	}
-	glm::vec3 curvePoint = 0.5f * ((2.0f * splinePoints[currentIndex+1]) +
-	 	(-splinePoints[currentIndex] + splinePoints[currentIndex+2]) * currentT +
-	(2.0f*splinePoints[currentIndex] - 5.0f*splinePoints[currentIndex+1] + 4.0f*splinePoints[currentIndex+2] - 
-		splinePoints[currentIndex+3]) * currentT*currentT +
-	(-splinePoints[currentIndex] + 3.0f*splinePoints[currentIndex+1] - 3.0f*splinePoints[currentIndex+2] +
-	 splinePoints[currentIndex+3]) * currentT* currentT* currentT);
-	Debugger::printInfo(curvePoint);
-	currentT += deltaT;
+	int numPoints = splinePoints.size();
+	glm::vec3 curvePoint = 0.5f * ((2.0f * splinePoints[(_currentIndex+1) % numPoints]) +
+	 	(-splinePoints[_currentIndex % numPoints] + splinePoints[(_currentIndex+2) % numPoints]) * _currentT +
+	(2.0f*splinePoints[_currentIndex % numPoints] - 5.0f*splinePoints[(_currentIndex+1) % numPoints] + 4.0f*splinePoints[(_currentIndex+2) % numPoints] - 
+		splinePoints[(_currentIndex+3) % numPoints]) * _currentT*_currentT +
+	(-splinePoints[_currentIndex % numPoints] + 3.0f*splinePoints[(_currentIndex+1) % numPoints] - 3.0f*splinePoints[(_currentIndex+2) % numPoints] +
+	 splinePoints[(_currentIndex+3)% numPoints]) * _currentT* _currentT* _currentT);
+	//Debugger::printInfo(curvePoint);
+	_currentT += deltaT;
 	return curvePoint;
 
 	

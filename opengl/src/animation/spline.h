@@ -6,15 +6,14 @@
 
 class Spline {
 
+private:
+	glm::mat4 _basis;
+	std::vector<glm::vec3> _splinePoints;
+	float _currentT;
+	int _currentIndex;
 public:
 	Spline();
 	std::vector<glm::vec3> splinePoints;
-	const glm::mat4 basis = glm::mat4(0, 2, 0, 0,
-		-1, 0, 1, 0,
-		2, -5, 4, -1,
-		-1, 3, -3, 1);
-	float currentT;
-	int currentIndex = 0;
 	void generateSpline(glm::vec3 center, float radius);
 	glm::vec3 evaluate(float t);
 

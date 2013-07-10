@@ -23,6 +23,11 @@ void Control::windowResized(GLFWwindow* window, int width, int height)
 	RenderingParams::setWindowSize(width, height);
 }
 
+void Control::step()
+{
+	_scene->_cameras[0].setAll(Control::spline.evaluate(1.0f), glm::vec3(370,120,370));
+
+}
 void Control::keyCallBack(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
 
@@ -61,7 +66,7 @@ void Control::keyCallBack(GLFWwindow* window, int key, int scancode, int action,
 void Control::setScene(Scene *scene)
 {
 	_scene = scene;
-	spline.generateSpline(glm::vec3(370, 120, 370), 500);
+	spline.generateSpline(glm::vec3(370, 500, 370), 500);
 	_scene->_cameras[0].setAll(spline.evaluate(0.2f), glm::vec3(370,120,370));
 
 }

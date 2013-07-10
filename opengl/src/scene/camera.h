@@ -26,6 +26,9 @@ private:
 	glm::vec3 _eye;
 	glm::vec3 _target;
 	glm::vec3 _up;
+	glm::vec3 _w;
+	glm::vec3 _u;
+	glm::vec3 _v;
 	GLuint _id;
 };
 
