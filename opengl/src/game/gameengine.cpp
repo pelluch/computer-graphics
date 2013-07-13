@@ -20,6 +20,26 @@ void GameEngine::setObjects(std::vector<Model> & models)
 	}
 }
 
+void GameEngine::start()
+{
+
+}
+
+void GameEngine::update()
+{
+
+	double newTime = glfwGetTime();
+	double deltaTime = newTime - _lastUpdate;
+	if(deltaTime >= 1.0)
+	{
+		std::cout << "Updates per second: " << _numUpdates << std::endl;
+		_lastUpdate += 1.0;
+		_numUpdates = 0;
+	}
+	//std::cout << deltaTime << std::endl;	
+	_numUpdates++;
+}
+
 void GameEngine::draw()
 {
 	_renderer.beginDraw();	
@@ -52,6 +72,9 @@ GameEngine::GameEngine()
 	_scene->generateIds();
 	_scene->setMaterials();
 	setObjects(_scene->_models);
+
+	_numUpdates = 0;
+	_lastUpdate = glfwGetTime();
 }
 
 
@@ -69,7 +92,7 @@ void GameEngine::updateRenderer()
 {
 	glm::mat4 perspectiveTransform = _scene->projectionTransform(RenderingParams::getAspectRatio());
 	glm::mat4 viewTransform = _scene->viewTransform();
-
+	
 	_renderer.setViewMatrix(viewTransform);
 	_renderer.setPerspectiveMatrix(perspectiveTransform);
 }

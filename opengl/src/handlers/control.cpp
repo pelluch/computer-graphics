@@ -23,9 +23,9 @@ void Control::windowResized(GLFWwindow* window, int width, int height)
 	RenderingParams::setWindowSize(width, height);
 }
 
-void Control::step()
+void Control::step(float deltaT)
 {
-	_scene->_cameras[0].setAll(Control::spline.evaluate(1.0f), glm::vec3(370,120,370));
+	_scene->_cameras[0].setAll(Control::spline.evaluate(deltaT), glm::vec3(370,120,370));
 
 }
 void Control::keyCallBack(GLFWwindow* window, int key, int scancode, int action, int mods)

@@ -19,7 +19,7 @@ private:
 	static glm::vec2 _lastPosition;
 	static bool _hasPosition;
 public:
-	static void step();
+	static void step(float deltaT);
 	static void setGameEngine(GameEngine * engine);
 	static void windowResized(GLFWwindow* window, int width, int height);
 	static void keyCallBack(GLFWwindow* window, int key, int scancode, int action, int mods);

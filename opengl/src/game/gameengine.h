@@ -16,6 +16,8 @@ private:
 	Scene * _scene;
 	std::vector<GameObject * > _gameObjects;
 	PhysicsEngine * _physicsEngine;
+	double _lastUpdate;
+	int _numUpdates;
 public:
 	GameEngine();
 	~GameEngine();
@@ -23,6 +25,8 @@ public:
 	void setObjects(std::vector<Model> & models);
 	void pickUp(int mouseX, int mouseY);
 	void updateRenderer();
+	void start();
+	void update();
 };
 
 #endif
