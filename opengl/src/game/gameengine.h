@@ -7,15 +7,16 @@
 #include "scene/scene.h"
 #include "game/gameobject.h"
 #include <map>
+#include <boost/shared_ptr.hpp>
 
 class GameEngine
 {
 
 private:
 	Renderer _renderer;
-	Scene * _scene;
-	std::vector<GameObject * > _gameObjects;
-	PhysicsEngine * _physicsEngine;
+	boost::shared_ptr<Scene> _scene;
+	std::vector< boost::shared_ptr<GameObject> > _gameObjects;
+	boost::shared_ptr<PhysicsEngine> _physicsEngine;
 public:
 	GameEngine();
 	~GameEngine();

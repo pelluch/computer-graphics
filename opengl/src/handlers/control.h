@@ -3,6 +3,7 @@
 
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
+#include <boost/shared_ptr.hpp>
 #include "scene/scene.h"
 #include "animation/spline.h"
 #include "game/gameengine.h"
