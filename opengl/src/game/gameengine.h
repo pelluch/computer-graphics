@@ -17,13 +17,17 @@ private:
 	boost::shared_ptr<Scene> _scene;
 	std::vector< boost::shared_ptr<GameObject> > _gameObjects;
 	boost::shared_ptr<PhysicsEngine> _physicsEngine;
+	double _lastUpdate;
+	int _numUpdates;
+
 public:
 	GameEngine();
-	~GameEngine();
 	void draw();
 	void setObjects(std::vector<Model> & models);
 	void pickUp(int mouseX, int mouseY);
 	void updateRenderer();
+	void start();
+	void update();
 };
 
 #endif

@@ -9,12 +9,12 @@
 #include "animation/spline.h"
 
 
-Scene * Control::_scene;
+boost::shared_ptr<Scene> Control::_scene;
 float Control::_zoomAcceleration = 10.0f;
 float Control::_mouseAcceleration = 0.1f;
 glm::vec2 Control::_lastPosition = glm::vec2(0, 0);
 bool Control::_hasPosition = false;
-GameEngine * Control::_gameEngine = NULL;
+boost::shared_ptr<GameEngine> Control::_gameEngine;
 Spline Control::spline;
 
 void Control::windowResized(GLFWwindow* window, int width, int height)
@@ -23,9 +23,9 @@ void Control::windowResized(GLFWwindow* window, int width, int height)
 	RenderingParams::setWindowSize(width, height);
 }
 
-void Control::step()
+void Control::step(float deltaT)
 {
-	_scene->_cameras[0].setAll(Control::spline.evaluate(1.0f), glm::vec3(370,120,370));
+	_scene->_cameras[0].setAll(Control::spline.evaluate(deltaT), glm::vec3(370,120,370));
 
 }
 void Control::keyCallBack(GLFWwindow* window, int key, int scancode, int action, int mods)
@@ -63,7 +63,7 @@ void Control::keyCallBack(GLFWwindow* window, int key, int scancode, int action,
 	_scene->moveCamera(translation, rotation);	
 }
 
-void Control::setScene(Scene *scene)
+void Control::setScene(boost::shared_ptr<Scene> scene)
 {
 	_scene = scene;
 	spline.generateSpline(glm::vec3(370, 500, 370), 500);
@@ -71,7 +71,7 @@ void Control::setScene(Scene *scene)
 
 }
 
-void Control::setGameEngine(GameEngine *engine)
+void Control::setGameEngine(boost::shared_ptr<GameEngine> engine)
 {
 	_gameEngine = engine;
 }

@@ -19,14 +19,6 @@
 
 using namespace std;
 
-static void printVector(glm::vec4 vector)
-{
-	for(int i = 0; i < 4; ++i)
-	{
-		std::cout << vector[i] << std::endl;
-	}
-}
-
 
 
 void menu(std::string & sceneFile, std::string & vertexShader, std::string & fragmentShader)
@@ -131,7 +123,7 @@ int main(int argc, char ** argv)
 		std::cerr << glewGetErrorString(glewError) << std::endl;
 		return -1;
 	}
-
+	
 	glfwSetInputMode(window, GLFW_STICKY_KEYS, GLFW_KEY_ESCAPE);
 	glfwSetWindowSizeCallback(window, Control::windowResized);
 	glfwSetKeyCallback(window, Control::keyCallBack);
@@ -139,36 +131,46 @@ int main(int argc, char ** argv)
 	glfwSetScrollCallback(window, Control::mouseScrollCallback);
 	glfwSetCursorPos(window, width/2, height/2);
 	glfwSetMouseButtonCallback(window, Control::mouseClickCallback);
-	GameEngine * gameEngine = new GameEngine();
+	
+	boost::shared_ptr<GameEngine>  gameEngine(new GameEngine());
 	Control::setGameEngine(gameEngine);
 	
 	std::cout << "Initializing" << std::endl;
 
 	// For speed computation
-	double lastTime = glfwGetTime();
+	double lastFrameSwap = glfwGetTime();
+	double lastCounter = glfwGetTime();
+	double lastTime = lastCounter;
 	int nbFrames = 0;
-	glfwSwapInterval(1);
+	glfwSwapInterval(0);
 	do
 	{		
 		if(!RenderingParams::paused)
 		{
 				// Measure speed
 			double currentTime = glfwGetTime();
-			nbFrames++;
-			if ( currentTime - lastTime >= 1.0 ){ // If last prinf() was more than 1sec ago
+			
+			if ( currentTime - lastFrameSwap >= 1.0/60.0 ){ // If last prinf() was more than 1sec ago
 				// printf and reset
+				//std::cout << "whatwhat" << std::endl;
 				//printf("%f ms/frame\n", 1000.0/double(nbFrames));
+				nbFrames++;
+				lastFrameSwap = currentTime;;
+				gameEngine->draw();
+		        glfwSwapBuffers(window);
+			}
+			if(currentTime - lastCounter >= 1.0)
+			{				
 				printf("%d frame/s\n", nbFrames);
 				nbFrames = 0;
-				lastTime += 1.0;
+				lastCounter += 1.0;
+				/* Render here */
+				//gameEngine->draw();
+		        /* Swap front and back buffers */
 			}
-
-			Control::step();
-			/* Render here */
-			gameEngine->draw();
-
-	        /* Swap front and back buffers */
-	        glfwSwapBuffers(window);
+			Control::step(currentTime - lastTime);
+			lastTime = currentTime;
+			gameEngine->update();
     	}
 
         /* Poll for and process events */
