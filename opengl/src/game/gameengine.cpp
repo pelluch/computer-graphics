@@ -32,7 +32,7 @@ void GameEngine::update()
 	double deltaTime = newTime - _lastUpdate;
 	if(deltaTime >= 1.0)
 	{
-		std::cout << "Updates per second: " << _numUpdates << std::endl;
+		//std::cout << "Updates per second: " << _numUpdates << std::endl;
 		_lastUpdate += 1.0;
 		_numUpdates = 0;
 	}
@@ -54,6 +54,8 @@ void GameEngine::draw()
 	//glUniformMatrix4fv(matrixId, 1, GL_FALSE, &viewProjectionMatrix[0][0]);
 	_scene->bindUniforms();
 	_scene->draw(_renderer.getProgramId(), _renderer);
+	_scene->drawBoundingBoxes(_renderer.getLineProgramId(), _renderer);
+	glUseProgram(_renderer.getProgramId());
 }
 
 GameEngine::GameEngine()
@@ -89,11 +91,6 @@ void GameEngine::updateRenderer()
 void GameEngine::pickUp(int mouseX, int mouseY)
 {
 	
-	for(int i = 0; i < _gameObjects.size(); ++i)
-	{
-		std::cout <<  _gameObjects[i]->getIdentifier() << std::endl;
-	}
-	std::cout << "Game object getting " << mouseX << std::endl;
 	//std::cout << "Trying to pick object up" << std::endl;
 	
 	//std::cout << "Transforming screen coords to world" << std::endl;
@@ -101,30 +98,36 @@ void GameEngine::pickUp(int mouseX, int mouseY)
 	_renderer.screenToWorld(mouseX, mouseY, worldStart, worldDirection);
 
 	//worldStart = _scene->_cameras[0].getPosition();
-	std::cout << " world start: " << std::endl;
-	Debugger::printInfo(worldStart);
-	std::cout << " world end: " << std::endl;
+	//std::cout << " world start: " << std::endl;
+	//Debugger::printInfo(worldStart);
+	//std::cout << " world end: " << std::endl;
 	//worldStart = glm::vec3(0, 0, -400);
 	//worldDirection = glm::vec3(0,0,1);
-	worldDirection[1]*=-1;
+	//worldDirection[1]*=-1;
 	worldDirection = worldStart + worldDirection * 1000000.0f;
+	_scene->drawRay(worldStart, worldDirection);
+	//std::cout << "Ray ending in coordinates\t";
+	//Debugger::printInfo(worldDirection);
 	//worldDirection = _scene->_cameras[0].getPosition() + worldDirection * 1000.0f;
-	Debugger::printInfo(worldDirection);
+	//Debugger::printInfo(worldDirection);
 
 	//worldDirection *= 1000;
 	//std::cout << "Shooting ray" << std::endl;
 	btCollisionWorld::ClosestRayResultCallback result = _physicsEngine->shootRay(worldStart, worldDirection);
 	if(result.hasHit())
 	{
-		std::cout << "Hit object! " << std::endl;
+		//std::cout << "Hit object! " << std::endl;
 		btVector3 hitPoints = result.m_hitPointWorld;
 		glm::vec3 glmHit = glm::vec3(hitPoints[0], hitPoints[1], hitPoints[2]);
-		Debugger::printInfo(glmHit);
+		_scene->drawRay(worldStart, glmHit);
+		//Debugger::printInfo(glmHit);
 		GameObject * objectHit = (GameObject*)result.m_collisionObject->getUserPointer();
-		std::cout <<  objectHit->getName() << std::endl;
+		std::cout <<  "Hit object \t" << objectHit->getName() << "\tin coords\t";
+		Debugger::printInfo(glmHit);
+		//std::cout << std::endl;
 	}
 	else
 	{
-		std::cout << "Did not hit :(" << std::endl;
+		//std::cout << "Did not hit :(" << std::endl;
 	}
 }

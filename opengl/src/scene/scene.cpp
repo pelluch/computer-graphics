@@ -4,17 +4,19 @@
 #include <iostream>
 #include "utils/debugutils.h"
 
-Scene::Scene(float fov, float near, float far, glm::vec3 eye, glm::vec3 target, glm::vec3 up)
+
+Scene::Scene(Camera & cam, std::vector<Model> & models, std::map<std::string, Material> & materials, std::vector<Light> & lights, glm::vec3 backgroundColor, glm::vec3 ambientLight)
 {
 	currentCam = 0;
-	Camera cam(fov, near, far, eye, target, up);	
-	_cameras.push_back(cam);
-
-}
-
-Scene::Scene()
-{
-	currentCam = 0;
+	this->_cameras.push_back(cam);
+	this->_models = models;
+	this->_lights = lights;
+	this->_backgroundColor = backgroundColor;
+	this->_ambientLight = ambientLight;
+	this->_materials = materials;
+	_rayExists = false;
+	glGenBuffers(1, &_rayBufferId);
+	glGenBuffers(1, &_rayColorBufferId);
 }
 
 void Scene::generateIds()
@@ -24,6 +26,7 @@ void Scene::generateIds()
 	std::cout << "Current cam: " << currentCam << std::endl;
 	_cameras[currentCam].generateId(_shaderProgramId);
 	_ambientLightId = glGetUniformLocation(_shaderProgramId, "ambientLight");
+
 }
 
 void Scene::bindUniforms()
@@ -55,10 +58,28 @@ void Scene::setMaterials()
 	}
 }
 
-Scene::Scene(Camera & cam)
+void Scene::drawRay(glm::vec3 start, glm::vec3 end)
 {
-	currentCam = 0;
-	_cameras.push_back(cam);
+	_rayExists = true;
+	_ray.clear();
+	_ray.push_back(start);
+	_ray.push_back(end);
+
+	_ray.push_back(glm::vec3(-100, end[1], end[2]));
+	_ray.push_back(glm::vec3(100, end[1], end[2]));
+
+	glBindBuffer(GL_ARRAY_BUFFER, _rayBufferId);
+	glBufferData(GL_ARRAY_BUFFER, this->_ray.size()*sizeof(glm::vec3), _ray.data(), GL_STATIC_DRAW);
+
+	std::vector<glm::vec3> rayColors;
+	rayColors.push_back(glm::vec3(0,0,1));
+	rayColors.push_back(glm::vec3(1,0,0));
+
+	rayColors.push_back(glm::vec3(0,0,1));
+	rayColors.push_back(glm::vec3(1,0,0));
+
+	glBindBuffer(GL_ARRAY_BUFFER, _rayColorBufferId);
+	glBufferData(GL_ARRAY_BUFFER, rayColors.size()*sizeof(glm::vec3), rayColors.data(), GL_STATIC_DRAW);
 }
 
 void Scene::addLight(Light & light)
@@ -92,17 +113,6 @@ glm::mat4 Scene::viewTransform(int camIndex)
 	return viewMatrix;
 }
 
-Scene::Scene(Camera & cam, std::vector<Model> & models, std::map<std::string, Material> & materials, std::vector<Light> & lights, glm::vec3 backgroundColor, glm::vec3 ambientLight)
-{
-	currentCam = 0;
-	this->_cameras.push_back(cam);
-	this->_models = models;
-	this->_lights = lights;
-	this->_backgroundColor = backgroundColor;
-	this->_ambientLight = ambientLight;
-	this->_materials = materials;
-}
-
 void Scene::initModelData()
 {
 	for(size_t i = 0; i < _models.size(); ++i)
@@ -113,8 +123,46 @@ void Scene::initModelData()
 
 void Scene::draw(GLuint shaderProgramId, Renderer & renderer)
 {
+	glUseProgram(shaderProgramId);
 	for(size_t i = 0; i < _models.size(); ++i)
 	{
 		_models[i].draw(shaderProgramId, renderer);
+	}
+
+}
+
+void Scene::drawBoundingBoxes(GLuint shaderProgramId, Renderer & renderer)
+{
+
+	glUseProgram(shaderProgramId);
+
+	if(_rayExists)
+	{
+
+		//std::cout << "Drawing ray" << std::endl;
+		renderer.setModelMatrix(glm::mat4(1.0f));
+		renderer.setBoxUniforms();
+
+		glEnableVertexAttribArray(6);
+		glEnableVertexAttribArray(7);
+
+		glBindBuffer(GL_ARRAY_BUFFER, _rayBufferId);
+		glVertexAttribPointer(6, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
+		//glDrawArrays(GL_LINES, 0, _ray.size());
+
+	
+		glBindBuffer(GL_ARRAY_BUFFER, _rayColorBufferId);
+		glVertexAttribPointer(7, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
+
+		glDrawArrays(GL_LINES, 0, _ray.size());
+
+		glDisableVertexAttribArray(6);
+		glDisableVertexAttribArray(7);	
+	}
+	
+	for(size_t i = 0; i < _models.size(); ++i)
+	{
+
+		_models[i].drawBoundingBox(shaderProgramId, renderer);
 	}
 }

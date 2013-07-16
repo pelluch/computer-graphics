@@ -15,6 +15,7 @@ class Model
 		~Model();
 		void initData();
 		void draw(GLuint shaderProgramId, Renderer & renderer);
+		void drawBoundingBox(GLuint shaderProgramId, Renderer & renderer);
 		void generateUniforms(GLuint shaderProgramId);
 		glm::vec3 _worldPosition;
 		glm::vec3 _worldRotation;
@@ -41,7 +42,12 @@ class Model
 		std::vector<glm::vec3> _indexedNormals;
 		std::vector<glm::vec3> _indexedTangents;
 		std::vector<glm::vec3> _indexedBitangents;
+		std::vector<glm::vec3> _boxPoints;
+		std::vector<glm::vec3> _indexedBoxPoints;
+		std::vector<glm::vec3> _boxPointColors;
 		std::vector<unsigned short> _indices;
+		void addBoxPoints();
+		bool boxContains(glm::vec3 v1);
 
 };
 

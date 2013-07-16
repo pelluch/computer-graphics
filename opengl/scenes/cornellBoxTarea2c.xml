@@ -10,8 +10,8 @@
 
   <!-- Camera Description -->
   <camera fieldOfView="39.31" nearClip="0.035" farClip="3000.0">
-    <position x="278.0" y="273.0" z="-800.0"/>
-    <target x="278.0" y="273.0" z="-700.0"/>
+    <position x="0.0" y="0.0" z="-800.0"/>
+    <target x="0.0" y="0.0" z="-700.0"/>
     <up x="0.0" y="1.0" z="0.0"/>
   </camera>
 
@@ -95,18 +95,18 @@
   <!-- List of Scene Objects -->
   <object_list>
 
-    <model name="sphere_1" path="models/suzanne.obj" material="Ice">
+    <model name="monkey" path="models/suzanne.obj" material="Ice">
       <scale x="120" y="120" z="120" />
       <rotation x="0" y="0" z="0" />
-      <position x="370.0" y="120.0" z="370.0" />
-    </model>
-    
-    <model name="sphere_2" path="models/cube.obj" material="Yellow">
-      <scale x="100" y="100" z="100" />
-      <rotation x="0" y="0" z="0" />
-      <position x="130.0" y="100.0" z="130.0" />
+      <position x="100.0" y="0.0" z="0.0" />
     </model>
 
+    <model name="cube" path="models/cube.obj" material="Ice">
+      <scale x="60" y="60" z="60" />
+      <rotation x="0" y="0" z="0" />
+      <position x="-120.0" y="100.0" z="0.0" />
+    </model>
+    
 
   </object_list>
 

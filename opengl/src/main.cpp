@@ -65,10 +65,10 @@ int main(int argc, char ** argv)
 	cmdLine.add_option("height,h", utils::ARG_INT, "Window height", true);
 	cmdLine.add_option("pixel,p", "Use per pixel shading");
 	cmdLine.add_option("vertex,v", "Use per vertex shading");
+	cmdLine.add_option("fps,f", "Show fps");
 
 	//std::string sceneFile, vertexShader, fragmentShader;
 	//menu(sceneFile, vertexShader, fragmentShader);
-
 
 	int result = cmdLine.parse(argc, argv);
 	if(result != 0)
@@ -76,6 +76,7 @@ int main(int argc, char ** argv)
 
 	int width = cmdLine.get_value<int>("width");
 	int height = cmdLine.get_value<int>("height");
+	bool showFPS = cmdLine.exists_value("fps");
 	RenderingParams::setWindowSize(width, height);
 
 	if(cmdLine.exists_value("pixel"))
@@ -161,7 +162,8 @@ int main(int argc, char ** argv)
 			}
 			if(currentTime - lastCounter >= 1.0)
 			{				
-				printf("%d frame/s\n", nbFrames);
+				if(showFPS)
+					printf("%d frame/s\n", nbFrames);
 				nbFrames = 0;
 				lastCounter += 1.0;
 				/* Render here */

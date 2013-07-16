@@ -4,14 +4,18 @@
 #include "shader/shader.h"
 #include <iostream>
 
+
 void Renderer::init()
 {
 	Shader shader;
 	_shaderProgramId = shader.LoadShaders("shaders/per_pixel/shader.vert", "shaders/per_pixel/shader.frag");
+	_lineProgramId = shader.LoadShaders("shaders/per_pixel/line.vert", "shaders/per_pixel/line.frag");
 	this->_modelMatrixId = glGetUniformLocation(_shaderProgramId, "M");
 	this->_viewMatrixId = glGetUniformLocation(_shaderProgramId, "V");
 	this->_modelViewProjectionMatrixId = glGetUniformLocation(_shaderProgramId, "MVP");
 	this->_modelViewMatrix3x3Id = glGetUniformLocation(_shaderProgramId, "MV3x3");
+	this->_lineMVPId = glGetUniformLocation(_lineProgramId, "MVP");
+
 }
 
 void Renderer::setViewMatrix(glm::mat4 viewMatrix)
@@ -52,7 +56,7 @@ void Renderer::beginDraw()
 	glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 
 	//Use the shader
-	glUseProgram(_shaderProgramId);
+	//glUseProgram(_shaderProgramId);
 }
 
 void Renderer::setUniforms()
@@ -60,13 +64,27 @@ void Renderer::setUniforms()
 	glm::mat4 MV = _viewMatrix * _modelMatrix;
 	glm::mat3 MV3x3 = glm::mat3(MV);
 	glm::mat4 MVP = _perspectiveMatrix * MV;
-	
+	//glm::mat4 boxMVP = _perspectiveMatrix * MV;
+	glUseProgram(_shaderProgramId);
 	glUniformMatrix4fv(_viewMatrixId, 1, GL_FALSE, &_viewMatrix[0][0]);
 	glUniformMatrix4fv(_modelViewProjectionMatrixId, 1, GL_FALSE, &MVP[0][0]);
 	glUniformMatrix4fv(_modelMatrixId, 1, GL_FALSE, &_modelMatrix[0][0]);
 	glUniformMatrix4fv(_modelViewMatrix3x3Id, 1, GL_FALSE, &MV3x3[0][0]);
+	//glUseProgram(_lineProgramId);
+	//glUniformMatrix4fv(_lineMVPId, 1, GL_FALSE, &boxMVP[0][0]);
+	//glUseProgram(_shaderProgramId);
 }
 
+GLuint Renderer::getLineProgramId()
+{
+	return _lineProgramId;
+}
+void Renderer::setBoxUniforms()
+{
+	glm::mat4 MV = _viewMatrix * _modelMatrix;
+	glm::mat4 MVP = _perspectiveMatrix * MV;
+	glUniformMatrix4fv(_lineMVPId, 1, GL_FALSE, &MVP[0][0]);
+}
 
 void Renderer::screenToWorld(int mouseX, int mouseY,
 		glm::vec3 & outOrigin, glm::vec3 & outDirection)
@@ -76,17 +94,21 @@ void Renderer::screenToWorld(int mouseX, int mouseY,
 	// The ray Start and End positions, in Normalized Device Coordinates (Have you read Tutorial 4 ?)
 	glm::vec4 lRayStart_NDC(
 		((float)mouseX/(float)RenderingParams::getWidth()  - 0.5f) * 2.0f, // [0,1024] -> [-1,1]
-		((float)mouseY/(float)RenderingParams::getHeight() - 0.5f) * 2.0f, // [0, 768] -> [-1,1]
+		-((float)mouseY/(float)RenderingParams::getHeight() - 0.5f) * 2.0f, // [0, 768] -> [-1,1]
 		-1.0, // The near plane maps to Z=-1 in Normalized Device Coordinates
 		1.0f
 	);
+	//std::cout << "Ray start in normalized device coordinates:\t";
+	//Debugger::printInfo(lRayStart_NDC);
+
 	glm::vec4 lRayEnd_NDC(
 		((float)mouseX/(float)RenderingParams::getWidth()  - 0.5f) * 2.0f,
-		((float)mouseY/(float)RenderingParams::getHeight() - 0.5f) * 2.0f,
+		-((float)mouseY/(float)RenderingParams::getHeight() - 0.5f) * 2.0f,
 		0.0,
 		1.0f
 	);
-	
+	//std::cout << "Ray end in normalized device coordinates:\t";
+	//Debugger::printInfo(lRayEnd_NDC);
 
 	//std::cout << "Setting inverse projection matrix" << std::endl;
 	// The Projection matrix goes from Camera Space to NDC.
@@ -101,8 +123,26 @@ void Renderer::screenToWorld(int mouseX, int mouseY,
 	
 	glm::vec4 lRayStart_camera = inverseProjectionMatrix * lRayStart_NDC;    lRayStart_camera/=lRayStart_camera.w;
 	glm::vec4 lRayStart_world  = inverseViewMatrix       * lRayStart_camera; lRayStart_world /=lRayStart_world .w;
-	glm::vec4 lRayEnd_camera   = inverseProjectionMatrix * lRayEnd_NDC;      lRayEnd_camera  /=lRayEnd_camera  .w;
+
+	glm::vec4 lRayEnd_camera   = inverseProjectionMatrix * lRayEnd_NDC;      lRayEnd_camera  /=lRayEnd_camera  .w;	
 	glm::vec4 lRayEnd_world    = inverseViewMatrix       * lRayEnd_camera;   lRayEnd_world   /=lRayEnd_world   .w;
+
+
+/*
+
+	std::cout << "Ray start in camera coordinates:\t";
+	Debugger::printInfo(lRayStart_camera);
+		std::cout << "Ray end in camera coordinates:\t";
+	Debugger::printInfo(lRayEnd_camera);
+
+
+
+	std::cout << "Ray start in world coordinates:\t";
+	Debugger::printInfo(lRayStart_world);
+	std::cout << "Ray end in world coordinates:\t";
+	Debugger::printInfo(lRayEnd_world);
+
+*/
 
 
 	// Faster way (just one inverse)

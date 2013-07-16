@@ -30,6 +30,7 @@ btRigidBody * GameObject::initializeRigidBody()
 
 	_rigidBody = new btRigidBody(rigidBodyCI);
 	_rigidBody->setUserPointer((void*)this);
+
 	return _rigidBody;
 }
 

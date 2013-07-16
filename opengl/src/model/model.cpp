@@ -11,8 +11,35 @@
 Model::Model()
 {
 
-	_numBuffers = 6;
+	_numBuffers = 8;
 	_bufferIds.resize(_numBuffers);
+	std::cout << "adding box points" << std::endl;
+	for(int i = 0; i <= 2; i+=2)
+	{
+		for(int j = 0; j <= 2; j +=2)
+		{
+			for(int k = 0; k <=2; k+=2)
+			{
+				_boxPoints.push_back(glm::vec3(i,j,k));
+				_boxPoints.push_back(glm::vec3(i,(j+1)%3,k));
+
+				_boxPoints.push_back(glm::vec3(i,j,k));
+				_boxPoints.push_back(glm::vec3(i,j,(k+1)%3));
+
+				_boxPoints.push_back(glm::vec3(i,j,k));
+				_boxPoints.push_back(glm::vec3((i+1)%3,j,k));
+
+				//Debugger::printInfo(glm::vec3(i,j,k));
+			}
+		}
+	}
+
+	for(int i = 0; i < _boxPoints.size(); i++)
+	{
+		_boxPointColors.push_back(glm::vec3(1,0,0));
+		_boxPoints[i] = _boxPoints[i] - glm::vec3(1, 1, 1);
+	}
+
 }
 
 
@@ -43,6 +70,12 @@ void Model::initData()
 	//elementbuffer
 	glBindBuffer(GL_ARRAY_BUFFER, _bufferIds[5]);
 	glBufferData(GL_ARRAY_BUFFER, this->_indices.size()*sizeof(unsigned int short), _indices.data(), GL_STATIC_DRAW);
+	//linesbuffer
+	glBindBuffer(GL_ARRAY_BUFFER, _bufferIds[6]);
+	glBufferData(GL_ARRAY_BUFFER, this->_boxPoints.size()*sizeof(glm::vec3), _boxPoints.data(), GL_STATIC_DRAW);
+	//linesbuffer
+	glBindBuffer(GL_ARRAY_BUFFER, _bufferIds[7]);
+	glBufferData(GL_ARRAY_BUFFER, this->_boxPointColors.size()*sizeof(glm::vec3), _boxPointColors.data(), GL_STATIC_DRAW);
 }
 
 void Model::generateUniforms(GLuint shaderProgramId)
@@ -51,8 +84,48 @@ void Model::generateUniforms(GLuint shaderProgramId)
 	this->_transposedInvModelId = glGetUniformLocation(shaderProgramId, "invModelMatrix");
 }
 
+void Model::drawBoundingBox(GLuint shaderProgramId, Renderer & renderer)
+{
+	//glUseProgram(shaderProgramId);
+	//generateUniforms(shaderProgramId);
+	//std::cout << "Drawing bounding box" << std::endl;
+
+	glm::mat4 modelMatrix = glm::translate(glm::mat4(1.0f), this->_worldPosition) *
+	glm::rotate(glm::mat4(1.0f), _worldRotation[0], glm::vec3(1.0f, 0.0f, 0.0f)) *
+	glm::rotate(glm::mat4(1.0f), _worldRotation[1], glm::vec3(0.0f, 1.0f, 0.0f)) *
+	glm::rotate(glm::mat4(1.0f), _worldRotation[2], glm::vec3(0.0f, 0.0f, 1.0f)) *	
+	glm::scale(glm::mat4(1.0f), _scale);
+
+	//glm::mat4 invModelMatrix = glm::transpose(glm::inverse(modelMatrix));
+
+	//Debugger::printInfo(modelMatrix);
+	//glUniform3fv(_mat._diffuseColorId, 1, &_mat._diffuseColor[0]);
+	//glUniform4fv(_mat._specularColorId, 1, &_mat._specularColor[0]);
+	renderer.setModelMatrix(modelMatrix);
+	renderer.setBoxUniforms();
+
+
+	glEnableVertexAttribArray(6);
+	glEnableVertexAttribArray(7);
+
+	//std::cout << "dsadsadsa" << std::endl;
+	glBindBuffer(GL_ARRAY_BUFFER, _bufferIds[6]);
+	glVertexAttribPointer(6, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
+	//glDrawArrays(GL_LINES, 0, _boxPoints.size());
+
+
+	glBindBuffer(GL_ARRAY_BUFFER, _bufferIds[7]);
+	glVertexAttribPointer(7, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
+	glDrawArrays(GL_LINES, 0, _boxPoints.size());
+
+	glDisableVertexAttribArray(6);
+	glDisableVertexAttribArray(7);
+}
+
 void Model::draw(GLuint shaderProgramId, Renderer & renderer)
 {
+
+	//glUseProgram(shaderProgramId);
 	
 	_mat.generateUniformIds(shaderProgramId);
 	_mat.setActiveTexture();
@@ -109,7 +182,7 @@ void Model::draw(GLuint shaderProgramId, Renderer & renderer)
 	glDisableVertexAttribArray(2);
 	glDisableVertexAttribArray(3);
 	glDisableVertexAttribArray(4);
-	glDisableVertexAttribArray(5);
+
 }
 
 Model::~Model()
