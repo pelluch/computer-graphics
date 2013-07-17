@@ -105,7 +105,7 @@ void GameEngine::pickUp(int mouseX, int mouseY)
 	//worldDirection = glm::vec3(0,0,1);
 	//worldDirection[1]*=-1;
 	worldDirection = worldStart + worldDirection * 1000000.0f;
-	_scene->drawRay(worldStart, worldDirection);
+	//_scene->drawRay(worldStart, worldDirection);
 	//std::cout << "Ray ending in coordinates\t";
 	//Debugger::printInfo(worldDirection);
 	//worldDirection = _scene->_cameras[0].getPosition() + worldDirection * 1000.0f;
@@ -119,7 +119,7 @@ void GameEngine::pickUp(int mouseX, int mouseY)
 		//std::cout << "Hit object! " << std::endl;
 		btVector3 hitPoints = result.m_hitPointWorld;
 		glm::vec3 glmHit = glm::vec3(hitPoints[0], hitPoints[1], hitPoints[2]);
-		_scene->drawRay(worldStart, glmHit);
+		//_scene->drawRay(worldStart, glmHit);
 		//Debugger::printInfo(glmHit);
 		GameObject * objectHit = (GameObject*)result.m_collisionObject->getUserPointer();
 		std::cout <<  "Hit object \t" << objectHit->getName() << "\tin coords\t";

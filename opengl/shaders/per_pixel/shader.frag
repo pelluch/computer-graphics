@@ -32,6 +32,6 @@ void main()
 
 	// Output color = red 
 	//gl_FragColor = gl_Color;
-	color = diffuseColor + specularColor + ambientLight * texture2D(textureSampler, fragmentUV).rgb;
+	color = diffuseColor + specularColor + ambientLight * colorMultiplier;
 
 }

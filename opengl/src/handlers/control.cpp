@@ -25,7 +25,7 @@ void Control::windowResized(GLFWwindow* window, int width, int height)
 
 void Control::step(float deltaT)
 {
-	//_scene->_cameras[0].setAll(Control::spline.evaluate(deltaT), glm::vec3(370,120,370));
+	_scene->_cameras[0].setAll(Control::spline.evaluate(deltaT), glm::vec3(370,120,370));
 
 }
 void Control::keyCallBack(GLFWwindow* window, int key, int scancode, int action, int mods)
@@ -66,8 +66,8 @@ void Control::keyCallBack(GLFWwindow* window, int key, int scancode, int action,
 void Control::setScene(boost::shared_ptr<Scene> scene)
 {
 	_scene = scene;
-	//spline.generateSpline(glm::vec3(370, 500, 370), 500);
-	//_scene->_cameras[0].setAll(spline.evaluate(0.2f), glm::vec3(370,120,370));
+	spline.generateSpline(glm::vec3(370, 500, 370), 500);
+	_scene->_cameras[0].setAll(spline.evaluate(0.2f), glm::vec3(370,120,370));
 
 }
 
