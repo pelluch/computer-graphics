@@ -77,9 +77,6 @@ void Camera::assignUniformData()
 
 void Camera::moveCamera(glm::vec3 translation, glm::vec3 rotation)
 {
-
-	glm::vec3 focusDirection = glm::normalize(_target - _eye);
-	glm::vec3 right = glm::cross(_up, focusDirection);
 	glm::mat4 inverseView = glm::inverse(viewTransform());
 	glm::vec4 worldTranslation4 = inverseView*glm::vec4(translation[0], translation[1], translation[2], 1.0f);
 	glm::vec3 worldTranslation = glm::vec3(worldTranslation4[0], worldTranslation4[1], worldTranslation4[2]);

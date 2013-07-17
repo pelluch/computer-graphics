@@ -3,6 +3,7 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 #include <iostream>
+#include <memory>
 
 Material::Material()
 {
@@ -11,6 +12,7 @@ Material::Material()
 	_normalTexture = NULL;
 	_hasTexture = false;
 	_hasNormalTexture = false;
+	//std::shared_ptr<Material> asdf;
 }
 
 void Material::generateUniformIds(GLuint shaderProgramId)

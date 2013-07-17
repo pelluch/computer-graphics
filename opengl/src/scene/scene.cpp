@@ -32,11 +32,11 @@ void Scene::generateIds()
 void Scene::bindUniforms()
 {
 	float lightPositionData[3 * _lights.size()];
-	int numLights = _lights.size();
+	size_t numLights = _lights.size();
 	for(size_t i = 0; i < numLights; ++i)
 	{
 		glm::vec3 position = _lights[i]._worldPosition; 
-		for(int j = 0; j < 3; ++j)
+		for(size_t j = 0; j < 3; ++j)
 		{
 			lightPositionData[3*i+j] = position[j];
 			//std::cout << position[j] << std::endl;
@@ -50,7 +50,7 @@ void Scene::bindUniforms()
 
 void Scene::setMaterials()
 {
-	for(int i = 0; i < _models.size(); ++i)
+	for(size_t i = 0; i < _models.size(); ++i)
 	{
 		_models[i]._mat = _materials[_models[i]._materialName];
 		//std::cout << "Material is " << _models[i]._materialName << std::endl;
@@ -95,7 +95,7 @@ void Scene::moveCamera(glm::vec3 translation, glm::vec3 rotation)
 void Scene::setShaderId(GLuint id)
 {
 	this->_shaderProgramId = id;
-	for(int i = 0; i < _models.size(); ++i)
+	for(size_t i = 0; i < _models.size(); ++i)
 	{
 		_models[i].generateUniforms(id);
 	}

@@ -34,7 +34,7 @@ Model::Model()
 		}
 	}
 
-	for(int i = 0; i < _boxPoints.size(); i++)
+	for(size_t i = 0; i < _boxPoints.size(); i++)
 	{
 		_boxPointColors.push_back(glm::vec3(1,0,0));
 		_boxPoints[i] = _boxPoints[i] - glm::vec3(1, 1, 1);
@@ -192,7 +192,7 @@ Model::~Model()
 
 void Model::computeTangentBasis()
 {
-	for ( int i=0; i<_vertices.size(); i+=3){
+	for ( size_t i=0; i<_vertices.size(); i+=3){
 
     // Shortcuts for vertices
 		glm::vec3 & v0 = _vertices[i+0];

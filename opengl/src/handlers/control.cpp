@@ -9,12 +9,12 @@
 #include "animation/spline.h"
 
 
-boost::shared_ptr<Scene> Control::_scene;
+std::shared_ptr<Scene> Control::_scene;
 float Control::_zoomAcceleration = 10.0f;
 float Control::_mouseAcceleration = 0.1f;
 glm::vec2 Control::_lastPosition = glm::vec2(0, 0);
 bool Control::_hasPosition = false;
-boost::shared_ptr<GameEngine> Control::_gameEngine;
+std::shared_ptr<GameEngine> Control::_gameEngine;
 Spline Control::spline;
 
 void Control::windowResized(GLFWwindow* window, int width, int height)
@@ -63,7 +63,7 @@ void Control::keyCallBack(GLFWwindow* window, int key, int scancode, int action,
 	_scene->moveCamera(translation, rotation);	
 }
 
-void Control::setScene(boost::shared_ptr<Scene> scene)
+void Control::setScene(std::shared_ptr<Scene> scene)
 {
 	_scene = scene;
 	spline.generateSpline(glm::vec3(370, 500, 370), 500);
@@ -71,7 +71,7 @@ void Control::setScene(boost::shared_ptr<Scene> scene)
 
 }
 
-void Control::setGameEngine(boost::shared_ptr<GameEngine> engine)
+void Control::setGameEngine(std::shared_ptr<GameEngine> engine)
 {
 	_gameEngine = engine;
 }

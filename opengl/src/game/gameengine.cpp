@@ -8,10 +8,10 @@
 
 void GameEngine::setObjects(std::vector<Model> & models)
 {
-	for(int i = 0; i < models.size(); ++i)
+	for(size_t i = 0; i < models.size(); ++i)
 	{
 		std::cout << "Creating new object" << std::endl;
-		boost::shared_ptr<GameObject> newObject(new GameObject(&models[i]));
+		std::shared_ptr<GameObject> newObject(new GameObject(&models[i]));
 		std::cout << "Setting rigid body" << std::endl;
 		btRigidBody * rigidBody = newObject->initializeRigidBody();
 		_physicsEngine->addRigidBody(rigidBody);
@@ -60,11 +60,11 @@ void GameEngine::draw()
 
 GameEngine::GameEngine()
 {
-	this->_physicsEngine = boost::shared_ptr<PhysicsEngine>(new PhysicsEngine());
+	this->_physicsEngine = std::shared_ptr<PhysicsEngine>(new PhysicsEngine());
 	_renderer.init();
 
 	std::cout << "Loading scene->.." << std::endl;
-	_scene = boost::shared_ptr<Scene>(XmlLoader::loadScene("scenes/cornellBoxTarea2c.xml"));
+	_scene = std::shared_ptr<Scene>(XmlLoader::loadScene("scenes/cornellBoxTarea2c.xml"));
 	Control::setScene(_scene);
 	_scene->initModelData();
 	_renderer.setRenderingParams();	
