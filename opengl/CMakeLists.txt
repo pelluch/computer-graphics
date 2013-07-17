@@ -3,33 +3,38 @@ project (opengl_game)
 
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_SOURCE_DIR}/cmake )
-
+SET(BUILD_TYPE Debug)
 if(UNIX)
     SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -std=gnu++0x")
-endif()
+    include_directories(/usr/include/bullet)
+    include_directories(${CMAKE_SOURCE_DIR}/external/gli-0.4.1.0)
+    SET(LINK_FLAGS /usr/lib/nvidia/libGL.so -ltinyxml2 -lGLEW -lglfw
+    -lBulletDynamics -lBulletCollision -lLinearMath -lBulletSoftBody)
+else(UNIX)
+	find_package(OpenGL REQUIRED)
+	SET(BULLET_INCLUDE_DIR C:/Users/Pablo/src/bullet-2.81)
+	SET(BULLET_LIBRARY_DIR C:/Users/Pablo/src/bullet-2.81/build/vs2012/lib)
+	SET(GLEW_INCLUDE_DIR C:/Users/Pablo/src/glew-1.9.0/include)
+	SET(GLEW_LIBRARY_DIR C:/Users/Pablo/src/glew-1.9.0/build/vc11)
+	SET(GLFW3_INCLUDE_DIR C:/Users/Pablo/src/glfw-3.0.1/include)
+	SET(GLFW3_LIBRARY_DIR C:/Users/Pablo/src/glfw-3.0.1/build/src)
+	SET(TINYXML2_INCLUDE_DIR C:/Users/Pablo/src/tinyxml2)
+	SET(TINYXML2_LIBRARY_DIR C:/Users/Pablo/src/tinyxml2/build/)
+	SET(GLI_INCLUDE_DIR C:/Users/Pablo/src/gli-0.4.1.0)
+	SET(GLM_INCLUDE_DIR C:/Users/Pablo/src/glm-0.9.4.4)
+	include_directories(${BULLET_INCLUDE_DIR} ${GLEW_INCLUDE_DIR} 
+		${GLFW3_INCLUDE_DIR} ${TINYXML2_INCLUDE_DIR} ${GLI_INCLUDE_DIR}
+		${GLM_INCLUDE_DIR})
+	link_directories(${BULLET_LIBRARY_DIR} ${GLEW_LIBRARY_DIR} 
+		${GLFW3_LIBRARY_DIR} ${TINYXML2_LIBRARY_DIR})
+	 SET(LINK_FLAGS tinyxml2.lib glew.lib glfw3.lib opengl32 glu32)
+	 SET(BULLET_RELEASE_FLAGS optimized BulletDynamics.lib optimized BulletCollision.lib optimized LinearMath.lib optimized BulletSoftBody.lib)
+	 SET(BULLET_DEBUG_FLAGS debug BulletDynamics_Debug.lib debug BulletCollision_Debug.lib debug LinearMath_Debug.lib debug BulletSoftBody_Debug.lib)
+endif(UNIX)
 
-find_package(GLEW REQUIRED)
-find_package(GLFW3 REQUIRED)
-#find_package(Boost COMPONENTS system program_options filesystem)
-
-include_directories(${GLEW_INCLUDE_DIR} ${GLFW3_INCLUDE_DIR})
 include_directories(src)
-include_directories(/home/pablo/src/utils/include)
-include_directories(${CMAKE_SOURCE_DIR}/external/gli-0.4.1.0)
-include_directories(/usr/include/bullet)
-#include_directories(${CMAKE_SOURCE_DIR}/external/glsdk_0.5.0/glimg/include)
-#include_directories(${CMAKE_SOURCE_DIR}/external/glsdk_0.5.0/glload/include)
-
 file(GLOB_RECURSE ICLS ${CMAKE_CURRENT_SOURCE_DIR}/src/*.h)
 file(GLOB_RECURSE SRCS ${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp)
-
-link_directories(/home/pablo/src/utils/lib)
-#link_directories(${CMAKE_SOURCE_DIR}/external/glsdk_0.5.0/glimg/lib)
-#link_directories(${CMAKE_SOURCE_DIR}/external/glsdk_0.5.0/glload/lib)
-#link_directories(${CMAKE_SOURCE_DIR}/external/glsdk_0.5.0/glloadgen/lib)
-#link_directories(${CMAKE_SOURCE_DIR}/external/glsdk_0.5.0/glutil/lib)
-
 add_executable(main src/main.cpp ${ICLS} ${SRCS})
-target_link_libraries(main /usr/lib/nvidia/libGL.so -lutils_cmdline -lutils_filesystem -ltinyxml2 ${GLEW_LIBRARY} ${GLFW3_LIBRARY}
-	-lBulletDynamics -lBulletCollision -lLinearMath -lBulletSoftBody )
+target_link_libraries(main ${LINK_FLAGS}  ${BULLET_RELEASE_FLAGS}  ${BULLET_DEBUG_FLAGS})
 #add_subdirectory(tests)

@@ -31,19 +31,15 @@ void Scene::generateIds()
 
 void Scene::bindUniforms()
 {
-	float lightPositionData[3 * _lights.size()];
+	std::vector<glm::vec3> lightPositionData;
+	//float lightPositionData[3 * _lights.size()];
 	size_t numLights = _lights.size();
-	for(size_t i = 0; i < numLights; ++i)
-	{
+	for(size_t i = 0; i < numLights; ++i)	{
 		glm::vec3 position = _lights[i]._worldPosition; 
-		for(size_t j = 0; j < 3; ++j)
-		{
-			lightPositionData[3*i+j] = position[j];
-			//std::cout << position[j] << std::endl;
-		}
+		lightPositionData.push_back(position);
 	}
 	glUniform1i(_numLightsId, numLights);
-	glUniform3fv(_lightsId, numLights, lightPositionData);
+	glUniform3fv(_lightsId, numLights, &lightPositionData[0][0]);
 	_cameras[currentCam].assignUniformData();
 	glUniform3fv(_ambientLightId, 1, &_ambientLight[0]);
 }
