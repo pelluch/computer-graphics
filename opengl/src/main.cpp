@@ -20,6 +20,11 @@
 using namespace std;
 
 
+void test()
+{
+
+}
+
 int main(int argc, char ** argv)
 {
 	std::cout << "Initializing GLFW, GLEW" << std::endl;
