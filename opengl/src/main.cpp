@@ -27,8 +27,6 @@ void test()
 
 int main(int argc, char ** argv)
 {
-	std::cout << "Initializing GLFW, GLEW" << std::endl;
-
 	//std::string sceneFile, vertexShader, fragmentShader;
 	//menu(sceneFile, vertexShader, fragmentShader);
 
@@ -36,16 +34,17 @@ int main(int argc, char ** argv)
 	int height = 800;
 	bool showFPS = true;
 	RenderingParams::setWindowSize(width, height);
-
 	RenderingParams::mode = PER_PIXEL;
 
-
+	
 	//Init GLFW
 	if(!glfwInit())
 	{
 		std::cerr << "Failed to initialize glfw" << std::endl;
 		return -1;
 	}
+
+	std::cout << "GLFW initialized" << std::endl;
 
 	//Window creation
 	GLFWwindow * window;
@@ -60,6 +59,7 @@ int main(int argc, char ** argv)
 
 	//Make current context
 	glfwMakeContextCurrent(window);
+	std::cout << "OpenGL initialized" << std::endl;
 
 	//Initialize GLEW
 	glewExperimental = true; //Needed for core profile
@@ -69,7 +69,8 @@ int main(int argc, char ** argv)
 		std::cerr << glewGetErrorString(glewError) << std::endl;
 		return -1;
 	}
-	
+	std::cout << "GLEW initialized" << std::endl;
+
 	glfwSetInputMode(window, GLFW_STICKY_KEYS, GLFW_KEY_ESCAPE);
 	glfwSetWindowSizeCallback(window, Control::windowResized);
 	glfwSetKeyCallback(window, Control::keyCallBack);
@@ -78,6 +79,7 @@ int main(int argc, char ** argv)
 	glfwSetCursorPos(window, width/2, height/2);
 	glfwSetMouseButtonCallback(window, Control::mouseClickCallback);
 	
+	std::cout << "Set GLFW callbacks" << std::endl;
 	std::shared_ptr<GameEngine>  gameEngine(new GameEngine());
 	Control::setGameEngine(gameEngine);
 	
@@ -122,10 +124,15 @@ int main(int argc, char ** argv)
 
         /* Poll for and process events */
         glfwPollEvents();
-	} while( !glfwWindowShouldClose(window));
+	} while( !glfwWindowShouldClose(window) && 
+		!glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS);
 
-
+	std::cout << "Freeing memory" << std::endl;
+ 	if (window == glfwGetCurrentContext())
+ 	{
+ 		std::cout << "Window is current context, closing" << std::endl;
+ 	}
+	glfwDestroyWindow(window);
 	glfwTerminate();
-
 	return 0;
 }

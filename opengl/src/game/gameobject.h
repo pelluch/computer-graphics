@@ -25,6 +25,8 @@ private:
 	Model * _model;
 	int _objectIdentifier;
 	static int _objectCounter;
+	btDefaultMotionState * _motionstate;
+	btCollisionShape * _boxCollisionShape;
 	btRigidBody * _rigidBody;
 	glm::vec3 _position;
 	glm::quat _orientation;

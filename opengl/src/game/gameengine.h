@@ -13,7 +13,7 @@ class GameEngine
 {
 
 private:
-	Renderer _renderer;
+	Renderer  * _renderer;
 	std::shared_ptr<Scene> _scene;
 	std::vector< std::shared_ptr<GameObject> > _gameObjects;
 	std::shared_ptr<PhysicsEngine> _physicsEngine;
@@ -22,6 +22,7 @@ private:
 
 public:
 	GameEngine();
+	~GameEngine();
 	void draw();
 	void setObjects(std::vector<Model> & models);
 	void pickUp(int mouseX, int mouseY);

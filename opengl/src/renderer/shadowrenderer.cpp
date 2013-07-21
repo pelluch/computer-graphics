@@ -4,9 +4,8 @@
 
 void ShadowRenderer::init()
 {
-	Shader shader;
-	_depthProgramId = shader.LoadShaders( "shaders/shadow/shadow.vert", "shaders/shadow/shadow.frag" );
-	_depthMatrixId = glGetUniformLocation(_depthProgramId, "depthMVP");
+	_shader = new Shader("shaders/shadow/shadow.vert", "shaders/shadow/shadow.frag");
+	_depthMatrixId = glGetUniformLocation(_shader->getId(), "depthMVP");
 	_frameBufferName = 0;
 
 	glGenBuffers(1, &_frameBufferName);
@@ -35,6 +34,17 @@ void ShadowRenderer::init()
 	}
 }
 
+ShadowRenderer::ShadowRenderer()
+{
+	_shader = NULL;
+}
+
+ShadowRenderer::~ShadowRenderer()
+{
+	glDeleteBuffers(1, &_frameBufferName);
+	glDeleteTextures(1, &_depthTexture);
+	glDeleteProgram(_shader->getId());
+}
 void ShadowRenderer::render()
 {
 	glBindFramebuffer(GL_FRAMEBUFFER, _frameBufferName);
@@ -50,7 +60,6 @@ void ShadowRenderer::render()
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	// Use our shader
-	glUseProgram(_depthProgramId);
-
+	glUseProgram(_shader->getId());
 
 }

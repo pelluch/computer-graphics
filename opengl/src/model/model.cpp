@@ -187,7 +187,7 @@ void Model::draw(GLuint shaderProgramId, Renderer & renderer)
 
 Model::~Model()
 {
-	
+	glDeleteBuffers(_numBuffers, _bufferIds.data());
 }
 
 void Model::computeTangentBasis()

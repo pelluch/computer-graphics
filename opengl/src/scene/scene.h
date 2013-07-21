@@ -30,6 +30,7 @@ class Scene {
 		std::vector<Model> _models;
 		std::vector<Camera> _cameras;
 		Scene(Camera & cam, std::vector<Model> & models, std::map<std::string, Material> & materials, std::vector<Light> & lights, glm::vec3 backgroundColor, glm::vec3 ambientLight);
+		~Scene();
 		glm::mat4 projectionTransform(float aspectRatio, int camIndex = 0);
 		glm::mat4 viewTransform(int camIndex = 0);
 		void addLight(Light & light);

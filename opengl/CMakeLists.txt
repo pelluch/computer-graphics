@@ -7,19 +7,8 @@ if(UNIX)
     SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -std=gnu++0x")
     include_directories(/usr/include/bullet)
     include_directories(${CMAKE_SOURCE_DIR}/external/gli-0.4.1.0)
-   
-  	if(${CMAKE_BUILD_TYPE} STREQUAL "Debug")
-  		#include_directories(${CMAKE_SOURCE_DIR}/external/include)
-  		set(library_locations ${CMAKE_SOURCE_DIR}/external/lib)
-  		set(LINK_FLAGS /usr/lib/nvidia/libGL.so ${library_locations}/libtinyxml2.a
-  		${library_locations}/libglew.so ${library_locations}/libglfw3.a  
-  		${library_locations}/libBulletDynamics.a ${library_locations}/libBulletCollision.a
-  		${library_locations}/libBulletSoftBody.a ${library_locations}/libLinearMath.a
-  		-lX11 -lXi -lXxf86vm -lXrandr -lpthread)
-  	else(${CMAKE_BUILD_TYPE} STREQUAL "Debug")
-  		SET(LINK_FLAGS /usr/lib/nvidia/libGL.so -ltinyxml2 -lGLEW -lglfw
-    -lBulletDynamics -lBulletCollision -lLinearMath -lBulletSoftBody)
-  	endif(${CMAKE_BUILD_TYPE} STREQUAL "Debug")    
+   	SET(LINK_FLAGS /usr/lib/nvidia/libGL.so -ltinyxml2 -lGLEW -lglfw
+    -lBulletDynamics -lBulletCollision -lLinearMath -lBulletSoftBody)  
 else(UNIX)
 	find_package(OpenGL REQUIRED)
 	SET(BULLET_INCLUDE_DIR C:/Users/Pablo/src/bullet-2.81)
@@ -46,7 +35,7 @@ include_directories(src)
 file(GLOB_RECURSE ICLS ${CMAKE_CURRENT_SOURCE_DIR}/src/*.h)
 file(GLOB_RECURSE SRCS ${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp)
 add_executable(main src/main.cpp ${ICLS} ${SRCS})
-target_link_libraries(main ${LINK_FLAGS}  ${BULLET_RELEASE_FLAGS}  ${BULLET_DEBUG_FLAGS})
+target_link_libraries(main ${LINK_FLAGS})
 
 execute_process(COMMAND ${CMAKE_COMMAND} -E create_symlink 
 	${CMAKE_SOURCE_DIR}/models ${CMAKE_BINARY_DIR}/models)

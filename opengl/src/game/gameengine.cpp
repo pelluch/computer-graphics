@@ -42,34 +42,35 @@ void GameEngine::update()
 
 void GameEngine::draw()
 {
-	_renderer.beginDraw();	
+	_renderer->beginDraw();	
 
 	glm::mat4 perspectiveTransform = _scene->projectionTransform(RenderingParams::getAspectRatio());
 	glm::mat4 viewTransform = _scene->viewTransform();
 
-	_renderer.setViewMatrix(viewTransform);
-	_renderer.setPerspectiveMatrix(perspectiveTransform);
+	_renderer->setViewMatrix(viewTransform);
+	_renderer->setPerspectiveMatrix(perspectiveTransform);
 	//glm::mat4 viewProjectionMatrix = perspectiveTransform*viewTransform;
 
 	//glUniformMatrix4fv(matrixId, 1, GL_FALSE, &viewProjectionMatrix[0][0]);
 	_scene->bindUniforms();
-	_scene->draw(_renderer.getProgramId(), _renderer);
-	_scene->drawBoundingBoxes(_renderer.getLineProgramId(), _renderer);
-	glUseProgram(_renderer.getProgramId());
+	_scene->draw(_renderer->getProgramId(),*_renderer);
+	_scene->drawBoundingBoxes(_renderer->getLineProgramId(), *_renderer);
+	glUseProgram(_renderer->getProgramId());
 }
 
 GameEngine::GameEngine()
 {
+	
 	this->_physicsEngine = std::shared_ptr<PhysicsEngine>(new PhysicsEngine());
-	_renderer.init();
+	_renderer = new Renderer();
 
 	std::cout << "Loading scene->.." << std::endl;
 	_scene = std::shared_ptr<Scene>(XmlLoader::loadScene("scenes/cornellBoxTarea2c.xml"));
 	Control::setScene(_scene);
 	_scene->initModelData();
-	_renderer.setRenderingParams();	
+	_renderer->setRenderingParams();	
 	std::cout << "Scene loaded, setting shader id" << std::endl;
-	_scene->setShaderId(_renderer.getProgramId());
+	_scene->setShaderId(_renderer->getProgramId());
 	std::cout << "Generating scene ids" << std::endl;
 	_scene->generateIds();
 	_scene->setMaterials();
@@ -79,13 +80,18 @@ GameEngine::GameEngine()
 	_lastUpdate = glfwGetTime();
 }
 
+GameEngine::~GameEngine()
+{
+	delete _renderer;
+}
+
 void GameEngine::updateRenderer()
 {
 	glm::mat4 perspectiveTransform = _scene->projectionTransform(RenderingParams::getAspectRatio());
 	glm::mat4 viewTransform = _scene->viewTransform();
 	
-	_renderer.setViewMatrix(viewTransform);
-	_renderer.setPerspectiveMatrix(perspectiveTransform);
+	_renderer->setViewMatrix(viewTransform);
+	_renderer->setPerspectiveMatrix(perspectiveTransform);
 }
 
 void GameEngine::pickUp(int mouseX, int mouseY)
@@ -95,7 +101,7 @@ void GameEngine::pickUp(int mouseX, int mouseY)
 	
 	//std::cout << "Transforming screen coords to world" << std::endl;
 	glm::vec3 worldStart, worldDirection;
-	_renderer.screenToWorld(mouseX, mouseY, worldStart, worldDirection);
+	_renderer->screenToWorld(mouseX, mouseY, worldStart, worldDirection);
 
 	//worldStart = _scene->_cameras[0].getPosition();
 	//std::cout << " world start: " << std::endl;

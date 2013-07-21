@@ -3,24 +3,25 @@
 
 #include "GL/glew.h"
 #include <glm/glm.hpp>
+#include "shader/shader.h"
 
 class Renderer
 {
 private:
-	GLuint _lineProgramId;
-	GLuint _shaderProgramId;
 	GLuint _viewMatrixId;
 	GLuint _modelViewProjectionMatrixId;
 	GLuint _modelViewMatrix3x3Id;
 	GLuint _modelMatrixId;
-
+	Shader * _mainShader;
+	Shader * _lineShader;
 	GLuint _lineMVPId;
 	glm::mat4 _viewMatrix;
 	glm::mat4 _perspectiveMatrix;
 	glm::mat4 _modelMatrix;
 public:
+	Renderer();
+	~Renderer();
 	void beginDraw();
-	void init();
 	void setRenderingParams();
 	GLuint getProgramId();
 	GLuint getLineProgramId();

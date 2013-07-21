@@ -5,17 +5,30 @@
 #include <iostream>
 
 
-void Renderer::init()
+Renderer::Renderer()
 {
-	Shader shader;
-	_shaderProgramId = shader.LoadShaders("shaders/per_pixel/shader.vert", "shaders/per_pixel/shader.frag");
-	_lineProgramId = shader.LoadShaders("shaders/per_pixel/line.vert", "shaders/per_pixel/line.frag");
-	this->_modelMatrixId = glGetUniformLocation(_shaderProgramId, "M");
-	this->_viewMatrixId = glGetUniformLocation(_shaderProgramId, "V");
-	this->_modelViewProjectionMatrixId = glGetUniformLocation(_shaderProgramId, "MVP");
-	this->_modelViewMatrix3x3Id = glGetUniformLocation(_shaderProgramId, "MV3x3");
-	this->_lineMVPId = glGetUniformLocation(_lineProgramId, "MVP");
+	_mainShader = NULL;
+	_lineShader = NULL;
 
+	_mainShader = new Shader("shaders/per_pixel/shader.vert", "shaders/per_pixel/shader.frag");
+	_lineShader = new Shader("shaders/per_pixel/line.vert", "shaders/per_pixel/line.frag");
+
+	this->_modelMatrixId = glGetUniformLocation(_mainShader->getId(), "M");
+	this->_viewMatrixId = glGetUniformLocation(_mainShader->getId(), "V");
+	this->_modelViewProjectionMatrixId = glGetUniformLocation(_mainShader->getId(), "MVP");
+	this->_modelViewMatrix3x3Id = glGetUniformLocation(_mainShader->getId(), "MV3x3");
+	this->_lineMVPId = glGetUniformLocation(_lineShader->getId(), "MVP");
+
+	std::cout << "Rendering engine initialized" << std::endl;
+}
+
+Renderer::~Renderer()
+{
+	std::cout << "Deleting programs " << std::endl;
+	if(_mainShader)
+		delete _mainShader;
+	if(_lineShader)
+		delete _lineShader;
 }
 
 void Renderer::setViewMatrix(glm::mat4 viewMatrix)
@@ -44,7 +57,7 @@ void Renderer::setModelMatrix(glm::mat4 modelMatrix)
 
 GLuint Renderer::getProgramId()
 {
-	return _shaderProgramId;
+	return _mainShader->getId();
 }
 
 void Renderer::beginDraw()
@@ -65,7 +78,7 @@ void Renderer::setUniforms()
 	glm::mat3 MV3x3 = glm::mat3(MV);
 	glm::mat4 MVP = _perspectiveMatrix * MV;
 	//glm::mat4 boxMVP = _perspectiveMatrix * MV;
-	glUseProgram(_shaderProgramId);
+	glUseProgram(_mainShader->getId());
 	glUniformMatrix4fv(_viewMatrixId, 1, GL_FALSE, &_viewMatrix[0][0]);
 	glUniformMatrix4fv(_modelViewProjectionMatrixId, 1, GL_FALSE, &MVP[0][0]);
 	glUniformMatrix4fv(_modelMatrixId, 1, GL_FALSE, &_modelMatrix[0][0]);
@@ -77,7 +90,7 @@ void Renderer::setUniforms()
 
 GLuint Renderer::getLineProgramId()
 {
-	return _lineProgramId;
+	return _lineShader->getId();
 }
 void Renderer::setBoxUniforms()
 {

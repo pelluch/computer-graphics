@@ -36,10 +36,7 @@ void Control::keyCallBack(GLFWwindow* window, int key, int scancode, int action,
 		return;
 	}
 	glm::vec3 rotation, translation;
-	if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
-		Settings::settingsMenu();
-
-	else if(key == GLFW_KEY_A)
+	if(key == GLFW_KEY_A)
 		translation += glm::vec3(-10, 0, 0);
 	else if(key == GLFW_KEY_D)
 		translation -= glm::vec3(-10, 0, 0);

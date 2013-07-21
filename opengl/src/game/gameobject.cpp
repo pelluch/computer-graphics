@@ -13,9 +13,9 @@ btRigidBody * GameObject::initializeRigidBody()
 {
 	//This is a box
 
-	btCollisionShape * boxCollisionShape = new btBoxShape(btVector3(_model->_scale[0], _model->_scale[1], _model->_scale[2]));
+	_boxCollisionShape = new btBoxShape(btVector3(_model->_scale[0], _model->_scale[1], _model->_scale[2]));
 
-	btDefaultMotionState * motionstate = new btDefaultMotionState(btTransform(
+	_motionstate = new btDefaultMotionState(btTransform(
 		btQuaternion(_orientation[0], _orientation[1], _orientation[2], _orientation[3]), 
 		btVector3(_position[0], _position[1], _position[2])
 		));
@@ -23,8 +23,8 @@ btRigidBody * GameObject::initializeRigidBody()
 
 	btRigidBody::btRigidBodyConstructionInfo rigidBodyCI(
 		0,                  // mass, in kg. 0 -> Static object, will never move.
-		motionstate,
-		boxCollisionShape,  // collision shape of body
+		_motionstate,
+		_boxCollisionShape,  // collision shape of body
 		btVector3(0,0,0)    // local inertia
 		);
 
@@ -53,4 +53,7 @@ GameObject::~GameObject()
 {
 	std::cout << "Deleting game object" << std::endl;
 	delete _rigidBody;
+	delete _motionstate;
+	delete _boxCollisionShape;
+
 }

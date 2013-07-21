@@ -9,6 +9,7 @@ class PhysicsEngine
 
 public:
 	PhysicsEngine();
+	~PhysicsEngine();
 	btCollisionWorld::ClosestRayResultCallback shootRay(glm::vec3 worldPosition, glm::vec3 worldDirection);
 	void addRigidBody(btRigidBody * body);
 private:
@@ -16,7 +17,7 @@ private:
 	btDefaultCollisionConfiguration* _collisionConfiguration;
 	btCollisionDispatcher * _dispatcher;
 	btSequentialImpulseConstraintSolver * _solver;
-	btDiscreteDynamicsWorld* _dynamicsWorld;
+	btDiscreteDynamicsWorld * _dynamicsWorld;
 
 };
 

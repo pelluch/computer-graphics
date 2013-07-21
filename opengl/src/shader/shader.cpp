@@ -15,14 +15,19 @@ using namespace std;
 #include "shader/shader.h"
 
 
-std::vector<GLuint> Shader::LoadAllShaders()
+Shader::Shader(const char * vertex_file_path, const char * fragment_file_path)
 {
-	std::vector<GLuint> shaders;
-	shaders.push_back(LoadShaders("shaders/per_pixel/no_tex.vert","shaders/per_pixel/no_tex.frag"));
-	shaders.push_back(LoadShaders("shaders/per_pixel/tex.vert","shaders/per_pixel/tex.frag"));
-	shaders.push_back(LoadShaders("shaders/per_pixel/tex_normal.vert","shaders/per_pixel/tex_normal.frag"));
+	_shaderProgramId = LoadShaders(vertex_file_path, fragment_file_path);
+}
 
-	return shaders;
+Shader::~Shader()
+{
+	glDeleteProgram(_shaderProgramId);
+}
+
+GLuint Shader::getId()
+{
+	return _shaderProgramId;
 }
 
 GLuint Shader::LoadShaders(const char * vertex_file_path,const char * fragment_file_path){
@@ -113,7 +118,6 @@ GLuint Shader::LoadShaders(const char * vertex_file_path,const char * fragment_f
 
 	glDeleteShader(VertexShaderID);
 	glDeleteShader(FragmentShaderID);
-
 	return ProgramID;
 }
 

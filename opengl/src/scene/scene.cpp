@@ -19,6 +19,12 @@ Scene::Scene(Camera & cam, std::vector<Model> & models, std::map<std::string, Ma
 	glGenBuffers(1, &_rayColorBufferId);
 }
 
+Scene::~Scene()
+{
+	glDeleteBuffers(1, &_rayBufferId);
+	glDeleteBuffers(1, &_rayColorBufferId);
+}
+
 void Scene::generateIds()
 {
 	_lightsId = glGetUniformLocation(_shaderProgramId, "lights");
