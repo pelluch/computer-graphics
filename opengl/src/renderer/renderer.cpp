@@ -1,14 +1,37 @@
+#include <GL/glew.h>
 #include "renderer/renderer.h"
 #include "utils/debugutils.h"
-#include "renderer/params.h"
 #include "shader/shader.h"
 #include <iostream>
 
 
-Renderer::Renderer()
+Renderer::Renderer(GLFWwindow * window)
 {
 	_mainShader = NULL;
 	_lineShader = NULL;
+	_window = NULL;
+	_showFPS = true;
+	_framesDrawn = 0;
+	_lastDraw = glfwGetTime();
+	_lastFPS = _lastDraw;
+	glfwGetWindowSize(window, &_width, &_height);
+	_antiAlias = true;
+	_verticalSync = true;
+
+	glfwWindowHint(GLFW_SAMPLES, 4);
+
+	_window  = window;
+	//Make current context
+	glfwMakeContextCurrent(_window);
+	//Initialize GLEW
+	glewExperimental = true; //Needed for core profile
+	GLenum glewError = glewInit(); 
+	if ( glewError != GLEW_OK) {
+		std::cerr << "Failed to initialize GLEW" << std::endl;
+		std::cerr << glewGetErrorString(glewError) << std::endl;
+	}
+
+	std::cout << "GLEW initialized" << std::endl;
 
 	_mainShader = new Shader("shaders/per_pixel/shader.vert", "shaders/per_pixel/shader.frag");
 	_lineShader = new Shader("shaders/per_pixel/line.vert", "shaders/per_pixel/line.frag");
@@ -19,9 +42,40 @@ Renderer::Renderer()
 	this->_modelViewMatrix3x3Id = glGetUniformLocation(_mainShader->getId(), "MV3x3");
 	this->_lineMVPId = glGetUniformLocation(_lineShader->getId(), "MVP");
 
+
+	//RenderingParams::setWindowSize(width, height);
 	std::cout << "Rendering engine initialized" << std::endl;
 }
 
+void Renderer::draw(Scene * scene, double currentTime)
+{
+
+	
+	if ( !_verticalSync || currentTime - _lastDraw >= 1.0/60.0 ){ // If last prinf() was more than 1sec ago
+		// printf and reset
+		//std::cout << "whatwhat" << std::endl;
+		//printf("%f ms/frame\n", 1000.0/double(nbFrames));
+
+        beginDraw();
+        scene->draw(_mainShader->getId(), getAspectRatio());
+        scene->drawBoundingBoxes(_lineShader->getId(), getAspectRatio());
+        glfwSwapBuffers(_window);
+        ++_framesDrawn;
+        _lastDraw += 1.0/60.0;
+        
+	}
+	if(currentTime - _lastFPS >= 1.0)
+	{				
+		if(_showFPS)
+			printf("%d frame/s\n", _framesDrawn);		
+		_framesDrawn = 0;
+		_lastFPS += 1.0;
+		/* Render here */
+		//gameEngine->draw();
+        /* Swap front and back buffers */        
+	}
+	
+}
 Renderer::~Renderer()
 {
 	std::cout << "Deleting programs " << std::endl;
@@ -35,6 +89,20 @@ void Renderer::setViewMatrix(glm::mat4 viewMatrix)
 {
 
 	_viewMatrix = viewMatrix;
+}
+
+float Renderer::getAspectRatio()
+{
+	//std::cout << "Getting AR " << width << " " << height << std::endl;
+	float aspectRatio = ((float)_width)/((float)_height);
+	return aspectRatio;
+}
+
+void Renderer::setWindowSize(int width, int height)
+{
+	glViewport(0, 0, width, height);
+	_width = width;
+	_height = height;
 }
 
 void Renderer::setRenderingParams()
@@ -72,31 +140,10 @@ void Renderer::beginDraw()
 	//glUseProgram(_shaderProgramId);
 }
 
-void Renderer::setUniforms()
-{
-	glm::mat4 MV = _viewMatrix * _modelMatrix;
-	glm::mat3 MV3x3 = glm::mat3(MV);
-	glm::mat4 MVP = _perspectiveMatrix * MV;
-	//glm::mat4 boxMVP = _perspectiveMatrix * MV;
-	glUseProgram(_mainShader->getId());
-	glUniformMatrix4fv(_viewMatrixId, 1, GL_FALSE, &_viewMatrix[0][0]);
-	glUniformMatrix4fv(_modelViewProjectionMatrixId, 1, GL_FALSE, &MVP[0][0]);
-	glUniformMatrix4fv(_modelMatrixId, 1, GL_FALSE, &_modelMatrix[0][0]);
-	glUniformMatrix4fv(_modelViewMatrix3x3Id, 1, GL_FALSE, &MV3x3[0][0]);
-	//glUseProgram(_lineProgramId);
-	//glUniformMatrix4fv(_lineMVPId, 1, GL_FALSE, &boxMVP[0][0]);
-	//glUseProgram(_shaderProgramId);
-}
 
 GLuint Renderer::getLineProgramId()
 {
 	return _lineShader->getId();
-}
-void Renderer::setBoxUniforms()
-{
-	glm::mat4 MV = _viewMatrix * _modelMatrix;
-	glm::mat4 MVP = _perspectiveMatrix * MV;
-	glUniformMatrix4fv(_lineMVPId, 1, GL_FALSE, &MVP[0][0]);
 }
 
 void Renderer::screenToWorld(int mouseX, int mouseY,
@@ -106,8 +153,8 @@ void Renderer::screenToWorld(int mouseX, int mouseY,
 	//std::cout << "Setting initial vectors" << std::endl;
 	// The ray Start and End positions, in Normalized Device Coordinates (Have you read Tutorial 4 ?)
 	glm::vec4 lRayStart_NDC(
-		((float)mouseX/(float)RenderingParams::getWidth()  - 0.5f) * 2.0f, // [0,1024] -> [-1,1]
-		-((float)mouseY/(float)RenderingParams::getHeight() - 0.5f) * 2.0f, // [0, 768] -> [-1,1]
+		((float)mouseX/(float)_width  - 0.5f) * 2.0f, // [0,1024] -> [-1,1]
+		-((float)mouseY/_height - 0.5f) * 2.0f, // [0, 768] -> [-1,1]
 		-1.0, // The near plane maps to Z=-1 in Normalized Device Coordinates
 		1.0f
 	);
@@ -115,8 +162,8 @@ void Renderer::screenToWorld(int mouseX, int mouseY,
 	//Debugger::printInfo(lRayStart_NDC);
 
 	glm::vec4 lRayEnd_NDC(
-		((float)mouseX/(float)RenderingParams::getWidth()  - 0.5f) * 2.0f,
-		-((float)mouseY/(float)RenderingParams::getHeight() - 0.5f) * 2.0f,
+		((float)mouseX/(float)_width  - 0.5f) * 2.0f,
+		-((float)mouseY/(float)_height - 0.5f) * 2.0f,
 		0.0,
 		1.0f
 	);

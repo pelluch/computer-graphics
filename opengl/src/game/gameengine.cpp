@@ -3,7 +3,6 @@
 #include <iostream>
 #include "utils/xmlloader.h"
 #include "handlers/control.h"
-#include "renderer/params.h"
 #include "utils/debugutils.h"
 
 void GameEngine::setObjects(std::vector<Model> & models)
@@ -11,7 +10,7 @@ void GameEngine::setObjects(std::vector<Model> & models)
 	for(size_t i = 0; i < models.size(); ++i)
 	{
 		std::cout << "Creating new object" << std::endl;
-		std::shared_ptr<GameObject> newObject(new GameObject(&models[i]));
+		GameObject * newObject = new GameObject(&models[i]);
 		std::cout << "Setting rigid body" << std::endl;
 		btRigidBody * rigidBody = newObject->initializeRigidBody();
 		_physicsEngine->addRigidBody(rigidBody);
@@ -22,72 +21,124 @@ void GameEngine::setObjects(std::vector<Model> & models)
 
 void GameEngine::start()
 {
+	do
+	{		
+		if(!_paused)
+		{
+				// Measure speed
+			double currentTime = glfwGetTime();
+			if(currentTime - _lastUpdate >= _timeBetweenUpdates)
+			{
+
+				_numUpdates++;
+				_lastUpdate += _timeBetweenUpdates;
+				_renderer->draw(_scene, currentTime);
+				update();
+
+				if(currentTime - _lastCheck >= 1.0)
+				{
+					std::cout << _numUpdates << " updates per second" << std::endl;
+					_numUpdates = 0;
+					_lastCheck += 1.0;
+				}
+				
+			}
+    	}
+        /* Poll for and process events */
+        glfwPollEvents();
+	} while( !glfwWindowShouldClose(_window) && 
+		!glfwGetKey(_window, GLFW_KEY_ESCAPE) == GLFW_PRESS);
+
+	glfwDestroyWindow(_window);
 
 }
 
 void GameEngine::update()
 {
 
-	double newTime = glfwGetTime();
-	double deltaTime = newTime - _lastUpdate;
-	if(deltaTime >= 1.0)
+
+}
+
+GameEngine::GameEngine(int width, int height)
+{
+
+	_physicsEngine = NULL;
+	_renderer = NULL;
+	_paused = false;
+	_scene = NULL;
+	_timeBetweenUpdates = 1.0/300.0;
+
+	if(!glfwInit())
 	{
-		//std::cout << "Updates per second: " << _numUpdates << std::endl;
-		_lastUpdate += 1.0;
-		_numUpdates = 0;
+		std::cerr << "Failed to initialize glfw" << std::endl;
 	}
-	//std::cout << deltaTime << std::endl;	
-	_numUpdates++;
-}
+	std::cout << "GLFW initialized" << std::endl;
+	_window = glfwCreateWindow(width, height, "Game", NULL, NULL);
+	if(!_window)
+	{
+		std::cerr << "Failed to open GLFW window. If you have an Intel GPU, they are not 3.3 compatible. Try the 2.1 version of the tutorials." << std::endl;
+	}
 
-void GameEngine::draw()
-{
-	_renderer->beginDraw();	
+	_renderer = new Renderer(_window);
+	Control::setGameEngine(this);
+	glfwSetInputMode(_window, GLFW_STICKY_KEYS, GLFW_KEY_ESCAPE);
+	glfwSetWindowSizeCallback(_window, Control::windowResized);
+	glfwSetKeyCallback(_window, Control::keyCallBack);
+	glfwSetCursorPosCallback(_window, Control::mousePosCallback);
+	glfwSetScrollCallback(_window, Control::mouseScrollCallback);
+	glfwSetMouseButtonCallback(_window, Control::mouseClickCallback);
+	glfwSwapInterval(0);
 
-	glm::mat4 perspectiveTransform = _scene->projectionTransform(RenderingParams::getAspectRatio());
-	glm::mat4 viewTransform = _scene->viewTransform();
-
-	_renderer->setViewMatrix(viewTransform);
-	_renderer->setPerspectiveMatrix(perspectiveTransform);
-	//glm::mat4 viewProjectionMatrix = perspectiveTransform*viewTransform;
-
-	//glUniformMatrix4fv(matrixId, 1, GL_FALSE, &viewProjectionMatrix[0][0]);
-	_scene->bindUniforms();
-	_scene->draw(_renderer->getProgramId(),*_renderer);
-	_scene->drawBoundingBoxes(_renderer->getLineProgramId(), *_renderer);
-	glUseProgram(_renderer->getProgramId());
-}
-
-GameEngine::GameEngine()
-{
+	this->_physicsEngine = new PhysicsEngine();
 	
-	this->_physicsEngine = std::shared_ptr<PhysicsEngine>(new PhysicsEngine());
-	_renderer = new Renderer();
-
 	std::cout << "Loading scene->.." << std::endl;
-	_scene = std::shared_ptr<Scene>(XmlLoader::loadScene("scenes/cornellBoxTarea2c.xml"));
-	Control::setScene(_scene);
-	_scene->initModelData();
-	_renderer->setRenderingParams();	
-	std::cout << "Scene loaded, setting shader id" << std::endl;
+	_scene = XmlLoader::loadScene("scenes/cornellBoxTarea2c.xml");
 	_scene->setShaderId(_renderer->getProgramId());
-	std::cout << "Generating scene ids" << std::endl;
-	_scene->generateIds();
+	_scene->initModelData();
 	_scene->setMaterials();
+	_scene->generateIds();
+	//_scene->generateLineIds();
+	_renderer->setRenderingParams();	
+
 	setObjects(_scene->_models);
 
 	_numUpdates = 0;
 	_lastUpdate = glfwGetTime();
+	_lastCheck = _lastUpdate;
+}
+
+void GameEngine::moveCamera(glm::vec3 translation, glm::vec3 rotation)
+{
+	_scene->moveCamera(translation, rotation);
+}
+
+void GameEngine::resizeWindow(int width, int height)
+{
+	_renderer->setWindowSize(width, height);
+}
+
+void GameEngine::pause()
+{
+	_paused = !_paused;
 }
 
 GameEngine::~GameEngine()
 {
 	delete _renderer;
+	delete _scene;
+	delete _physicsEngine;
+	
+	for(size_t i = 0; i < _gameObjects.size(); ++i)
+	{
+		delete _gameObjects[i];
+	}
+
+	glfwTerminate();
 }
 
 void GameEngine::updateRenderer()
 {
-	glm::mat4 perspectiveTransform = _scene->projectionTransform(RenderingParams::getAspectRatio());
+	glm::mat4 perspectiveTransform = _scene->projectionTransform(_renderer->getAspectRatio());
 	glm::mat4 viewTransform = _scene->viewTransform();
 	
 	_renderer->setViewMatrix(viewTransform);
@@ -96,29 +147,12 @@ void GameEngine::updateRenderer()
 
 void GameEngine::pickUp(int mouseX, int mouseY)
 {
-	
-	//std::cout << "Trying to pick object up" << std::endl;
-	
-	//std::cout << "Transforming screen coords to world" << std::endl;
+
 	glm::vec3 worldStart, worldDirection;
 	_renderer->screenToWorld(mouseX, mouseY, worldStart, worldDirection);
 
-	//worldStart = _scene->_cameras[0].getPosition();
-	//std::cout << " world start: " << std::endl;
-	//Debugger::printInfo(worldStart);
-	//std::cout << " world end: " << std::endl;
-	//worldStart = glm::vec3(0, 0, -400);
-	//worldDirection = glm::vec3(0,0,1);
-	//worldDirection[1]*=-1;
 	worldDirection = worldStart + worldDirection * 1000000.0f;
-	//_scene->drawRay(worldStart, worldDirection);
-	//std::cout << "Ray ending in coordinates\t";
-	//Debugger::printInfo(worldDirection);
-	//worldDirection = _scene->_cameras[0].getPosition() + worldDirection * 1000.0f;
-	//Debugger::printInfo(worldDirection);
 
-	//worldDirection *= 1000;
-	//std::cout << "Shooting ray" << std::endl;
 	btCollisionWorld::ClosestRayResultCallback result = _physicsEngine->shootRay(worldStart, worldDirection);
 	if(result.hasHit())
 	{
@@ -134,6 +168,6 @@ void GameEngine::pickUp(int mouseX, int mouseY)
 	}
 	else
 	{
-		//std::cout << "Did not hit :(" << std::endl;
+		std::cout << "Did not hit :(" << std::endl;
 	}
 }

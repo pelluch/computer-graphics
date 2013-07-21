@@ -2,26 +2,28 @@
 #define GAME_ENGINE_H_
 
 #include <vector>
+#include <glm/glm.hpp>
 #include "renderer/renderer.h"
-#include "model/model.h"
 #include "scene/scene.h"
 #include "game/gameobject.h"
-#include <map>
-#include <memory>
 
 class GameEngine
 {
 
 private:
 	Renderer  * _renderer;
-	std::shared_ptr<Scene> _scene;
-	std::vector< std::shared_ptr<GameObject> > _gameObjects;
-	std::shared_ptr<PhysicsEngine> _physicsEngine;
+	Scene * _scene;
+	GLFWwindow * _window;
+	std::vector< GameObject * > _gameObjects;
+	PhysicsEngine * _physicsEngine;
+	bool _paused;
 	double _lastUpdate;
+	double _lastCheck;
+	double _timeBetweenUpdates;
 	int _numUpdates;
 
 public:
-	GameEngine();
+	GameEngine(int width = 400, int height = 400);
 	~GameEngine();
 	void draw();
 	void setObjects(std::vector<Model> & models);
@@ -29,6 +31,10 @@ public:
 	void updateRenderer();
 	void start();
 	void update();
+	void setCallbacks();
+	void pause();
+	void resizeWindow(int width, int height);
+	void moveCamera(glm::vec3 translation, glm::vec3 rotation);
 };
 
 #endif

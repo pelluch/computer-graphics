@@ -1,40 +1,26 @@
 #include <GL/glew.h>
 #include "control.h"
-#include "renderer/params.h"
 #include <iostream>
 #include <glm/glm.hpp>
 #include <scene/scene.h>
 #include <scene/camera.h>
-#include "utils/settings.h"
 #include "animation/spline.h"
 
 
-std::shared_ptr<Scene> Control::_scene;
 float Control::_zoomAcceleration = 10.0f;
 float Control::_mouseAcceleration = 0.1f;
 glm::vec2 Control::_lastPosition = glm::vec2(0, 0);
 bool Control::_hasPosition = false;
-std::shared_ptr<GameEngine> Control::_gameEngine;
-Spline Control::spline;
+GameEngine * Control::_gameEngine;
 
 void Control::windowResized(GLFWwindow* window, int width, int height)
 {	
-	glViewport(0, 0, width, height);
-	RenderingParams::setWindowSize(width, height);
+	Control::_gameEngine->resizeWindow(width, height);
 }
 
-void Control::step(float deltaT)
-{
-	_scene->_cameras[0].setAll(Control::spline.evaluate(deltaT), glm::vec3(370,120,370));
-
-}
 void Control::keyCallBack(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
 
-	if(!_scene)
-	{
-		return;
-	}
 	glm::vec3 rotation, translation;
 	if(key == GLFW_KEY_A)
 		translation += glm::vec3(-10, 0, 0);
@@ -52,23 +38,13 @@ void Control::keyCallBack(GLFWwindow* window, int key, int scancode, int action,
 		rotation -= glm::vec3(1, 0, 0);
 	else if(key == GLFW_KEY_K)
 		rotation += glm::vec3(1, 0, 0);
-	else if(key == GLFW_KEY_N)
-		_scene->_cameras[0].setAll(spline.evaluate(0.2f), glm::vec3(370,120,370));
 	else if(key == GLFW_KEY_P && action == GLFW_PRESS)
-		RenderingParams::paused = !RenderingParams::paused;
+		Control::_gameEngine->pause();
 
-	_scene->moveCamera(translation, rotation);	
+	_gameEngine->moveCamera(translation, rotation);	
 }
 
-void Control::setScene(std::shared_ptr<Scene> scene)
-{
-	_scene = scene;
-	spline.generateSpline(glm::vec3(370, 500, 370), 500);
-	_scene->_cameras[0].setAll(spline.evaluate(0.2f), glm::vec3(370,120,370));
-
-}
-
-void Control::setGameEngine(std::shared_ptr<GameEngine> engine)
+void Control::setGameEngine(GameEngine * engine)
 {
 	_gameEngine = engine;
 }
@@ -85,7 +61,7 @@ void Control::mousePosCallback(GLFWwindow * window, double x, double y)
 	{
 		glm::vec2 deltaPos = glm::vec2(x, y) - _lastPosition;
 		glm::vec3 rotation = glm::vec3(-deltaPos[1], deltaPos[0], 0)*_mouseAcceleration;
-		_scene->moveCamera(glm::vec3(0, 0, 0), rotation);
+		_gameEngine->moveCamera(glm::vec3(0, 0, 0), rotation);
 		_gameEngine->updateRenderer();
 	}
 	else
@@ -98,7 +74,7 @@ void Control::mousePosCallback(GLFWwindow * window, double x, double y)
 void Control::mouseScrollCallback(GLFWwindow * window, double x, double y)
 {
 	glm::vec3 translation = glm::vec3(0, 0, -y)*_zoomAcceleration;
-	_scene->moveCamera(translation, glm::vec3(0,0,0));
+	_gameEngine->moveCamera(translation, glm::vec3(0,0,0));
 }
 
 void Control::mouseClickCallback(GLFWwindow * window, int button, int action, int mods)

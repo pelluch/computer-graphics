@@ -9,7 +9,6 @@
 #include "scene/light.h"
 #include "model/model.h"
 #include "model/material.h"
-#include "renderer/renderer.h"
 
 class Scene {
 	private:
@@ -41,8 +40,8 @@ class Scene {
 		void generateLineIds();
 		void bindUniforms();
 		void initModelData();
-		void draw(GLuint shaderProgramId, Renderer & renderer);
-		void drawBoundingBoxes(GLuint shaderProgramId, Renderer & renderer);
+		void draw(GLuint shaderProgramId, float aspectRatio);
+		void drawBoundingBoxes(GLuint shaderProgramId, float aspectRatio);
 		void setMaterials();
 		void moveCamera(glm::vec3 translation, glm::vec3 rotation);
 };

@@ -49,6 +49,7 @@ std::string GameObject::getName()
 {
 	return _model->_modelName;
 }
+
 GameObject::~GameObject()
 {
 	std::cout << "Deleting game object" << std::endl;

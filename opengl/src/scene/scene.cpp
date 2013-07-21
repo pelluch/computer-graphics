@@ -123,28 +123,39 @@ void Scene::initModelData()
 	}
 }
 
-void Scene::draw(GLuint shaderProgramId, Renderer & renderer)
+void Scene::draw(GLuint shaderProgramId, float aspectRatio)
 {
 	glUseProgram(shaderProgramId);
+	bindUniforms();
+
+	GLuint viewMatrixId = glGetUniformLocation(shaderProgramId, "V");
+	GLuint projectionMatrixId = glGetUniformLocation(shaderProgramId, "P");
+
+	glm::mat4 V = _cameras[0].viewTransform();
+	glm::mat4 P = _cameras[0].perspectiveTransform(aspectRatio);
+
+	glUniformMatrix4fv(viewMatrixId, 1, GL_FALSE, &V[0][0]);
+	glUniformMatrix4fv(projectionMatrixId, 1, GL_FALSE, &P[0][0]);
+
 	for(size_t i = 0; i < _models.size(); ++i)
 	{
-		_models[i].draw(shaderProgramId, renderer);
+		_models[i].draw(shaderProgramId, V, P);
 	}
-
 }
 
-void Scene::drawBoundingBoxes(GLuint shaderProgramId, Renderer & renderer)
+void Scene::drawBoundingBoxes(GLuint shaderProgramId, float aspectRatio)
 {
-
 	glUseProgram(shaderProgramId);
+	
+	glm::mat4 V = _cameras[0].viewTransform();
+	glm::mat4 P = _cameras[0].perspectiveTransform(aspectRatio);
 
 	if(_rayExists)
 	{
-
-		//std::cout << "Drawing ray" << std::endl;
-		renderer.setModelMatrix(glm::mat4(1.0f));
-		renderer.setBoxUniforms();
-
+	    glm::mat4 M = glm::mat4(1.0);
+	    GLuint MVPMatrixId = glGetUniformLocation(shaderProgramId, "MVP");
+	    glm::mat4 MVP = P*V*M;
+	    glUniformMatrix4fv(MVPMatrixId, 1, GL_FALSE, &MVP[0][0]);
 		glEnableVertexAttribArray(6);
 		glEnableVertexAttribArray(7);
 
@@ -165,6 +176,6 @@ void Scene::drawBoundingBoxes(GLuint shaderProgramId, Renderer & renderer)
 	for(size_t i = 0; i < _models.size(); ++i)
 	{
 
-		_models[i].drawBoundingBox(shaderProgramId, renderer);
+		_models[i].drawBoundingBox(shaderProgramId, V, P);
 	}
 }

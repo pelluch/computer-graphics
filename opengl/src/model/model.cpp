@@ -5,7 +5,6 @@
 #include <iostream>
 #include "utils/debugutils.h"
 #include "utils/vboindexer.h"
-#include "renderer/renderer.h"
 
 
 Model::Model()
@@ -84,13 +83,13 @@ void Model::generateUniforms(GLuint shaderProgramId)
 	this->_transposedInvModelId = glGetUniformLocation(shaderProgramId, "invModelMatrix");
 }
 
-void Model::drawBoundingBox(GLuint shaderProgramId, Renderer & renderer)
+void Model::drawBoundingBox(GLuint shaderProgramId, const glm::mat4 & V, const glm::mat4 & P)
 {
 	//glUseProgram(shaderProgramId);
 	//generateUniforms(shaderProgramId);
 	//std::cout << "Drawing bounding box" << std::endl;
 
-	glm::mat4 modelMatrix = glm::translate(glm::mat4(1.0f), this->_worldPosition) *
+	glm::mat4 M = glm::translate(glm::mat4(1.0f), this->_worldPosition) *
 	glm::rotate(glm::mat4(1.0f), _worldRotation[0], glm::vec3(1.0f, 0.0f, 0.0f)) *
 	glm::rotate(glm::mat4(1.0f), _worldRotation[1], glm::vec3(0.0f, 1.0f, 0.0f)) *
 	glm::rotate(glm::mat4(1.0f), _worldRotation[2], glm::vec3(0.0f, 0.0f, 1.0f)) *	
@@ -101,9 +100,11 @@ void Model::drawBoundingBox(GLuint shaderProgramId, Renderer & renderer)
 	//Debugger::printInfo(modelMatrix);
 	//glUniform3fv(_mat._diffuseColorId, 1, &_mat._diffuseColor[0]);
 	//glUniform4fv(_mat._specularColorId, 1, &_mat._specularColor[0]);
-	renderer.setModelMatrix(modelMatrix);
-	renderer.setBoxUniforms();
+	
+	GLuint modelViewProjectionMatrixId = glGetUniformLocation(shaderProgramId, "MVP");
+	glm::mat4 MVP = P * V * M;
 
+	glUniformMatrix4fv(modelViewProjectionMatrixId, 1, GL_FALSE, &MVP[0][0]);
 
 	glEnableVertexAttribArray(6);
 	glEnableVertexAttribArray(7);
@@ -122,7 +123,7 @@ void Model::drawBoundingBox(GLuint shaderProgramId, Renderer & renderer)
 	glDisableVertexAttribArray(7);
 }
 
-void Model::draw(GLuint shaderProgramId, Renderer & renderer)
+void Model::draw(GLuint shaderProgramId, const glm::mat4 & V, const glm::mat4 & P)
 {
 
 	//glUseProgram(shaderProgramId);
@@ -153,7 +154,7 @@ void Model::draw(GLuint shaderProgramId, Renderer & renderer)
 	glBindBuffer(GL_ARRAY_BUFFER, _bufferIds[4]);
 	glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
 
-	glm::mat4 modelMatrix = glm::translate(glm::mat4(1.0f), this->_worldPosition) *
+	glm::mat4 M = glm::translate(glm::mat4(1.0f), this->_worldPosition) *
 	glm::rotate(glm::mat4(1.0f), _worldRotation[0], glm::vec3(1.0f, 0.0f, 0.0f)) *
 	glm::rotate(glm::mat4(1.0f), _worldRotation[1], glm::vec3(0.0f, 1.0f, 0.0f)) *
 	glm::rotate(glm::mat4(1.0f), _worldRotation[2], glm::vec3(0.0f, 0.0f, 1.0f)) *	
@@ -161,11 +162,23 @@ void Model::draw(GLuint shaderProgramId, Renderer & renderer)
 
 	//glm::mat4 invModelMatrix = glm::transpose(glm::inverse(modelMatrix));
 
+	GLuint modelMatrixId = glGetUniformLocation(shaderProgramId, "M");
+	GLuint modelViewProjectionMatrixId = glGetUniformLocation(shaderProgramId, "MVP");
+	GLuint modelViewMatrixId = glGetUniformLocation(shaderProgramId, "MV3x3");
+
+	glm::mat4 MV  = V*M;
+	glm::mat3 MV3x3 = glm::mat3(MV);
+	glm::mat4 MVP = P * MV;
+
+	glUniformMatrix4fv(modelViewProjectionMatrixId, 1, GL_FALSE, &MVP[0][0]);
+	glUniformMatrix4fv(modelMatrixId, 1, GL_FALSE, &M[0][0]);
+	glUniformMatrix4fv(modelViewMatrixId, 1, GL_FALSE, &MV3x3[0][0]);
+
 	//Debugger::printInfo(modelMatrix);
 	glUniform3fv(_mat._diffuseColorId, 1, &_mat._diffuseColor[0]);
 	glUniform4fv(_mat._specularColorId, 1, &_mat._specularColor[0]);
-	renderer.setModelMatrix(modelMatrix);
-	renderer.setUniforms();
+	//renderer.setModelMatrix(modelMatrix);
+	//renderer.setUniforms();
 	//Debugger::printInfo(_mat._specularColor);
 	//glUniformMatrix4fv(_modelMatrixId, 1, GL_FALSE, &modelMatrix[0][0]);
 	//glUniformMatrix4fv(_transposedInvModelId, 1, GL_FALSE, &invModelMatrix[0][0]);

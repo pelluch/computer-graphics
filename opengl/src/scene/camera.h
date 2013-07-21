@@ -29,6 +29,7 @@ private:
 	glm::vec3 _u;
 	glm::vec3 _v;
 	GLuint _id;
+
 };
 
 #endif

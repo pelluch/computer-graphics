@@ -6,7 +6,6 @@
 #include <vector>
 #include "model/model.h"
 #include "model/material.h"
-#include "renderer/renderer.h"
 
 class Model
 {
@@ -14,8 +13,8 @@ class Model
 		Model();
 		~Model();
 		void initData();
-		void draw(GLuint shaderProgramId, Renderer & renderer);
-		void drawBoundingBox(GLuint shaderProgramId, Renderer & renderer);
+		void draw(GLuint shaderProgramId, const glm::mat4 & V, const glm::mat4 & P);
+		void drawBoundingBox(GLuint shaderProgramId, const glm::mat4 & V, const glm::mat4 & P);
 		void generateUniforms(GLuint shaderProgramId);
 		glm::vec3 _worldPosition;
 		glm::vec3 _worldRotation;
