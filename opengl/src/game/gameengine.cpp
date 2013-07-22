@@ -12,7 +12,7 @@ void GameEngine::setObjects(std::vector<Model> & models)
 		std::cout << "Creating new object" << std::endl;
 		GameObject * newObject = new GameObject(&models[i]);
 		std::cout << "Setting rigid body" << std::endl;
-		btRigidBody * rigidBody = newObject->initializeRigidBody();
+		btRigidBody * rigidBody = newObject->initializeRigidBody(SHAPE_TRIANGLE_MESH);
 		_physicsEngine->addRigidBody(rigidBody);
 		std::cout << "Pushing back" << std::endl;
 		_gameObjects.push_back(newObject);
@@ -53,6 +53,7 @@ void GameEngine::start()
 
 }
 
+//Game logic. Nothing yet, obviously...
 void GameEngine::update()
 {
 

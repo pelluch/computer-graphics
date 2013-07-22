@@ -14,7 +14,7 @@ class GameObject
 public:
 	GameObject(Model * model);
 	~GameObject();
-	btRigidBody * initializeRigidBody();
+	btRigidBody * initializeRigidBody(BODY_SHAPE shape = SHAPE_CUBE);
 	void setPosition(glm::vec3 position);
 	void setRotation(glm::vec3 rotation);
 	void setScale(glm::vec3 rotation);
@@ -26,11 +26,15 @@ private:
 	int _objectIdentifier;
 	static int _objectCounter;
 	btDefaultMotionState * _motionstate;
+	btTriangleMesh * _triangleMesh;
+	btBvhTriangleMeshShape * _triangleShape;
 	btCollisionShape * _boxCollisionShape;
 	btRigidBody * _rigidBody;
+	BODY_SHAPE _bodyShape;
 	glm::vec3 _position;
 	glm::quat _orientation;
 	glm::vec3 _scale;
+	btVector3 glmVecToBullet(const glm::vec3 & glmVec);
 };
 
 #endif

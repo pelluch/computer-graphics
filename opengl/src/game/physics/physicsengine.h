@@ -4,6 +4,8 @@
 #include <bullet/btBulletDynamicsCommon.h>
 #include <glm/glm.hpp>
 
+enum BODY_SHAPE { SHAPE_CUBE, SHAPE_TRIANGLE_MESH };
+
 class PhysicsEngine
 {
 

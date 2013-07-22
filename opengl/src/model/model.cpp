@@ -1,6 +1,6 @@
 #include <GL/glew.h>
 #include "model/model.h"
-#include <glm/glm.hpp>
+
 #include <glm/gtc/matrix_transform.hpp>
 #include <iostream>
 #include "utils/debugutils.h"
@@ -41,6 +41,17 @@ Model::Model()
 
 }
 
+std::vector<glm::vec3> Model::getWorldVertices()
+{
+	std::vector<glm::vec3> worldVertices;
+	glm::mat4 M = getModelMatrix();
+	for(size_t i = 0; i < _vertices.size(); ++i)
+	{
+		glm::vec4 currentVertex(_vertices[i], 1);
+		worldVertices.push_back((M*currentVertex).xyz);
+	}
+	return worldVertices;
+}
 
 void Model::initData()
 {
@@ -89,11 +100,7 @@ void Model::drawBoundingBox(GLuint shaderProgramId, const glm::mat4 & V, const g
 	//generateUniforms(shaderProgramId);
 	//std::cout << "Drawing bounding box" << std::endl;
 
-	glm::mat4 M = glm::translate(glm::mat4(1.0f), this->_worldPosition) *
-	glm::rotate(glm::mat4(1.0f), _worldRotation[0], glm::vec3(1.0f, 0.0f, 0.0f)) *
-	glm::rotate(glm::mat4(1.0f), _worldRotation[1], glm::vec3(0.0f, 1.0f, 0.0f)) *
-	glm::rotate(glm::mat4(1.0f), _worldRotation[2], glm::vec3(0.0f, 0.0f, 1.0f)) *	
-	glm::scale(glm::mat4(1.0f), _scale);
+	glm::mat4 M = getModelMatrix();
 
 	//glm::mat4 invModelMatrix = glm::transpose(glm::inverse(modelMatrix));
 
@@ -154,11 +161,7 @@ void Model::draw(GLuint shaderProgramId, const glm::mat4 & V, const glm::mat4 & 
 	glBindBuffer(GL_ARRAY_BUFFER, _bufferIds[4]);
 	glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
 
-	glm::mat4 M = glm::translate(glm::mat4(1.0f), this->_worldPosition) *
-	glm::rotate(glm::mat4(1.0f), _worldRotation[0], glm::vec3(1.0f, 0.0f, 0.0f)) *
-	glm::rotate(glm::mat4(1.0f), _worldRotation[1], glm::vec3(0.0f, 1.0f, 0.0f)) *
-	glm::rotate(glm::mat4(1.0f), _worldRotation[2], glm::vec3(0.0f, 0.0f, 1.0f)) *	
-	glm::scale(glm::mat4(1.0f), _scale);
+	glm::mat4 M = getModelMatrix();
 
 	//glm::mat4 invModelMatrix = glm::transpose(glm::inverse(modelMatrix));
 
@@ -203,6 +206,17 @@ Model::~Model()
 	glDeleteBuffers(_numBuffers, _bufferIds.data());
 }
 
+glm::mat4 Model::getModelMatrix()
+{
+	glm::mat4 M = glm::translate(glm::mat4(1.0f), this->_worldPosition) *
+	glm::rotate(glm::mat4(1.0f), _worldRotation[0], glm::vec3(1.0f, 0.0f, 0.0f)) *
+	glm::rotate(glm::mat4(1.0f), _worldRotation[1], glm::vec3(0.0f, 1.0f, 0.0f)) *
+	glm::rotate(glm::mat4(1.0f), _worldRotation[2], glm::vec3(0.0f, 0.0f, 1.0f)) *	
+	glm::scale(glm::mat4(1.0f), _scale);
+
+	return M;
+
+}
 void Model::computeTangentBasis()
 {
 	for ( size_t i=0; i<_vertices.size(); i+=3){

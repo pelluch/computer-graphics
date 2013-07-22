@@ -23,7 +23,7 @@ private:
 	int _numUpdates;
 
 public:
-	GameEngine(int width = 400, int height = 400);
+	GameEngine(int width = 800, int height = 600);
 	~GameEngine();
 	void draw();
 	void setObjects(std::vector<Model> & models);

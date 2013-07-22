@@ -2,6 +2,7 @@ cmake_minimum_required (VERSION 2.6)
 project (opengl_game)
 
 
+
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_SOURCE_DIR}/cmake )
 if(UNIX)
     SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -std=gnu++0x")
@@ -48,4 +49,9 @@ execute_process(COMMAND ${CMAKE_COMMAND} -E create_symlink
 execute_process(COMMAND ${CMAKE_COMMAND} -E create_symlink 
 	${CMAKE_SOURCE_DIR}/shaders ${CMAKE_BINARY_DIR}/shaders)
 #add_subdirectory(tests)
-
+IF(NOT "${CMAKE_BUILD_TYPE}" STREQUAL "Debug")
+message("not")
+	add_custom_target(
+	make_debug ALL
+    COMMAND make -C ${CMAKE_SOURCE_DIR}/debug)
+endif()

@@ -2,6 +2,7 @@
 #define MODEL_H_
 
 #include <GL/glew.h>
+#define GLM_SWIZZLE
 #include <glm/glm.hpp>
 #include <vector>
 #include "model/model.h"
@@ -28,6 +29,8 @@ class Model
 		std::vector<glm::vec2> _uvs;
 		std::vector<glm::vec3> _tangents;
 		std::vector<glm::vec3> _bitangents;		
+		glm::mat4 getModelMatrix();
+		std::vector<glm::vec3> getWorldVertices();
 		//std::vector<glm::vec3> _specularColors;
 		//std::vector<float> _shininess;
 	private:
