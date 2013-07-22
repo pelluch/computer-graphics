@@ -6,7 +6,6 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_SOURCE_DIR}/cmake )
 if(UNIX)
     SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -std=gnu++0x")
     include_directories(/usr/include/bullet)
-    include_directories(${CMAKE_SOURCE_DIR}/external/gli-0.4.1.0)
    	SET(LINK_FLAGS /usr/lib/nvidia/libGL.so -ltinyxml2 -lGLEW -lglfw
     -lBulletDynamics -lBulletCollision -lLinearMath -lBulletSoftBody)  
 else(UNIX)
